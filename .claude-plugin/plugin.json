@@ -1,0 +1,23 @@
+{
+  "name": "pulse",
+  "description": "AI-Native Project Loop — AI의 강점을 살린 프로젝트 방법론. 빠른 반복, 점진적 발견, 자동 학습으로 프로젝트를 처음부터 끝까지 진행하는 메타 스킬. Pulse 루프(ASK→EXPLORE→BUILD→VERIFY→LEARN)로 매 사이클마다 작동하는 결과물을 만들고, 소크라테스 인터뷰, 3-Tier QA, 실패 면역, 사용자 프로파일링을 통합한 AI-Native 개발 시스템.",
+  "version": "0.1.0",
+  "author": {
+    "name": "joyuno",
+    "url": "https://github.com/joyuno"
+  },
+  "homepage": "https://github.com/joyuno/pulse",
+  "repository": "https://github.com/joyuno/pulse",
+  "license": "MIT",
+  "keywords": [
+    "pulse",
+    "ai-native",
+    "project-loop",
+    "socratic-interview",
+    "live-qa",
+    "playwright",
+    "immunity",
+    "user-dna",
+    "contracts"
+  ]
+}
