@@ -24,12 +24,71 @@ Tier 3 (Live Browser QA)
 
 | Tier | 이름 | 비용 | 발견 가능한 버그 유형 |
 |------|------|------|----------------------|
+| 0 | 계약 커버리지 스캔 | 최소 (Grep) | 계약서 없는 공유 타입 탐지 — BUILD 전 누락된 계약 발견 |
 | 1 | 정적 경계면 분석 | 매우 낮음 (Grep/AST) | API shape 불일치, 깨진 링크, 상태전이 누락, DB↔API↔UI 타입 체인 단절 |
 | 2 | 빌드/타입 검증 | 낮음 (tsc, eslint, build) | 타입 에러, 린트 위반, 번들 실패, any 우회로 숨겨진 타입 버그 |
 | 3 | Live Browser QA | 높음 (Playwright) | 렌더링 버그, 비동기 타이밍, UX 막힘, 보안 취약점, 접근성 문제 |
 
 앞 Tier에서 실패가 발견되면 **해당 이슈를 수정한 뒤 다음 Tier로 진행**한다.
-Tier 1, 2 통과 없이 Tier 3을 실행하는 것은 비효율이다.
+Tier 0, 1, 2 통과 없이 Tier 3을 실행하는 것은 비효율이다.
+
+---
+
+## Tier 0: 계약 커버리지 스캔
+
+> BUILD 시작 전에 실행한다. VERIFY 단계에서도 계약서 누락 여부를 재확인한다.
+
+### 목적
+
+계약서가 없는 공유 타입을 탐지한다. Tier 1은 계약서가 존재해야 검증할 수 있으므로, Tier 0은 Tier 1의 전제 조건이다.
+
+### 실행 방법
+
+**1단계: 이번 Pulse 대상 파일 목록 확보**
+```
+_workspace/pulse-N/artifacts.md 또는 이번 Pulse에서 생성·수정한 파일 목록 읽기
+```
+
+**2단계: 크로스파일 참조 탐지**
+
+이번 Pulse 파일들에서 다른 파일의 타입을 참조하는 패턴을 검색한다.
+
+웹/TypeScript:
+```bash
+# 파일 A에서 import되는 타입이 _workspace/contracts/에 계약서로 존재하는지 확인
+grep -r "import.*from" [대상 파일들] | grep -v node_modules
+```
+
+Flutter/Dart:
+```bash
+# 다른 .dart 파일에서 import되는 클래스가 계약서로 존재하는지 확인
+grep -r "import.*\.dart" [대상 파일들]
+grep -r "class [A-Z][a-zA-Z]*Data\|class [A-Z][a-zA-Z]*Model\|class [A-Z][a-zA-Z]*Config" [대상 파일들]
+```
+
+**3단계: 계약서 커버리지 확인**
+```
+_workspace/contracts/README.md에 해당 타입의 계약서가 등록되어 있는가?
+→ 있으면: Tier 1으로 진행
+→ 없으면: 계약서 누락 경고 발행 후 BUILD-CONTRACT 단계로 되돌아감
+```
+
+### 계약서 누락 경고 형식
+
+```
+⚠️  계약 커버리지 경고
+
+누락된 계약서:
+- PersonalityTraitData (profile_setup_screen.dart → personality_toggle.dart)
+- [타입명] ([정의 파일] → [사용 파일])
+
+조치: BUILD-CONTRACT 단계로 돌아가 계약서를 먼저 작성하십시오.
+에이전트 재스폰은 계약서 확정 후에만 허용됩니다.
+```
+
+### Tier 0 통과 조건
+
+이번 Pulse에서 생성·수정한 파일 간 공유 타입 전부에 대해 `_workspace/contracts/`에 계약서가 존재할 때.
 
 ---
 
@@ -220,13 +279,15 @@ browser_navigate (URL 접속)
 ## 실행 체크리스트
 
 ```
+[ ] Tier 0: 크로스파일 공유 타입 탐지 완료
+[ ] Tier 0: 모든 공유 타입에 계약서 존재 확인 (누락 시 BUILD-CONTRACT로 복귀)
 [ ] Tier 1: API shape 비교 완료
 [ ] Tier 1: 경로/링크 전수 확인 완료
 [ ] Tier 1: 상태 전이 검증 완료
 [ ] Tier 1: DB↔API↔UI 체인 확인 완료
-[ ] Tier 2: tsc --noEmit 통과
-[ ] Tier 2: eslint 통과
-[ ] Tier 2: npm run build 통과
+[ ] Tier 2: tsc --noEmit 통과 (TypeScript 프로젝트)
+[ ] Tier 2: dart analyze 통과 (Flutter 프로젝트)
+[ ] Tier 2: 빌드 통과
 [ ] Tier 3: 개발 서버 정상 기동
 [ ] Tier 3: 유저 저니 시나리오 실행 완료
 [ ] Tier 3: 스크린샷 증거 수집 완료

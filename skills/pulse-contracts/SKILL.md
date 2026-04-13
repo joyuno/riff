@@ -167,24 +167,65 @@ BUILD 단계 완료 후 에이전트는 다음을 수행한다:
 
 ---
 
+## pre-BUILD 공유 타입 스캔 프로토콜
+
+BUILD 단계가 시작되기 전에 오케스트레이터는 아래 스캔을 실행한다.
+스캔 결과로 공유 타입이 발견되면 계약서를 먼저 작성한다.
+
+### 스캔 방법
+
+**기존 코드베이스가 있을 때:**
+```
+1. 이번 Pulse에서 수정·생성할 파일 목록을 확정한다.
+2. 각 파일의 import 문과 생성자 파라미터를 읽는다.
+3. "다른 파일에서 정의되고 이 파일에서 소비되는 타입"을 추출한다.
+4. 해당 타입마다 계약서 1개를 작성한다.
+```
+
+**신규 파일을 여러 개 만들 때:**
+```
+1. 파일별 역할을 먼저 정의한다 (화면 A, 위젯 B, 서비스 C...).
+2. 역할 간 데이터 흐름을 화살표로 정리한다 (A → B: 어떤 데이터?).
+3. 화살표를 건너는 데이터 구조마다 계약서 1개를 작성한다.
+```
+
+---
+
 ## 자동 감지 가이드라인
 
 코드를 보고 어떤 계약서가 필요한지 추론하는 규칙:
 
 ### Type Contract이 필요한 신호
+
+**웹/Node.js:**
 - `fetch()`, `axios`, `prisma`, `mongoose` 사용
 - `interface`, `type`, `schema` 정의
 - REST 엔드포인트 (`router.get`, `app.post`, `@Get`, `@Post`)
+
+**Flutter/Dart:**
+- `class ${PascalCase}` 패턴이면서 다른 `.dart` 파일에서 import됨
+- 생성자에 `required this.`, `required` 파라미터가 있는 데이터 클래스
+- `fromJson`, `toJson`, `copyWith` 메서드가 있는 모델 클래스
+- `List<${PascalCase}>`, `Map<String, ${PascalCase}>` 타입 사용
 
 ### Behavior Contract이 필요한 신호
 - 상태 변수 (`status`, `state`, `phase`, `step`)
 - 조건부 전이 (`if status === 'pending' then ...`)
 - 다단계 폼, 위저드, 온보딩 플로우
+- **Flutter:** `StatefulWidget` + `setState`, `Provider`, `Riverpod`, `Bloc` 상태 전이
 
 ### Visual Contract이 필요한 신호
+
+**웹/React:**
 - UI 컴포넌트 (`Button`, `Modal`, `Card`, `Form`)
 - CSS 변수, 디자인 토큰
 - `disabled`, `loading`, `error`, `success` 상태
+
+**Flutter/Dart:**
+- `Widget`을 반환하는 커스텀 클래스 (특히 `StatelessWidget`, `StatefulWidget`)
+- 생성자에 외부에서 전달받는 데이터 파라미터가 있을 때
+- `final` 필드가 2개 이상인 데이터 표시용 위젯
+- 예: `class PersonalityToggle extends StatelessWidget { final PersonalityTraitData data; }`
 
 ### Performance Contract이 필요한 신호
 - 복잡한 DB 쿼리 (JOIN, 집계)
