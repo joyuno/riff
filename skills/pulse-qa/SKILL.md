@@ -73,60 +73,17 @@ _workspace/contracts/README.md에 해당 타입의 계약서가 등록되어 있
 → 없으면: 계약서 누락 경고 발행 후 BUILD-CONTRACT 단계로 되돌아감
 ```
 
-**2단계 추가: 하드코딩 상수 불일치 탐지 (스택별)**
+**2단계 추가: 하드코딩 상수 불일치 탐지**
 
-Constants Contract가 있으면, 계약서에 정의된 값이 구현 코드에서 다른 값으로 하드코딩되어 있는지 스택에 맞는 방법으로 확인한다.
+Constants Contract가 있으면, 계약서에 정의된 값이 구현 코드에서 다른 값으로 하드코딩되어 있는지 확인한다. 불일치 발견 시 코드를 계약서 기준으로 수정한다.
 
-스택마다 validation이 표현되는 방식이 다르므로, 탐지 명령도 스택에 따라 달라진다:
+스택별 탐지 명령은 `references/stack-patterns.md` 참조.
 
-```bash
-# Python/FastAPI + Pydantic: Field 파라미터 확인
-grep -rn "min_length\|max_length\|ge=\|le=" backend/ --include="*.py"
+**3단계 추가: 의존성 버전 및 설정 불일치 탐지**
 
-# Node.js + Zod: .min() .max() 확인
-grep -rn "\.min(\|\.max(" src/ --include="*.ts"
+Dependency Contract가 있으면, 계약서에 고정된 버전과 실제 잠금 파일을 비교한다.
 
-# Node.js + Joi: .min() .max() 확인
-grep -rn "\.min(\|\.max(" src/ --include="*.js" --include="*.ts"
-
-# React 프론트엔드: form validation 수치 확인
-grep -rn "minLength\|maxLength\|min:\|max:" src/ --include="*.tsx" --include="*.jsx"
-
-# Flutter: TextFormField validator 수치 확인
-grep -rn "length\|validator" lib/ --include="*.dart"
-
-# Go: binding 태그 확인
-grep -rn "binding:\"min=\|binding:\"max=" . --include="*.go"
-```
-
-불일치 발견 시 Constants Contract에 정의된 값을 기준으로 코드를 수정한다.
-(계약서를 코드에 맞추는 것이 아니라, 코드를 계약서에 맞춘다.)
-
-**3단계 추가: 의존성 버전 및 설정 불일치 탐지 (스택별)**
-
-Dependency Contract가 있으면, 스택별로 다른 방식으로 충돌을 사전 탐지한다:
-
-```bash
-# Python: 의존성 충돌 검사
-pip check 2>&1 | grep -i "incompatible\|conflict"
-
-# Python: docker-compose ↔ config 환경변수 키 불일치
-diff <(grep -oP 'POSTGRES_\w+' docker-compose.yml | sort -u) \
-     <(grep -oP 'POSTGRES_\w+' config.py | sort -u)
-
-# Python: ORM 컬럼명 ↔ init.sql 컬럼명 불일치
-grep -n "Column\|mapped_column" models.py
-grep -n "CREATE TABLE\|ADD COLUMN" init.sql
-
-# Node.js: peer dependency 충돌 확인
-npm ls 2>&1 | grep -i "WARN\|ERR"
-
-# Flutter: 버전 해결 가능 여부 사전 확인
-flutter pub deps 2>&1 | grep -i "conflict\|incompatible"
-
-# Go: 모듈 충돌 확인
-go mod verify 2>&1
-```
+스택별 사전 검증 명령은 `references/stack-patterns.md` 참조.
 
 ### 계약서 누락 경고 형식
 

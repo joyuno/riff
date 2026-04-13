@@ -156,31 +156,12 @@ ACCESS_TOKEN_EXPIRE_MINUTES: 30
 REFRESH_TOKEN_EXPIRE_DAYS: 7
 ```
 
-**스택별 감지 신호 및 불일치 에러 패턴**:
+**감지 신호**:
+- 숫자 리터럴이 2개 이상 파일에서 같은 의미로 반복될 때
+- `MAX_`, `MIN_`, `LIMIT_`, `EXPIRE_`, `TIMEOUT_` 패턴의 변수
+- 프론트엔드 validation과 백엔드 validator가 동시에 구현될 때
 
-불일치가 발생했을 때 나타나는 에러는 스택마다 다르다. 계약서를 작성할 때 해당 스택의 에러 패턴을 명시해두면 Tier 0/1에서 정확하게 탐지할 수 있다.
-
-| 스택 조합 | 감지 신호 | 불일치 시 에러 패턴 |
-|----------|-----------|-------------------|
-| **Python (FastAPI + Pydantic) ↔ React** | `Field(min_length=N)` 또는 `@validator` + `minLength: N` | 백엔드: HTTP 422 + `{"detail":[{"type":"string_too_short"}]}` / 프론트: 사용자가 제출 성공 후 서버 에러 |
-| **Python (FastAPI + Pydantic) ↔ Flutter** | `Field(min_length=N)` + `validator:` 함수 | 백엔드: 422 / Flutter: `http.Response.statusCode == 422` 후 파싱 실패 또는 무시 |
-| **Node (Express + Zod/Joi) ↔ React** | `z.string().min(N)` + `minLength: N` | 백엔드: HTTP 400 + Zod/Joi 에러 JSON / 프론트: 제출 후 400 에러 |
-| **Node (Express + Zod/Joi) ↔ Flutter** | `z.string().min(N)` + `validator:` 함수 | 백엔드: 400 / Flutter: Exception 또는 조용히 실패 |
-| **Flutter 내부 (위젯 ↔ 서비스)** | `TextFormField validator:` + `service.validate()` | Dart assertion error, `StateError`, 또는 런타임에 조용히 다른 결과 |
-| **Go ↔ React/Flutter** | `binding:"min=N"` + 프론트 validation | 백엔드: 400 + `{"error":"Key: 'Field' Error:..."}` |
-
-Constants Contract에는 불일치 감지를 위한 스택별 확인 명령을 포함한다:
-```
-## 스택별 불일치 확인
-# Python 백엔드: 422 응답에서 validation 필드 확인
-# grep -n "min_length\|max_length" backend/schemas.py
-
-# Flutter 프론트: validator 함수에서 동일한 수치 확인
-# grep -n "length\|validator" lib/screens/*.dart
-
-# React 프론트: form validation에서 동일 수치 확인
-# grep -n "minLength\|maxLength\|min\|max" src/components/forms/*.tsx
-```
+스택별 에러 패턴과 탐지 명령은 `references/stack-patterns.md` 참조.
 
 **템플릿**: `references/constants.template.md`
 
@@ -231,37 +212,13 @@ DB_USER: ${POSTGRES_USER}
 DB_PASSWORD: ${POSTGRES_PASSWORD}
 ```
 
-**스택별 충돌 에러 패턴**:
+**감지 신호**:
+- `requirements.txt`, `package.json`, `pubspec.yaml`, `go.mod` 중 2개 이상이 동시 수정될 때
+- 암호화 관련 라이브러리 (`bcrypt`, `passlib`, `cryptography`, `jwt`)
+- `docker-compose.yml`과 `config.py`(또는 `.env`)가 동시에 등장할 때
+- ORM + DB 드라이버 조합
 
-버전 충돌이 발생했을 때 나타나는 에러는 스택마다 다르다. Dependency Contract에 아래 패턴을 참조로 포함시키면 Tier 0에서 충돌을 빌드 전에 잡을 수 있다.
-
-| 스택 | 충돌 유형 | 에러 패턴 |
-|------|-----------|-----------|
-| **Python** | 라이브러리 간 버전 비호환 | `ImportError`, `AttributeError: module 'bcrypt' has no attribute '...'`, pip ResolutionImpossible |
-| **Python** | config↔docker 불일치 | `sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) FATAL: password authentication failed` |
-| **Python** | ORM↔SQL 스키마 불일치 | `sqlalchemy.exc.ProgrammingError: column "X" does not exist`, `sqlalchemy.exc.DataError` |
-| **Node.js** | 패키지 버전 충돌 | npm `ERESOLVE`, `peer dep conflict`, `Cannot find module` |
-| **Node.js** | Prisma↔DB 스키마 불일치 | `PrismaClientKnownRequestError: Unknown field 'X'`, `P2002 Unique constraint failed` |
-| **Flutter/Dart** | pub 버전 충돌 | `Because X depends on Y >=A and Z depends on Y <B, version solving failed` |
-| **Flutter/Dart** | 패키지 API 변경 | `The method 'X' isn't defined`, `Too many positional arguments` (Dart 컴파일 에러) |
-| **Go** | 모듈 버전 불일치 | `go: finding module for package X`, `ambiguous import` |
-
-Dependency Contract에는 스택별 사전 검증 명령을 포함한다:
-```
-## 스택별 사전 검증
-# Python: 의존성 충돌 사전 확인
-# pip check
-
-# Node.js: peer dependency 충돌 확인
-# npm ls 2>&1 | grep WARN
-
-# Flutter: 버전 해결 가능 여부 확인
-# flutter pub deps
-
-# Docker: 환경변수 키 일치 확인
-# diff <(grep -o 'POSTGRES_[A-Z]*' docker-compose.yml | sort -u) \
-#      <(grep -o 'POSTGRES_[A-Z]*' config.py | sort -u)
-```
+스택별 충돌 에러 패턴과 사전 검증 명령은 `references/stack-patterns.md` 참조.
 
 **템플릿**: `references/dependency.template.md`
 
