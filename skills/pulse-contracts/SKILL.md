@@ -1,6 +1,6 @@
 ---
 name: pulse-contracts
-description: "인터페이스 계약 시스템. 에이전트 간 경계면에서 전체 코드가 아닌 최소 계약서만 교환하여 컨텍스트를 절약. 7종 계약서(type/behavior/visual/performance/security/constants/dependency) 생성 및 검증. Pulse의 BUILD 단계에서 호출. '계약', 'contract', '인터페이스', '경계면', 'API 정의' 시 사용."
+description: "인터페이스 계약 시스템. 에이전트 간 경계면에서 전체 코드가 아닌 최소 계약서만 교환하여 컨텍스트를 절약. 8종 계약서(type/behavior/visual/performance/security/constants/dependency/architecture) 생성 및 검증. Pulse의 BUILD 단계에서 호출. '계약', 'contract', '인터페이스', '경계면', 'API 정의' 시 사용."
 ---
 
 # pulse-contracts: 인터페이스 계약 시스템
@@ -222,6 +222,57 @@ DB_PASSWORD: ${POSTGRES_PASSWORD}
 
 **템플릿**: `references/dependency.template.md`
 
+### 8. Architecture Contract (아키텍처 계약)
+
+**용도**: 병렬 에이전트 간 API 명세·모듈 소유권·파일 소유권을 사전 확정하여 구현 방식 충돌 방지
+
+**언제 생성**:
+- 병렬로 2개 이상의 에이전트가 동시에 스폰될 때 (항상)
+- 프론트엔드·백엔드·공통 모듈을 서로 다른 에이전트가 담당할 때
+- API 엔드포인트를 한쪽은 만들고 다른 쪽은 소비할 때
+
+**담는 내용**:
+- API 엔드포인트 목록 (URL, 메서드, 소유 에이전트)
+- 모듈·서비스 소유권 (에이전트별 담당 디렉토리/파일)
+- 기술 결정 (선택한 접근법, 금지된 대안)
+- 에이전트 간 협의된 인터페이스 요약
+
+**핵심 규칙**:
+- 계약서에 명시된 엔드포인트는 에이전트가 임의로 URL이나 메서드를 바꿀 수 없다.
+- 모듈 소유권 밖의 파일을 수정하려면 오케스트레이터에게 먼저 보고한다.
+- 기술 결정 사항은 계약서에 "확정"으로 표시된 이후 번복 불가.
+
+**예시**:
+```
+# architecture-contract.md
+
+## API 엔드포인트 소유권
+| 엔드포인트 | 메서드 | 소유 에이전트 | 상태 |
+|-----------|--------|-------------|------|
+| /api/auth/login | POST | backend-agent | 확정 |
+| /api/users/{id} | GET | backend-agent | 확정 |
+| /api/products | GET | backend-agent | 확정 |
+
+## 모듈 소유권
+| 디렉토리 | 소유 에이전트 | 다른 에이전트 접근 |
+|---------|-------------|-----------------|
+| src/frontend/ | frontend-agent | 읽기 가능, 쓰기 금지 |
+| src/backend/ | backend-agent | 읽기 가능, 쓰기 금지 |
+| src/shared/ | orchestrator 승인 필요 | 협의 후 수정 |
+
+## 기술 결정 (확정)
+- 인증: JWT, Bearer 토큰 방식 (세션 방식 금지)
+- API 응답: { data: ..., error: ... } 래핑 통일 (에러 시 null data)
+- 상태 관리: Zustand (Redux 금지)
+```
+
+**감지 신호**:
+- BUILD에서 `에이전트 2개 이상 병렬 스폰` 시 자동 트리거
+- 동일 API를 여러 에이전트가 각자 정의할 가능성이 있을 때
+- "프론트/백 분리", "기능별 분리" 같은 분업 구조
+
+**템플릿**: `references/architecture.template.md`
+
 ---
 
 ## 계약서와 QA Tier 매핑
@@ -237,6 +288,7 @@ DB_PASSWORD: ${POSTGRES_PASSWORD}
 | security | Tier 3 (파괴자) | 보안 계약 위반은 데이터 유출로 직결 |
 | constants | Tier 0 (커버리지 스캔) | 하드코딩 값이 계약서와 다르면 즉시 불일치 |
 | dependency | Tier 0 (커버리지 스캔) | 버전 핀이 잠금 파일과 다르면 즉시 충돌 가능성 |
+| architecture | Tier 0 (커버리지 스캔) + Tier 1 (정적 분석) | URL·소유권 불일치는 런타임 전에 탐지 가능 |
 
 ---
 
@@ -357,8 +409,9 @@ _workspace/
     ├── {계약명}-visual.md      ← Visual Contract
     ├── {계약명}-performance.md ← Performance Contract
     ├── {계약명}-security.md    ← Security Contract
-    ├── {계약명}-constants.md   ← Constants Contract
-    └── {계약명}-dependency.md  ← Dependency Contract
+    ├── {계약명}-constants.md    ← Constants Contract
+    ├── {계약명}-dependency.md  ← Dependency Contract
+    └── architecture.md         ← Architecture Contract (병렬 에이전트 소유권 맵)
 ```
 
 > **계약서는 Pulse 번호 무관하게 `_workspace/contracts/` 단일 경로에 저장한다.**
