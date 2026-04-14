@@ -215,4 +215,19 @@ Pulse의 LEARN 단계에서 pulse-immunity는 다음 순서로 실행된다:
 2. **구체성**: 체크리스트 항목은 "확인할 것"이 아닌 "무엇을 어떻게 확인"인지 명시.
 3. **최소 주입**: 관련성 없는 항체는 주입하지 않는다. 노이즈는 무시된다.
 4. **강화 우선**: 새 항체 생성 전 기존 항체와의 유사성을 먼저 확인.
-5. **팀 공유**: .pulse/antibodies/ 는 git에 커밋하여 팀 전체가 공유.
+5. **팀 공유**: `.pulse/antibodies/`는 git에 커밋하여 팀 전체가 공유.
+
+## .gitignore 규칙
+
+`.pulse/` 하위는 용도에 따라 git 처리가 다르다. 프로젝트 `.gitignore`에 다음을 추가한다:
+
+```
+# pulse-dna: 개인 프로파일 — 팀 공유 안 함
+.pulse/user-dna/
+
+# pulse 세션 상태 — 개인 세션 데이터
+.pulse/state.json
+
+# antibodies는 팀 공유 대상 — .gitignore에 포함하지 않음
+# .pulse/antibodies/ ← 이 줄을 추가하면 안 됨
+```
