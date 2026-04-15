@@ -143,3 +143,5 @@ confidence: [0-100%]
 "탐색 결과: _workspace/pulse-N/explore-{방향명}-result.md 참조.
  이 방향의 트레이드오프를 이미 수용한 상태로 구현하라."
 ```
+
+`pulse-status.md` 갱신: 현재 위치를 `BUILD > PLAN`으로 이동. explore-synthesis.md 경로를 기록.

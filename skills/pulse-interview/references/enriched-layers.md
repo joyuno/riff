@@ -240,6 +240,7 @@ P2 (나중에):
    - data_persistence 없음 → Q9, Q10 건너뜀
    - ai_none / ai_later → Q11 건너뜀
    - small_scale → Q10 인프라 질문 축소
+5. **도메인 특화 주입**: Layer 2 Q3 답변에서 도메인이 감지되면 (`references/domains/{domain}.md` 존재 시), 해당 파일의 관련 질문을 이후 Layer의 전문가 관점에 삽입한다. 예: 쇼핑몰 감지 → Layer 4 Q10에 [DB Designer 관점] "주문-재고 트랜잭션은 PostgreSQL의 SERIALIZABLE 격리가 필요합니다" 추가.
 
 ## 총 질문 수
 

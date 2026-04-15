@@ -59,6 +59,8 @@ _workspace/pulse-N/rewind-reason.md 생성:
 - `_workspace/contracts/`에서 Pulse N에서 추가된 계약서만 `status: reverted`로 표시.
 - pulse-immunity에 되감기 원인을 항체로 등록한다.
 
+동시에 `_workspace/pulse-status.md`의 현재 위치를 되감기 목표 Pulse·단계로 업데이트한다. 자동화 체크리스트를 초기화(모두 미체크)하여 재시작 시 DNA·항체를 다시 로드하게 한다.
+
 ### 4단계: LEARN 단계 강제 실행
 
 되감기 전에 반드시 LEARN을 실행한다:

@@ -8,6 +8,7 @@
 
 오케스트레이터가 직접 수행:
 
+0. **`_workspace/pulse-status.md` 갱신**: 현재 위치를 `BUILD > PLAN`으로 업데이트. 자동화 체크리스트 미체크 항목(DNA, 항체, explore-synthesis) 확인 후 실행.
 1. 이번 Pulse에서 만들 파일 목록 작성
 2. **기존 `_workspace/contracts/README.md` 먼저 확인** → 이미 존재하는 계약서 파악, 중복 생성 방지
 3. 파일 간 import/의존 관계 파악
@@ -86,3 +87,5 @@ A/B/C/D 목록이 모두 비어있으면 단계 2를 건너뛴다.
 - 결과를 _workspace/pulse-N/{agent-name}-result.md에 저장할 것
 - 대화로 결과를 반환하지 말고 파일 경로만 알릴 것
 ```
+
+에이전트 완료 감지: 각 에이전트가 `_workspace/pulse-N/{agent}-result.md`를 저장하면 `pulse-status.md`의 에이전트 상태를 ✅로 갱신. 모든 에이전트가 ✅이면 VERIFY로 진행.

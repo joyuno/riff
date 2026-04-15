@@ -205,6 +205,27 @@ browser_navigate (URL 접속)
     → browser_network_requests (API 상태 확인)
 ```
 
+### Tier 3 시나리오 자동 생성
+
+`_workspace/pulse-0/master-plan.md` 또는 `journeys.md`의 유저 저니를 Playwright 시나리오로 변환한다.
+
+**변환 규칙**:
+```
+유저 저니 문장 → Playwright 코드
+"사용자가 [페이지]에 접근한다" → await page.goto('[URL]')
+"[필드]에 [값]을 입력한다" → await page.fill('[selector]', '[값]')
+"[버튼]을 클릭한다" → await page.click('[selector]')
+"[텍스트]가 보인다" → await expect(page.locator('text=[텍스트]')).toBeVisible()
+"[페이지]로 이동된다" → await expect(page).toHaveURL('[URL]')
+```
+
+**selector 결정 우선순위**:
+1. `data-testid` 속성 (가장 안정적)
+2. `role` + `name` 조합 (`getByRole`)
+3. 텍스트 기반 (`getByText`) -- 최후 수단
+
+시나리오 저장: `_workspace/pulse-N/playwright-scenarios.md`
+
 ### QA 변형 (Tier 3 하위 모드)
 
 | 변형 | 목적 | 참조 |
