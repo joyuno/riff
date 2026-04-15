@@ -1,257 +1,251 @@
-# 전문가 통합 5-Layer 질문 흐름
+# 전문가 라운드테이블 5-Layer 질문 흐름
 
-이 파일은 SKILL.md의 5-Layer 실행 시 참조한다.
-각 Layer에서 기본 질문 후 해당 Layer에 기여하는 전문가 질문이 이어진다.
-
----
-
-## Layer 1: WHY — Job 정의 + AI 필요성 조기 탐색
-
-**기본 질문** (JTBD):
-- Q1: "이 제품이 없으면, 그 일을 지금 어떻게 하고 있나요? 가장 큰 문제는?"
-- Q2: "하루가 끝날 때 '이걸 써서 다행이다' 싶은 순간은 어떤 순간인가요?"
-
-**전문가 기여 — AI Engineer (게이트 질문)**:
-- Q1-AI: "이 Job에서 반복되는 패턴이나 대량 처리가 있나요? AI/자동화가 역할을 할 수 있을 것 같나요?"
-  - 예 → `ai_potential` 태그, Layer 3에서 심화 질문
-  - 아니오 → `ai_none` 태그, Layer 3~4에서 AI 질문 생략
-
-**자동 태깅**:
-- 기존 방식이 느리다 → `performance_critical`
-- 수동 실수가 많다 → `reliability_critical`
-- 새 시장 개척 → `market_risk`
-- AI 가능성 언급 → `ai_potential`
+각 질문 전에 관련 전문가들이 자신의 관점을 먼저 공유한다.
+사용자는 맥락을 이해한 상태에서 질문 하나에 답하고, 그 답변으로 여러 결정이 동시에 확정된다.
 
 ---
 
-## Layer 2: WHO — 실제 사용자 파악 + 디바이스/경험 탐색
+## Layer 1: WHY — 이 서비스가 해결할 "일"
 
-**기본 질문** (Mom Test):
-- Q3: "이 문제를 겪는 사람을 한 명 떠올려보세요. 그 사람이 지난주에 이 문제를 어떻게 해결했나요?"
-- Q4: "그 과정에서 가장 짜증났던 순간은 언제였나요?"
-- Q5: "동시 사용자 규모는?" (A: 1~10명 / B: 100~1,000명 / C: 10,000명+)
+### Q1-RoundTable: 핵심 문제
 
-**전문가 기여 — UI Designer**:
-- Q2-UI: "그 사람이 주로 어떤 환경에서 쓸까요?"
-  - A: PC/웹 브라우저 → `desktop_primary`
-  - B: 스마트폰 앱 → `mobile_primary`
-  - C: 둘 다 → `responsive_required`
-- Q2-UI-b: "그 사람이 평소에 즐겨 쓰는 앱이나 서비스가 있나요? (레퍼런스 UX)"
-  - 답변 → `reference_ux` 태그에 저장
+> **[JTBD]** 어떤 "일"을 해결하려는지가 모든 기술 결정의 출발점입니다.
+> **[AI Engineer]** 반복 패턴이 있거나 대량 처리가 필요하다면 AI/자동화가 역할을 할 수 있습니다.
+> **[Data Engineer]** 문제의 규모가 인프라 설계 방향을 결정합니다.
 
-**전문가 기여 — Frontend Dev**:
-- Q2-FE: (Q5 규모 선택 C 일 때만) "10,000명 이상이 동시에 접속하는 상황이 자주 있나요, 아니면 특정 시간대에 몰리나요?"
-  - 항상 → `scale_constant`
-  - 몰림 → `scale_spike`
+**→ 이 제품이 없으면, 지금 그 일을 어떻게 하고 있나요? 가장 불편한 점은 뭔가요?**
 
-**자동 태깅**:
-- desktop_primary / mobile_primary / responsive_required
-- small_scale(~10) / medium_scale(~1k) / large_scale(10k+)
+*태그 추출: performance_critical / reliability_critical / market_risk / ai_potential*
 
 ---
 
-## Layer 3: WHAT — 핵심 범위 + 기술 범위 조기 확정
+### Q2-RoundTable: 성공의 순간
 
-**기본 질문** (Constraint Forcing):
-- Q6: "딱 하나의 화면, 하나의 버튼만 있다면 그게 뭔가요? 그 버튼을 누르면 어떤 일이?"
-- Q6-확장: "거기에 2~3개를 더 추가한다면? '반드시 / 있으면 좋음 / 나중에'로 분류해주세요."
-- Q7: "첫 버전을 언제까지 써보고 싶으세요?" (A: 2주 / B: 1~2개월 / C: 3개월+)
+> **[JTBD]** 성공 기준이 명확해야 무엇을 먼저 만들지 결정할 수 있습니다.
+> **[Prompt Engineer]** 이 답변이 나중에 AI 에이전트에게 전달할 "프로젝트 목표"가 됩니다.
 
-**전문가 기여 — Backend Dev**:
-- Q3-BE: "방금 말씀하신 핵심 기능에서, 데이터가 저장되고 불러와야 하는 부분이 있나요?"
-  - 예 → `data_persistence` 태그, Layer 4에서 DB/백엔드 질문 심화
-  - 아니오 → 정적 사이트 가능성 검토
-
-**전문가 기여 — AI Engineer** (`ai_potential` 태그 있을 때만):
-- Q3-AI: "핵심 기능에서 AI가 하는 역할이 뭔가요?"
-  - A: AI가 핵심 (없으면 서비스 성립 안 됨) → `ai_required`
-  - B: AI가 보조 (없어도 되지만 있으면 훨씬 좋음) → `ai_optional`
-  - C: 나중에 추가해도 됨 → `ai_later`
-
-**자동 태깅**:
-- must_have / nice_to_have / later
-- ai_required / ai_optional / ai_later / ai_none
-- data_persistence
+**→ 하루가 끝날 때 "이걸 써서 다행이다"라고 느끼는 순간은 어떤 순간인가요?**
 
 ---
 
-## Layer 4: HOW — 기술 결정 라운드테이블 (핵심 확장, 15분)
+## Layer 2: WHO — 실제 사용자와 환경
 
-Layer 4는 소크라테스 기본 질문 이후 전문가 기술 결정이 순서대로 이어진다.
-이전 Layer 태그에 따라 관련 없는 질문은 자동 건너뜀.
+### Q3-RoundTable: 사용자의 실제 상황
 
-**기본 질문** (소크라테스):
-- Q8: "이미 익숙하거나 사용 중인 도구가 있나요?"
-- Q9: [Layer 1 태깅 기반 동적 트레이드오프 질문]
+> **[Mom Test]** "쓸 것 같아요"가 아닌 실제 지난주 행동을 물어야 정확합니다.
+> **[UI Designer]** 사용자가 어떤 환경(기기, 앱)에 익숙한지가 디자인 방향을 결정합니다.
+> **[Frontend Dev]** 사용 맥락이 PC인지 모바일인지에 따라 화면 구조가 달라집니다.
 
----
+**→ 이 문제를 겪는 사람을 한 명 떠올려보세요. 그 사람이 지난주에 이 문제를 어떻게 해결했나요? 평소에 즐겨 쓰는 앱이 있다면 함께 알려주세요.**
 
-### HOW-A: UI 디자이너 (항상 실행)
-
-Q4-UI-1: "이 서비스의 첫인상 느낌은?"
-  - A: 깔끔하고 전문적 (B2B/SaaS) → `b2b_aesthetic`
-  - B: 감각적이고 트렌디 (소비자 앱) → `consumer_trendy`
-  - C: 따뜻하고 친근함 (커뮤니티/교육) → `warm_friendly`
-  - D: 강렬하고 임팩트 (엔터/스타트업) → `bold_impact`
-
-Q4-UI-2: "화면 전환이나 인터랙션 수준은?"
-  - A: 없거나 최소 → `animation_none`
-  - B: 부드러운 전환 → `animation_subtle`
-  - C: 풍부한 인터랙션 → `animation_rich`
-  - D: 몰입형 (3D/Rive) → `animation_immersive`
-
-Q4-UI-3: "필요한 것 선택: [ ] 다크모드 [ ] 접근성"
-
-**UI 스킬 자동 추천** (태그 기반):
-| 태그 조합 | 추천 스킬 |
-|----------|---------|
-| b2b + animation_none/subtle | shadcn/ui + Tailwind |
-| consumer_trendy + animation_rich | Aceternity UI + Framer Motion |
-| mobile_primary + Flutter | flutter_animate + Material 3 |
-| animation_immersive | Aceternity + GSAP 또는 Rive |
-
-추천 출력 후: "이 스킬로 진행할까요, 아니면 다른 선호가 있나요?"
+*태그 추출: mobile_primary / desktop_primary / reference_ux*
 
 ---
 
-### HOW-B: 자료 리서처 (UI 스킬 확정 직후 실행)
+### Q4-RoundTable: 규모와 환경
 
-Q4-RR: "추천된 스킬 외에 추가로 필요한 도구 카테고리가 있나요?"
-  - [ ] 테스트/QA 스킬
-  - [ ] Git/배포 스킬
-  - [ ] 도메인 특화 스킬
-  - [ ] 없음
+> **[Frontend Dev]** 동시 사용자 수가 화면 아키텍처(SSR/CSR)를 결정합니다.
+> **[Backend Dev]** 규모에 따라 단일 서버로 시작할지, 처음부터 스케일링을 고려할지 달라집니다.
+> **[Data Engineer]** 10,000명 이상이면 인프라 설계부터 다르게 접근해야 합니다.
 
-선택된 스킬 GitHub 리서치 후:
+**→ 동시에 이 서비스를 쓸 사람이 몇 명 정도 될까요? 그리고 주로 어떤 기기를 쓸까요?**
+- A: 1~10명, PC 위주 (팀 내부 도구)
+- B: 100~1,000명, 혼합
+- C: 10,000명 이상, 모바일 위주 (공개 서비스)
+- D: 직접 설명
+
+*태그 추출: small/medium/large_scale + mobile_primary/desktop_primary/responsive_required*
+
+---
+
+## Layer 3: WHAT — 핵심 범위 확정
+
+### Q5-RoundTable: 딱 하나만
+
+> **[Constraint Forcing]** "다 중요해요"는 아무것도 중요하지 않다는 뜻입니다. 극단적으로 좁혀야 진짜 핵심이 드러납니다.
+> **[Backend Dev]** 핵심 기능이 데이터 저장/조회를 필요로 하는지가 서버 구조를 결정합니다.
+> **[AI Engineer]** 이 핵심 기능에 AI 자동화가 실질적인 가치를 더하는지 판단합니다.
+
+**→ 극단적으로 단순화해볼게요. 딱 하나의 화면, 하나의 버튼만 있다면 그게 뭔가요? 그 버튼을 누르면 어떤 일이 일어나나요?**
+
+*태그 추출: must_have + data_persistence + ai_required/optional/none*
+
+---
+
+### Q6-RoundTable: 범위와 타임라인
+
+> **[Constraint Forcing]** "반드시 / 있으면 좋음 / 나중에"로 나누면 우선순위가 자연스럽게 정해집니다.
+> **[Frontend Dev]** 2주 타임라인이면 화면 3~5개, 2개월이면 10개 내외가 현실적입니다.
+> **[Backend Dev]** 타임라인이 짧을수록 외부 서비스(결제, 소셜 로그인) 연동은 후순위로 미룹니다.
+
+**→ Q5의 핵심 기능에 2~3개를 더 추가한다면? "반드시 / 있으면 좋음 / 나중에"로 나눠주세요. 그리고 첫 버전을 언제까지 써보고 싶으신가요?**
+- A: 2주 이내
+- B: 1~2개월
+- C: 3개월 이상
+
+---
+
+## Layer 4: HOW — 기술 결정 라운드테이블
+
+### Q7-RoundTable: 사용 환경과 디자인 방향
+
+> **[UI Designer]** 앱의 첫인상이 어떤 느낌이어야 하는지가 컴포넌트 라이브러리 선택을 결정합니다. 레퍼런스 앱의 디자인 시스템을 분석해서 가장 가까운 것을 추천드릴게요.
+> **[Frontend Dev]** 모바일 앱이면 하단 탭 바와 스와이프가 자연스럽고, 대시보드면 사이드바와 테이블이 중심입니다.
+> **[Resource Researcher]** 선택된 방향에 맞는 Claude Code 스킬이 있으면 같이 찾아볼게요.
+
+**→ 이 서비스의 첫인상 느낌이 어떠면 좋겠나요?**
+- A: 깔끔하고 전문적 (대시보드, B2B, 관리자)
+- B: 감각적이고 트렌디 (소비자 앱, 패션, 크리에이터)
+- C: 따뜻하고 친근함 (커뮤니티, 교육)
+- D: 강렬하고 임팩트 (엔터테인먼트, 스타트업)
+- E: 레퍼런스 앱 기반으로 추천받기
+
+*자동 추천:*
+| 조합 | 추천 스킬 |
+|------|---------|
+| 전문적 + desktop | shadcn/ui + Tailwind |
+| 트렌디 + 애니메이션 | Aceternity UI + Framer Motion |
+| 모바일 + Flutter | flutter_animate + Material 3 |
+| 임팩트 + 몰입형 | Aceternity + GSAP/Rive |
+
+---
+
+### Q8-RoundTable: 인터랙션과 스킬 확정
+
+> **[UI Designer]** 애니메이션이 많을수록 사용자 경험은 풍부해지지만 성능과 개발 시간이 늘어납니다.
+> **[Resource Researcher]** 필요한 스킬을 GitHub에서 찾아서 설치 명령어를 드릴 수 있습니다.
+> **[Frontend Dev]** SEO가 필요하면 Next.js SSR, 내부 도구면 Vite SPA로 충분합니다.
+
+**→ 화면 전환과 인터랙션은 어느 수준으로 원하시나요? 추가로 필요한 도구나 스킬이 있으면 알려주세요.**
+- A: 최소 (속도와 단순함 우선)
+- B: 부드러운 전환 (Framer Motion 수준)
+- C: 풍부한 인터랙션 (Lottie, GSAP 수준)
+- D: 몰입형 (3D, Rive, 파티클)
+
+*Resource Researcher 실행: GitHub 리서치 후 설치 명령어 출력*
 ```
-발견된 스킬:
+추천 스킬:
 1. [스킬명] — [설명]
    설치: claude plugin install [URL]
 ```
-"설치할 스킬을 선택해주세요."
 
 ---
 
-### HOW-C: 프론트엔드 개발자 (data_persistence 또는 responsive_required 태그 있을 때)
+### Q9-RoundTable: 서버와 데이터 구조 (*data_persistence 태그 있을 때*)
 
-Q4-FE-1: "주요 화면 목록을 제안드릴게요. [Layer 3 핵심 기능 기반 자동 제안]
-  추가하거나 제거할 화면이 있나요?"
+> **[Backend Dev]** 규모와 타임라인을 보면 적합한 스택이 보입니다. 빠르게 시작하고 나중에 바꾸는 것과, 처음부터 확장 가능하게 만드는 것 사이의 트레이드오프입니다.
+> **[DB Designer]** 데이터 관계가 복잡할수록 PostgreSQL이, 스키마가 자주 바뀔수록 MongoDB가 유리합니다.
+> **[Data Engineer]** 캐싱과 검색 기능 필요 여부가 Redis, Elasticsearch 도입을 결정합니다.
 
-Q4-FE-2: "화면 간 이동 방식은?"
-  - A: 상단 네비게이션 (웹)
-  - B: 사이드바 (대시보드)
-  - C: 하단 탭 바 (모바일)
+**→ 서버 스택은 [규모·타임라인 기반 자동 추천]으로 시작할까요? 로그인이 필요한가요? 데이터 특성은 어떤가요?**
 
-Q4-FE-3: (mobile_primary 또는 responsive_required 태그 있을 때만)
-  "검색엔진 노출이 필요한가요? (SEO → Next.js SSR 필요)"
+*(자동 추천 출력 후 수락/변경 선택)*
 
----
-
-### HOW-D: 백엔드 개발자 (data_persistence 태그 있을 때)
-
-Q4-BE-1: "서버 기술 스택 — [규모 태그 기반 자동 추천] 으로 진행할까요?"
-  자동 추천:
-  - small_scale → Node.js/Express 또는 FastAPI
-  - medium_scale → FastAPI + Redis
-  - large_scale → FastAPI/Go + Redis + 메시지 큐
-
-Q4-BE-2: "로그인이 필요한가요? 필요하다면 방식은?"
-  - A: 이메일/비밀번호
-  - B: 소셜 (Google/Kakao/Naver)
-  - C: A+B 혼합
-  - D: 불필요
-
-Q4-BE-3: "외부 서비스 연동이 필요한가요?"
-  - [ ] 결제 [ ] 이메일 발송 [ ] 파일 저장 [ ] 지도 [ ] 없음
+선택지 (필요 시):
+- 스택: Node.js/FastAPI/Go/Django
+- 로그인: 이메일+비밀번호 / 소셜(Google·Kakao·Naver) / 없음
+- 데이터 특성: 관계형(테이블) / 유연한 구조(문서) / 시계열
 
 ---
 
-### HOW-E: 데이터 엔지니어 (medium_scale 이상 또는 data_persistence 있을 때)
+### Q10-RoundTable: 인프라와 외부 연동 (*medium_scale 이상*)
 
-Q4-DE-1: "1년 후 예상 데이터 규모는?"
-  - A: 소 (1GB 미만) / B: 중 (10~100GB) / C: 대 (1TB+)
+> **[Data Engineer]** Docker Compose로 시작하면 빠르고, K8s는 10,000명 이상일 때 의미 있습니다. 지금 오버엔지니어링할 필요 없습니다.
+> **[Backend Dev]** 결제, 파일 저장, 이메일은 외부 서비스를 쓰는 게 직접 만드는 것보다 훨씬 빠릅니다.
+> **[DB Designer]** 개인정보가 포함되면 소프트 삭제, 암호화, 접근 로그가 필요합니다.
 
-Q4-DE-2: "컨테이너/인프라 관리는?"
-  - A: 단순 서버 / B: Docker Compose / C: Kubernetes
-  (large_scale → K8s 자동 추천)
+**→ 인프라와 외부 연동에서 필요한 것을 선택해주세요.**
 
-Q4-DE-3: "캐싱이나 검색 기능이 필요한가요?"
-  - [ ] Redis 캐싱 [ ] 전문 검색 (Elasticsearch/Meilisearch) [ ] 없음
+인프라:
+- A: 단순 서버 (VPS)
+- B: Docker Compose
+- C: Kubernetes (K8s)
+- D: 관리형 (Railway, Render, Fly.io)
 
----
-
-### HOW-F: DB 설계자 (data_persistence 태그 있을 때)
-
-Q4-DB-1: "데이터 구조 특성은? (해당하는 것 선택)"
-  - [ ] 계층형 (카테고리-서브, 댓글-대댓글)
-  - [ ] 시간 순서 중요 (로그, 거래내역)
-  - [ ] 개인정보 포함
-  - [ ] 해당 없음
-
-Q4-DB-2: "DB는 [자동 추천: 스택+규모 기반]으로 진행할까요?"
-  (PostgreSQL / MongoDB / MySQL — 이전 태그 기반 선택)
+외부 연동 (해당하는 것 선택):
+- [ ] 결제 (Toss / Stripe)
+- [ ] 파일 저장 (S3 / R2)
+- [ ] 이메일 발송
+- [ ] 지도
+- [ ] 개인정보 포함 (소프트 삭제 + 암호화 필요)
+- [ ] 없음
 
 ---
 
-### HOW-G: AI 엔지니어 (ai_required 또는 ai_optional 태그 있을 때만)
+### Q11-RoundTable: AI 기능 (*ai_required 또는 ai_optional 태그일 때만*)
 
-Q4-AI-1: "AI가 하는 일을 선택해주세요."
-  - [ ] 텍스트 생성/답변
-  - [ ] 문서 요약/분류
-  - [ ] 내 데이터 기반 검색 (RAG)
-  - [ ] 이미지 분석/생성
-  - [ ] 자율 에이전트
+> **[AI Engineer]** AI를 넣는 것보다 어디에 어떻게 넣는지가 더 중요합니다. 잘못 넣으면 비용만 나가고 사용자는 모릅니다.
+> **[Backend Dev]** LLM API 호출은 일반 API보다 응답이 느립니다. 스트리밍이나 캐싱 전략이 필요합니다.
+> **[Prompt Engineer]** AI 기능의 입출력 형식을 지금 결정해야 나중에 프롬프트 최적화가 가능합니다.
 
-Q4-AI-2: "AI 비용 예산은 월 얼마까지?"
-  - A: 최소 ($0~$10) / B: 소 ($10~$100) / C: 중 ($100~$1,000) / D: 제한 없음
+**→ AI가 이 서비스에서 정확히 어떤 일을 하면 좋을까요? 비용은 월 얼마까지 허용되나요?**
 
-Q4-AI-3: (RAG 선택 시) "AI가 참조할 데이터는 어디에 있나요?"
-  - A: 서비스 내 DB / B: 외부 문서 / C: 실시간 웹 / D: 조합
+AI 역할 (해당하는 것 선택):
+- [ ] 텍스트 생성 / 답변
+- [ ] 내 데이터 기반 검색 (RAG)
+- [ ] 이미지 분석 / 생성
+- [ ] 자율 에이전트 (여러 단계 자동 처리)
+
+비용:
+- A: 최소 ($0~$10/월)
+- B: 소 ($10~$100/월)
+- C: 중 ($100~$1,000/월)
 
 ---
 
-## Layer 5: MEASURE — 실패 시나리오 + 충돌 감지 + 최종 확정
+## Layer 5: MEASURE — 실패 예방과 최종 확정
 
-**기본 질문** (Pre-mortem):
-- Q10: "3개월 후 이 서비스가 실패했다면, 가장 가능성 높은 이유는?"
-- Q10-후속: "그 실패를 막으려면 첫 달에 어떤 숫자를 봐야 하나요?"
+### Q12-RoundTable: 실패 시나리오
 
-**전문가 기여 — Prompt Engineer** (항상, 마지막):
+> **[Pre-mortem]** 실패를 먼저 상상하면 성공 기준보다 훨씬 구체적인 리스크가 나옵니다.
+> **[Prompt Engineer]** 지금까지 나온 결정들 중 충돌하는 부분이 있으면 지금 정리해야 합니다.
+> **[pulse-immunity]** 여기서 나온 리스크가 초기 항체로 등록되어 구현 중에 자동으로 경고합니다.
 
-충돌 감지:
-- Layer 4 기술 결정 간 불일치 자동 탐지
-- 발견 시: "A 결정과 B 결정이 충돌합니다. 어느 쪽을 우선할까요?"
+**→ 3개월 후 이 서비스가 실패했다면 가장 가능성 높은 이유는 뭔가요? 그 실패를 막으려면 첫 달에 어떤 숫자를 봐야 할까요?**
 
-P0/P1/P2 최종 확인:
+---
+
+### Q13-RoundTable: 최종 확인 (Prompt Engineer)
+
+*(자동 실행 — 사용자에게 질문하기 전에 먼저 충돌 감지)*
+
 ```
-P0 (MVP 필수): [항목]
-P1 (있으면 좋음): [항목]
-P2 (나중에): [항목]
-"이 우선순위가 맞나요?"
+[Prompt Engineer 분석 중...]
+
+결정 충돌 감지:
+  ✅ 없음  /  ⚠️ [충돌 내용] → "A와 B 중 어느 쪽을 우선할까요?"
+
+P0 (MVP 필수):
+  - [항목 목록]
+
+P1 (있으면 좋음):
+  - [항목 목록]
+
+P2 (나중에):
+  - [항목 목록]
 ```
 
-**master-plan.md 생성** → `_workspace/pulse-0/master-plan.md`
+**→ 이 우선순위가 맞나요? 수정하고 싶은 부분이 있으면 알려주세요.**
+
+완료 후 → `_workspace/pulse-0/master-plan.md` 자동 생성
 
 ---
 
-## 건너뜀 로직 요약
+## 라운드테이블 진행 규칙
 
-| 전문가 | 건너뜀 조건 |
-|--------|-----------|
-| HOW-B 자료 리서처 | 추가 스킬 불필요 선택 시 |
-| HOW-C 프론트엔드 | 단순 API 서비스 (화면 없음) |
-| HOW-D 백엔드 | data_persistence 태그 없을 때 |
-| HOW-E 데이터 엔지니어 | small_scale + data_persistence 없을 때 |
-| HOW-F DB 설계자 | data_persistence 태그 없을 때 |
-| HOW-G AI 엔지니어 | ai_none 또는 ai_later 태그일 때 |
+1. **전문가 관점 먼저, 질문 나중**: 관점은 2~3줄 이내. 기술 용어에 일상어 병기 필수.
+2. **질문은 하나**: 여러 전문가의 결정을 하나의 질문으로 동시에 확정.
+3. **이전 답변 재활용**: 이미 답한 내용은 다시 묻지 않고 자동 태그에서 읽는다.
+4. **건너뜀 로직**:
+   - data_persistence 없음 → Q9, Q10 건너뜀
+   - ai_none / ai_later → Q11 건너뜀
+   - small_scale → Q10 인프라 질문 축소
 
----
+## 총 질문 수
 
-## 총 질문 수 (태그 조합별)
-
-| 시나리오 | 문항 수 |
-|---------|--------|
-| 풀 스택 + AI + 대규모 | ~35개 |
-| 풀 스택 + AI 없음 | ~25개 |
-| 단순 웹앱 (소규모) | ~18개 |
-| API 서비스 (화면 없음) | ~12개 |
+| 시나리오 | 문항 |
+|---------|------|
+| 풀스택 + AI + 대규모 | 13개 |
+| 풀스택, AI 없음 | 11개 |
+| 단순 웹앱 (소규모) | 9개 |
+| 정적 사이트 / 내부 도구 | 7개 |
