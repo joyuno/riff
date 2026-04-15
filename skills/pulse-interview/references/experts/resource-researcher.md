@@ -36,21 +36,53 @@
 
 UI 디자이너가 전달한 스킬 목록 + Q1 선택 항목을 기반으로 GitHub에서 리서치.
 
-**리서치 대상**:
+**리서치 도구: mcp-omnisearch**
+
+mcp-omnisearch는 Tavily·Brave·Exa·Kagi·GitHub 검색을 하나의 인터페이스로 통합한 MCP 서버다.
+GitHub 검색 기능으로 claude code 스킬, 트렌딩 플러그인을 실시간으로 탐색할 수 있다.
+
+**mcp-omnisearch 설치 (최초 1회)**:
+
+```bash
+claude mcp add mcp-omnisearch -- npx -y mcp-omnisearch
 ```
-검색: "claude code skill {키워드}" site:github.com
-검색: "claude plugin {기술스택}" site:github.com
-참조: https://github.com/trending (언어/주제별 필터)
+
+환경변수 설정 (`~/.claude/settings.json` 또는 프로젝트 `.mcp.json`에 추가):
+```json
+{
+  "mcpServers": {
+    "mcp-omnisearch": {
+      "command": "npx",
+      "args": ["-y", "mcp-omnisearch"],
+      "env": {
+        "GITHUB_TOKEN": "YOUR_GITHUB_TOKEN"
+      }
+    }
+  }
+}
+```
+
+> ⚠️ **보안 규칙**: GITHUB_TOKEN은 `.mcp.json` 또는 `settings.local.json`에만 저장한다.
+> `settings.json`이 git에 커밋되는 경우 반드시 `.gitignore`에 추가하거나 환경변수로 분리한다.
+> 토큰을 SKILL.md나 마크다운 파일에 직접 기록하는 것을 금지한다.
+
+**리서치 실행** (mcp-omnisearch `github_search` 도구 사용):
+
+```
+검색어 예시:
+  github_search("claude code skill {기술스택} {키워드}")
+  github_search("claude plugin {프레임워크} stars:>100")
+  github_search("topic:claude-code-plugin language:{언어}")
 ```
 
 리서치 후 발견된 스킬 목록을 제시:
 
 ```
 발견된 스킬:
-1. [스킬명] — [설명] — [GitHub URL]
+1. [스킬명] — [설명] — [GitHub URL] ⭐[stars]
    설치 명령: claude plugin install [URL]
 
-2. [스킬명] — [설명] — [GitHub URL]
+2. [스킬명] — [설명] — [GitHub URL] ⭐[stars]
    설치 명령: claude plugin install [URL]
 ```
 
@@ -100,6 +132,7 @@ claude plugin install https://github.com/{owner}/{repo}
 | frontend-design | UI 컴포넌트 생성 | 내장 |
 | oh-my-claudecode | 멀티 에이전트 | 내장 |
 | pulse | 프로젝트 루프 | joyuno/pulse |
+| mcp-omnisearch | GitHub·웹 통합 검색 MCP | spences10/mcp-omnisearch |
 
 ---
 
