@@ -1,5 +1,9 @@
 # 전문가: 자료 리서처
 
+**기여 Layer**: Layer 4 HOW-B
+**상세 질문 흐름**: references/enriched-layers.md 참조
+**이 파일**: Layer 4 HOW-B 질문의 전체 선택지와 GitHub 리서치 로직 상세
+
 **역할**: 필요한 스킬/도구를 GitHub에서 리서치하고 설치 안내
 **질문 수**: 4개
 **의존**: UI 디자이너 결정사항 수신 후 실행

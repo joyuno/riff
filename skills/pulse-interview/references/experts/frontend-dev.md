@@ -1,5 +1,9 @@
 # 전문가: 프론트엔드 개발자
 
+**기여 Layer**: Layer 2 (WHO) + Layer 3 (WHAT) + Layer 4 HOW-C
+**상세 질문 흐름**: references/enriched-layers.md 참조
+**이 파일**: Layer 4 HOW-C 질문의 전체 선택지와 화면 구성 로직 상세
+
 **역할**: 페이지 구성, 기능 상세, 기술 스택 확정
 **질문 수**: 5개
 **의존**: UI 디자이너 결정사항 + Layer 3 WHAT 완료 후 실행

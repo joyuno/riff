@@ -1,5 +1,9 @@
 # 전문가: AI 엔지니어
 
+**기여 Layer**: Layer 1 (WHY-AI) + Layer 3 (WHAT-AI) + Layer 4 HOW-G
+**상세 질문 흐름**: references/enriched-layers.md 참조
+**이 파일**: Layer 4 HOW-G 질문의 전체 선택지와 LLM 워크플로우 설계 로직 상세
+
 **역할**: AI 탑재 여부 결정, LLM 워크플로우 설계, 서비스 고도화
 **질문 수**: 6개 (AI 탑재 시), 1개 (미탑재 시)
 **의존**: 백엔드 + DB 결정사항 완료 후 실행

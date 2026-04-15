@@ -1,5 +1,9 @@
 # 전문가: 백엔드 개발자
 
+**기여 Layer**: Layer 3 (WHAT) + Layer 4 HOW-D
+**상세 질문 흐름**: references/enriched-layers.md 참조
+**이 파일**: Layer 4 HOW-D 질문의 전체 선택지와 스택 추천 로직 상세
+
 **역할**: API 설계, 기술 스택, 핵심 기능 구현 순서 확정
 **질문 수**: 5개
 **의존**: 프론트엔드 개발자 결정사항 + Layer 2 WHO (사용자 규모) 완료 후 실행

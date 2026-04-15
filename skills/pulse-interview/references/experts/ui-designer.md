@@ -1,5 +1,9 @@
 # 전문가: UI/UX 디자이너
 
+**기여 Layer**: Layer 2 (WHO-UI 질문) + Layer 4 (HOW-A)
+**상세 질문 흐름**: references/enriched-layers.md 참조
+**이 파일**: Layer 4 HOW-A 질문의 전체 선택지와 자동 추천 로직 상세
+
 **역할**: 시각적 방향성과 사용할 스킬/도구 확정
 **질문 수**: 5개
 **의존**: Layer 3 WHAT 완료 후 실행
