@@ -1,114 +1,66 @@
 ---
 name: pulse-qa
-description: "3-Tier QA 시스템. 정적 경계면 분석 → 빌드/타입 검증 → Playwright Live Browser QA. 유령 사용자, 파괴자, 시간축, 다중 인격 QA 포함. Pulse의 VERIFY 단계에서 호출. '테스트', 'QA', '검증', '확인해줘', '동작하는지', '버그 찾아', '품질 검사' 시 사용. UI가 있는 웹/앱 프로젝트에서 특히 유용."
+description: "4단계 QA 시스템(Tier 0~3): 계약서 lint → 정적 경계면 → 빌드/타입 → Live Browser. Pulse의 VERIFY 단계에서 호출. 유령 사용자·파괴자·시간축·다중 인격 변형 포함. '테스트', 'QA', '검증', '확인해줘', '동작하는지', '버그 찾아', '품질 검사' 시 사용."
 ---
 
-# Pulse QA — 3-Tier QA 시스템
+# pulse-qa — 4단계 QA 시스템 (Tier 0~3)
 
 ## 개요
 
-Pulse QA는 **비용 효율 최우선** 원칙으로 설계된 3단계 품질 검증 시스템이다.
-앞 단계에서 잡을 수 있는 버그는 반드시 앞에서 잡는다. Playwright는 정적 분석과 빌드로는 발견할 수 없는 런타임 버그에만 투입한다.
+비용 효율 최우선 원칙. 앞 Tier에서 잡을 수 있는 버그는 반드시 앞에서 잡고, Playwright는 정적 분석·빌드로 잡을 수 없는 런타임 버그에만 투입.
 
 ```
+Tier 0 (계약서 lint + 커버리지)
+    ↓ 통과
 Tier 1 (정적 경계면 분석)
-    ↓ 실패 시 수정 후 재진행
+    ↓ 통과
 Tier 2 (빌드/타입 검증)
-    ↓ 실패 시 수정 후 재진행
-Tier 3 (Live Browser QA)
+    ↓ 통과
+Tier 3 (Live Browser)
 ```
+
+> README와 본문 모두 `Tier 0~3` 4단계로 통일. 이전 "3-Tier QA" 표현은 deprecated.
 
 ---
 
-## 3-Tier 역할 요약
+## Tier 요약
 
-| Tier | 이름 | 비용 | 발견 가능한 버그 유형 |
-|------|------|------|----------------------|
-| 0 | 계약 커버리지 스캔 | 최소 (Grep) | 계약서 없는 공유 타입 탐지 — BUILD 전 누락된 계약 발견 |
-| 1 | 정적 경계면 분석 | 매우 낮음 (Grep/AST) | API shape 불일치, 깨진 링크, 상태전이 누락, DB↔API↔UI 타입 체인 단절 |
-| 2 | 빌드/타입 검증 | 낮음 (tsc, eslint, build) | 타입 에러, 린트 위반, 번들 실패, any 우회로 숨겨진 타입 버그 |
-| 3 | Live Browser QA | 높음 (Playwright) | 렌더링 버그, 비동기 타이밍, UX 막힘, 보안 취약점, 접근성 문제 |
+| Tier | 이름 | 비용 | 발견 가능 버그 |
+|------|------|------|------------|
+| 0 | 계약서 lint + 커버리지 | 최소 (Grep/parse) | linted 누락, 공유 타입 계약 누락, 상수/버전 불일치 |
+| 1 | 정적 경계면 | 매우 낮음 (Grep/AST) | API shape, 깨진 링크, 상태 전이, DB↔API↔UI 체인 |
+| 2 | 빌드/타입 | 낮음 (tsc/lint/build) | 타입 에러, 린트 위반, 번들 실패 |
+| 3 | Live Browser | 높음 (Playwright) | 렌더링, 비동기 타이밍, UX, 보안, 접근성 |
 
-앞 Tier에서 실패가 발견되면 **해당 이슈를 수정한 뒤 다음 Tier로 진행**한다.
-Tier 0, 1, 2 통과 없이 Tier 3을 실행하는 것은 비효율이다.
+앞 Tier 통과 없이 다음 Tier로 진행 금지.
 
 ---
 
-## Tier 0: 계약 커버리지 스캔
+## Tier 0: 계약서 lint + 커버리지 스캔
 
-> BUILD 시작 전에 실행한다. VERIFY 단계에서도 계약서 누락 여부를 재확인한다.
+> BUILD-CONTRACT 직후, VERIFY 시작 시 두 번 실행.
 
-### 목적
+### 실행
 
-계약서가 없는 공유 타입을 탐지한다. Tier 1은 계약서가 존재해야 검증할 수 있으므로, Tier 0은 Tier 1의 전제 조건이다.
+1. **lint frontmatter 검증**: `_workspace/contracts/*.md` 모두에 `linted: YYYY-MM-DD` 존재 확인. 없으면 차단.
+2. **mtime > linted 검증**: 계약서 파일이 수정됐는데 재린트 안 됐으면 차단.
+3. **공유 타입 커버리지**: 이번 Pulse의 import/생성자 파라미터 ↔ 계약서 README.md 비교. 누락 시 BUILD-CONTRACT 복귀.
+4. **상수 정합성**: Constants Contract 값 ↔ 코드 하드코딩 비교. 불일치 시 코드 수정.
+5. **의존성 정합성**: Dependency Contract 핀 ↔ 잠금 파일 비교.
 
-### 실행 방법
+스택별 탐지 명령: `pulse-contracts/references/stack-patterns.md`
 
-**1단계: 이번 Pulse 대상 파일 목록 확보**
-```
-_workspace/pulse-N/artifacts.md 또는 이번 Pulse에서 생성·수정한 파일 목록 읽기
-```
+### 통과 조건
 
-**2단계: 크로스파일 참조 탐지**
+- 모든 계약서에 유효한 `linted` frontmatter
+- 공유 타입 전부에 계약서 존재
+- Constants/Dependency Contract와 코드/잠금 파일 일치
 
-이번 Pulse 파일들에서 다른 파일의 타입을 참조하는 패턴을 검색한다.
+### 복귀 루프 가드 (3회)
 
-웹/TypeScript:
-```bash
-# 파일 A에서 import되는 타입이 _workspace/contracts/에 계약서로 존재하는지 확인
-grep -r "import.*from" [대상 파일들] | grep -v node_modules
-```
-
-Flutter/Dart:
-```bash
-# 다른 .dart 파일에서 import되는 클래스가 계약서로 존재하는지 확인
-grep -r "import.*\.dart" [대상 파일들]
-grep -r "class [A-Z][a-zA-Z]*Data\|class [A-Z][a-zA-Z]*Model\|class [A-Z][a-zA-Z]*Config" [대상 파일들]
-```
-
-**3단계: 계약서 커버리지 확인**
-```
-_workspace/contracts/README.md에 해당 타입의 계약서가 등록되어 있는가?
-→ 있으면: Tier 1으로 진행
-→ 없으면: 계약서 누락 경고 발행 후 BUILD-CONTRACT 단계로 되돌아감
-```
-
-**2단계 추가: 하드코딩 상수 불일치 탐지**
-
-Constants Contract가 있으면, 계약서에 정의된 값이 구현 코드에서 다른 값으로 하드코딩되어 있는지 확인한다. 불일치 발견 시 코드를 계약서 기준으로 수정한다.
-
-스택별 탐지 명령은 `references/stack-patterns.md` 참조.
-
-**3단계 추가: 의존성 버전 및 설정 불일치 탐지**
-
-Dependency Contract가 있으면, 계약서에 고정된 버전과 실제 잠금 파일을 비교한다.
-
-스택별 사전 검증 명령은 `references/stack-patterns.md` 참조.
-
-### 계약서 누락 경고 형식
-
-```
-⚠️  계약 커버리지 경고
-
-[타입 누락]
-- PersonalityTraitData (profile_setup_screen.dart → personality_toggle.dart)
-
-[상수 불일치]
-- PASSWORD_MIN_LENGTH: 계약서=8, 프론트=6, 백엔드=8 → 프론트 수정 필요
-
-[의존성 불일치]
-- bcrypt: 계약서=4.0.1, requirements.txt=4.1.2 → 버전 충돌 가능
-
-조치: BUILD-CONTRACT 단계로 돌아가 계약서를 먼저 수정하거나
-      계약서 기준으로 코드를 수정하십시오.
-에이전트 재스폰은 계약서 확정 후에만 허용됩니다.
-```
-
-### Tier 0 통과 조건
-
-1. 공유 타입 전부에 계약서 존재
-2. Constants Contract의 값이 구현 코드와 일치
-3. Dependency Contract의 버전이 잠금 파일과 일치
+Tier 0 실패 → BUILD-CONTRACT 복귀 → Tier 0 재실행 사이클이 같은 항목에 대해 3회 반복되면:
+1. 사용자 보고 ("계약서 또는 코드 변경이 반복 충돌 — 어느 쪽이 맞나요?")
+2. 사용자 결정 후 계속 또는 보류
 
 ---
 
@@ -116,36 +68,18 @@ Dependency Contract가 있으면, 계약서에 고정된 버전과 실제 잠금
 
 > 상세: `references/tier1-boundary.md`
 
-### 핵심 원칙: 양쪽 동시 읽기
+### 핵심 원칙
 
-경계면의 **양쪽을 동시에 읽어** 형태(shape)가 일치하는지 비교한다.
-한쪽만 읽으면 불일치를 발견할 수 없다.
+경계면의 양쪽을 동시에 읽어 shape 일치 비교. 한쪽만 읽으면 불일치 못 잡음.
 
 ### 검증 대상
 
-**1. API 응답 shape ↔ 프론트 훅 타입**
-- API 핸들러의 응답 객체 구조와 프론트 `useXxx` 훅이 기대하는 타입을 나란히 비교
-- snake_case vs camelCase 불일치 확인
-- 옵셔널 필드 처리 여부 확인
+1. **API 응답 shape ↔ 프론트 훅 타입** — snake/camelCase, 옵셔널 처리
+2. **파일 경로 ↔ href / router.push** — 깨진 링크, 404
+3. **상태 전이 ↔ 실제 status 업데이트 코드** — Behavior Contract 위반
+4. **DB 스키마 ↔ API 응답 ↔ 프론트 타입 체인** — 이름·타입 단절 지점
 
-**2. 파일 경로 ↔ href / router.push**
-- 실제 존재하는 페이지/라우트 파일 목록과 코드 내 링크 전수 비교
-- 404를 유발하는 깨진 링크 발견
-
-**3. 상태 전이 맵 ↔ 실제 status 업데이트 코드**
-- 설계된 상태 전이(예: pending → processing → done)와 실제 코드에서 발생하는 status 변경 비교
-- 누락된 전이, 존재하지 않는 상태값 발견
-
-**4. DB 스키마 ↔ API 응답 ↔ 프론트 타입 체인**
-- DB 컬럼명 → API 직렬화 → 프론트 인터페이스까지 체인 전체 추적
-- 어느 한 지점에서 이름 또는 타입이 달라지는 지점 발견
-
-### 계약서(pulse-contracts) 기반 검증
-
-`pulse-contracts` 스킬이 생성한 계약서가 있으면 해당 계약을 기준으로 검증한다.
-- API 계약: 응답 shape, 상태 코드, 에러 형식
-- UI 계약: 컴포넌트 props, 이벤트 핸들러 시그니처
-- 이벤트 계약: 이벤트 payload 구조
+계약서 기반 검증: pulse-contracts가 생성한 계약을 기준점으로 사용.
 
 ---
 
@@ -156,22 +90,25 @@ Dependency Contract가 있으면, 계약서에 고정된 버전과 실제 잠금
 ### 실행 순서
 
 ```bash
-npx tsc --noEmit          # 타입 에러 전수 확인
-npx eslint src/           # 린트 위반 확인
-npm run build             # 번들 빌드 성공 여부
+npx tsc --noEmit          # 타입 에러
+npx eslint src/           # 린트 위반
+npm run build             # 번들 빌드
 ```
 
-### 주요 확인 사항
+Flutter:
+```bash
+dart analyze
+flutter build web
+```
 
-- TypeScript strict 모드에서의 에러 (strictNullChecks 포함)
-- `as any`, `as unknown` 등 타입 캐스팅으로 우회된 위험 지점
-- 빌드 경고를 에러로 처리 (`--strict` 플래그)
+### 주요 확인
+
+- TypeScript strict 모드 (strictNullChecks 포함)
+- `as any`, `as unknown` 우회 검출
+- 빌드 경고를 에러로 처리 (`--strict`)
 - unused imports, 미사용 변수
 
-### 주의
-
-**빌드 통과 ≠ 정상 동작**이다.
-타입이 맞아도 런타임 로직이 틀릴 수 있다. Tier 2 통과는 Tier 3 진입 조건일 뿐이다.
+> 빌드 통과 ≠ 정상 동작. 타입이 맞아도 런타임 로직 틀릴 수 있음.
 
 ---
 
@@ -179,158 +116,111 @@ npm run build             # 번들 빌드 성공 여부
 
 > 상세: `references/tier3-live.md`
 
-### 실행 흐름
+### 흐름
 
 ```
 개발 서버 시작 (백그라운드)
-    → health check (서버 ready 확인)
-    → Playwright 브라우저 열기
-    → 유저 저니 기반 시나리오 실행
-    → 스크린샷 / 콘솔 에러 / 네트워크 수집
-    → 서버 종료
-    → QA 보고서 생성
+   → health check
+   → Playwright 브라우저 열기
+   → 유저 저니 시나리오 실행
+   → 스크린샷 / 콘솔 / 네트워크 수집
+   → 서버 종료
+   → QA 보고서 생성
 ```
 
 ### 유저 저니 → Playwright 시나리오 변환
 
-`pulse-interview`가 수집한 유저 저니를 Playwright 시나리오로 변환한다.
-각 Step에서 다음을 반복한다:
+`pulse-interview`의 `journeys.md` 또는 `master-plan.md`를 변환:
 
-```
-browser_navigate (URL 접속)
-    → browser_snapshot (요소 확인)
-    → browser_click / browser_fill_form (상호작용)
-    → browser_take_screenshot (증거 수집)
-    → browser_console_messages (에러 확인)
-    → browser_network_requests (API 상태 확인)
-```
+| 저니 문장 | Playwright |
+|----------|-----------|
+| "사용자가 [페이지]에 접근" | `await page.goto('[URL]')` |
+| "[필드]에 [값] 입력" | `await page.fill('[selector]', '[값]')` |
+| "[버튼] 클릭" | `await page.click('[selector]')` |
+| "[텍스트] 보임" | `await expect(page.locator('text=[텍스트]')).toBeVisible()` |
+| "[페이지]로 이동" | `await expect(page).toHaveURL('[URL]')` |
 
-### Tier 3 시나리오 자동 생성
-
-`_workspace/pulse-0/master-plan.md` 또는 `journeys.md`의 유저 저니를 Playwright 시나리오로 변환한다.
-
-**변환 규칙**:
-```
-유저 저니 문장 → Playwright 코드
-"사용자가 [페이지]에 접근한다" → await page.goto('[URL]')
-"[필드]에 [값]을 입력한다" → await page.fill('[selector]', '[값]')
-"[버튼]을 클릭한다" → await page.click('[selector]')
-"[텍스트]가 보인다" → await expect(page.locator('text=[텍스트]')).toBeVisible()
-"[페이지]로 이동된다" → await expect(page).toHaveURL('[URL]')
-```
-
-**selector 결정 우선순위**:
-1. `data-testid` 속성 (가장 안정적)
-2. `role` + `name` 조합 (`getByRole`)
-3. 텍스트 기반 (`getByText`) -- 최후 수단
+selector 우선순위: `data-testid` > `getByRole(role, name)` > `getByText`.
 
 시나리오 저장: `_workspace/pulse-N/playwright-scenarios.md`
 
-### QA 변형 (Tier 3 하위 모드)
+### 변형
 
 | 변형 | 목적 | 참조 |
 |------|------|------|
-| 유령 사용자 | AI가 스크린샷 보고 자유 탐색, UX 이슈 발견 | `references/ghost-user.md` |
-| 파괴자 | 비정상 입력, 보안 취약점 테스트 | `references/destroyer.md` |
-| 시간축 | 상태 변화 흐름 추적 (시간순 스크린샷) | 본 문서 하단 |
-| 다중 인격 | 다양한 사용자 유형 시뮬레이션 | 본 문서 하단 |
+| 유령 사용자 | AI가 스크린샷 보고 자유 탐색 | `references/ghost-user.md` |
+| 파괴자 | 비정상 입력, 보안 취약점 | `references/destroyer.md` |
+| 시간축 | 상태 변화 흐름 (시간순 스크린샷) | `references/tier3-live.md` |
+| 다중 인격 | 사용자 유형별 시뮬레이션 | `references/tier3-live.md` |
 
 ---
 
-## QA 변형 상세
+## Tier 자동 선택
 
-### 시간축 QA
+| 변경 유형 | 실행 Tier | 추가 변형 |
+|----------|----------|----------|
+| UI 컴포넌트 | 0 + 1 + 2 + 3 | 유령 사용자 |
+| API 엔드포인트만 | 0 + 1 + 2 | — |
+| 인증/권한 | 0 + 1 + 2 + 3 | 파괴자 |
+| DB 스키마 | 0 + 1 + 2 + 3 | 시간축 |
+| 전체 | 0 + 1 + 2 + 3 | 다중 인격 |
 
-상태가 시간에 따라 변하는 흐름을 추적한다.
-
-- 작업 생성 직후 → 처리 중 → 완료 시 각각 스크린샷
-- 로딩 스피너가 나타났다 사라지는 시점 확인
-- 알림, 토스트, 배지 등 일시적 UI 요소의 출현/소멸 확인
-- `browser_wait_for`로 특정 텍스트 출현을 기다린 뒤 스크린샷
-
-```
-시나리오 예시:
-1. 주문 생성 버튼 클릭 → 즉시 스크린샷 (로딩 상태)
-2. "처리중" 텍스트 대기 → 스크린샷
-3. "완료" 텍스트 대기 → 스크린샷
-4. 히스토리 목록 갱신 확인
-```
-
-### 다중 인격 QA
-
-동일한 시나리오를 여러 사용자 유형으로 실행한다.
-
-| 인격 | 특성 | 주요 확인 사항 |
-|------|------|--------------|
-| 관리자 | 전체 권한 | 모든 기능 접근 가능 여부 |
-| 일반 사용자 | 제한된 권한 | 권한 외 기능 접근 차단 여부 |
-| 신규 사용자 | 데이터 없음 | 빈 상태(empty state) UI 처리 |
-| 고령 사용자 | 글꼴 크게 | 접근성, 큰 텍스트에서 레이아웃 깨짐 |
+계약서 변경만 있으면 Tier 0만으로 종결될 수 있음.
 
 ---
 
 ## QA 보고서 형식
 
-### Step별 결과 테이블
+### Step별 결과
 
-| Step | 행동 | 예상 결과 | 실제 결과 | 결과 | 증거 |
-|------|------|----------|----------|------|------|
-| 1 | 로그인 페이지 접속 | 로그인 폼 표시 | 로그인 폼 표시됨 | PASS | screenshot-01.png |
-| 2 | 이메일 입력 후 로그인 | 대시보드로 이동 | 500 에러 발생 | FAIL | screenshot-02.png |
+| Step | 행동 | 예상 | 실제 | 결과 | 증거 |
+|------|------|------|------|------|------|
+| 1 | 로그인 페이지 접속 | 폼 표시 | 표시됨 | PASS | screenshot-01.png |
+| 2 | 이메일+로그인 | 대시보드 이동 | 500 에러 | FAIL | screenshot-02.png |
 
 ### 실패 분석
 
-실패한 Step에 대해 다음을 수집한다:
-
 ```
 콘솔 에러: [전문]
-네트워크 요청: [URL, 상태코드, 응답 body]
-원인 추정: [Tier 1 경계면 중 어느 지점 문제인지]
+네트워크: [URL, 상태, body]
+원인 추정: [어느 Tier 1 경계면인지]
 경계면 유형: [API↔훅 / 경로↔링크 / 상태전이 / DB↔API↔UI]
 ```
 
 ### 전체 요약
 
 ```
-총 시나리오: N개
-통과: X개
-실패: Y개
-건너뜀: Z개
-발견된 버그: [목록]
-권장 수정 우선순위: [심각도 순]
+총 N / 통과 X / 실패 Y / 건너뜀 Z
+발견 버그: [...]
+권장 수정 우선순위: [...]
 ```
 
----
-
-## Tier 선택 자동화
-
-변경 내용에 따라 실행할 Tier를 자동으로 결정한다.
-
-| 변경 유형 | 실행 Tier | 추가 변형 |
-|----------|----------|----------|
-| UI 컴포넌트 변경 | 1 + 2 + 3 | 유령 사용자 |
-| API 엔드포인트만 변경 | 1 + 2 | 없음 |
-| 인증/권한 로직 변경 | 1 + 2 + 3 | 파괴자 |
-| DB 스키마 변경 | 1 + 2 + 3 | 시간축 |
-| 계약서 있는 영역 | 계약 유형별 자동 매핑 | 계약 위반 시 Tier 3 |
-| 전체 변경 | 1 + 2 + 3 | 다중 인격 |
+실패 항목은 LEARN 단계에서 `pulse-memory`의 항체로 기록된다.
 
 ---
 
 ## 실행 체크리스트
 
 ```
-[ ] Tier 0: 크로스파일 공유 타입 탐지 완료
-[ ] Tier 0: 모든 공유 타입에 계약서 존재 확인 (누락 시 BUILD-CONTRACT로 복귀)
-[ ] Tier 1: API shape 비교 완료
-[ ] Tier 1: 경로/링크 전수 확인 완료
-[ ] Tier 1: 상태 전이 검증 완료
-[ ] Tier 1: DB↔API↔UI 체인 확인 완료
-[ ] Tier 2: tsc --noEmit 통과 (TypeScript 프로젝트)
-[ ] Tier 2: dart analyze 통과 (Flutter 프로젝트)
-[ ] Tier 2: 빌드 통과
-[ ] Tier 3: 개발 서버 정상 기동
-[ ] Tier 3: 유저 저니 시나리오 실행 완료
-[ ] Tier 3: 스크린샷 증거 수집 완료
-[ ] 보고서 작성 완료
+[ ] Tier 0: 모든 계약서 linted frontmatter 확인
+[ ] Tier 0: 공유 타입 커버리지 통과
+[ ] Tier 0: Constants/Dependency 정합성 통과
+[ ] Tier 1: API shape, 경로/링크, 상태 전이, DB체인 4종 모두 검증
+[ ] Tier 2: tsc / dart analyze / build 통과
+[ ] Tier 3: 개발 서버 기동, 유저 저니 시나리오 실행
+[ ] Tier 3: 스크린샷 증거 수집
+[ ] 보고서 작성, LEARN으로 인계
 ```
+
+---
+
+## 참조 파일
+
+| 파일 | 역할 |
+|------|------|
+| `pulse-contracts/references/stack-patterns.md` | 스택별 Tier 0 탐지/검증 명령 |
+| `references/tier1-boundary.md` | 4종 경계면 검증 상세 |
+| `references/tier2-build.md` | 빌드/타입 검증 상세 |
+| `references/tier3-live.md` | Live Browser 흐름 + 시간축 + 다중 인격 |
+| `references/ghost-user.md` | 유령 사용자 변형 |
+| `references/destroyer.md` | 파괴자 변형 |

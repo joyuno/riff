@@ -9,9 +9,9 @@
   <img src="https://img.shields.io/badge/Version-0.1.0-brightgreen.svg" alt="Version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/Claude_Code-Plugin-purple.svg" alt="Claude Code Plugin">
-  <img src="https://img.shields.io/badge/Modules-6_Skills-orange.svg" alt="6 Modules">
-  <img src="https://img.shields.io/badge/Domains-5_Experts-green.svg" alt="5 Domains">
-  <img src="https://img.shields.io/badge/QA-3_Tier_+_Playwright-red.svg" alt="3-Tier QA">
+  <img src="https://img.shields.io/badge/Modules-5_Skills-orange.svg" alt="5 Modules">
+  <img src="https://img.shields.io/badge/Contracts-8_Types-blue.svg" alt="8 Contract Types">
+  <img src="https://img.shields.io/badge/QA-Tier_0~3_+_Playwright-red.svg" alt="Tier 0-3 QA">
   <a href="https://github.com/joyuno/pulse/stargazers"><img src="https://img.shields.io/github/stars/joyuno/pulse?style=social" alt="GitHub Stars"></a>
 </p>
 
@@ -73,10 +73,9 @@ Pulse = 올바른 질문(ASK) + 빠른 반복(EXPLORE → BUILD → VERIFY → L
 
 # 3. 모듈 추가 (선택 — 있으면 더 강력)
 /plugin install pulse@pulse-interview    # 소크라테스 인터뷰
-/plugin install pulse@pulse-qa           # 3-Tier QA + Playwright
-/plugin install pulse@pulse-contracts    # 인터페이스 계약
-/plugin install pulse@pulse-immunity     # 실패 면역 시스템
-/plugin install pulse@pulse-dna          # 사용자 프로파일 학습
+/plugin install pulse@pulse-qa           # Tier 0~3 QA + Playwright
+/plugin install pulse@pulse-contracts    # 인터페이스 계약 (8종 + lint)
+/plugin install pulse@pulse-memory       # 항체 + 사용자 프로파일 (통합)
 ```
 
 ### Direct Installation
@@ -117,11 +116,12 @@ Claude Code에서 바로 사용:
 pulse만 설치:           pulse + interview:        pulse + 전체:
 ┌─────────────┐        ┌─────────────┐           ┌─────────────┐
 │ ASK: 기본 2개│        │ ASK: 5-Layer│           │ ASK: 전문가  │
-│ EXPLORE: Agent│       │    전문가질문 │           │ EXPLORE: 분신│
-│ BUILD: 직접  │        │ EXPLORE: 동일│           │ BUILD: 계약  │
-│ VERIFY: build│        │ BUILD: 동일  │           │ VERIFY: Live │
-│ LEARN: 로그  │        │ VERIFY: 동일 │           │ LEARN: 항체  │
-└─────────────┘        └─────────────┘           │       + DNA │
+│ EXPLORE: 직접│        │ EXPLORE: 동일│           │ EXPLORE: 분신│
+│ BUILD: 직접  │        │ BUILD: 동일  │           │ BUILD: 8종   │
+│              │        │              │           │       계약+lint│
+│ VERIFY: build│        │ VERIFY: 동일 │           │ VERIFY: T0~3 │
+│ LEARN: 로그  │        │ LEARN: 동일  │           │ LEARN: memory │
+└─────────────┘        └─────────────┘           │   (항체+프로파일)│
      기본 동작              ASK 강화               └─────────────┘
                                                     최대 성능
 ```
@@ -176,21 +176,18 @@ Pulse:    "이 제품이 없으면 그 일을 지금 어떻게 하고 있나요?
 
 ---
 
-### 2. 3-Tier QA — Live Browser Testing
+### 2. Tier 0~3 QA — 4단계 검증 + Live Browser
 
-> 정적 분석으로 잡을 수 있는 건 앞에서 잡고, **런타임 버그만 Playwright로 검증**합니다.
+> 정적 분석으로 잡을 수 있는 건 앞 Tier에서 잡고, **런타임 버그만 Playwright로 검증**합니다.
 
 ```
-Tier 1: 정적 경계면 QA          비용: 낮음 | 속도: 빠름
-        API 응답 shape ↔ 프론트 훅 타입 교차 비교
-        파일 경로 ↔ href 링크 매핑 검증
+Tier 0: 계약서 lint + 커버리지   비용: 최소  | 계약서 frontmatter, 공유타입 누락 탐지
         ──────────────────────────────────────
-Tier 2: 빌드/타입 QA            비용: 중간 | 속도: 중간
-        tsc --noEmit, eslint, npm run build
+Tier 1: 정적 경계면 QA           비용: 낮음 | API shape, 깨진 링크, 상태전이
         ──────────────────────────────────────
-Tier 3: Live Browser QA         비용: 높음 | 속도: 느림
-        Playwright로 실제 브라우저에서 유저 시나리오 실행
-        스크린샷 증거 수집, 콘솔 에러/네트워크 확인
+Tier 2: 빌드/타입 QA             비용: 중간 | tsc --noEmit, eslint, npm run build
+        ──────────────────────────────────────
+Tier 3: Live Browser QA          비용: 높음 | Playwright 유저 시나리오, 스크린샷
 ```
 
 **Tier 3 QA 변형:**
@@ -204,46 +201,55 @@ Tier 3: Live Browser QA         비용: 높음 | 속도: 느림
 
 ---
 
-### 3. Interface Contracts — 인터페이스 계약
+### 3. Interface Contracts — 인터페이스 계약 (8종 + lint)
 
-> 에이전트 간 **500줄 대신 30줄 계약서만 교환**하여 컨텍스트를 94% 절약합니다.
+> 에이전트 간 **500줄 대신 30줄 계약서만 교환**하여 컨텍스트를 ~94% 절약. 작성 직후 self-lint로 실수 사전 차단.
 
 ```
 기존:  에이전트A ──500줄 전체 코드──→ 에이전트B (낭비)
 Pulse: 에이전트A ──30줄 계약서────→ 에이전트B (효율)
 ```
 
-**5종 계약서:**
+**8종 계약서:**
 
 | 계약 유형 | 내용 | QA Tier |
 |----------|------|---------|
 | **type** | API 응답 shape, 타입 시그니처 | Tier 1 |
-| **behavior** | 상태 전이 규칙, 유저 저니 순서 | Tier 3 |
+| **behavior** | 상태 전이, 유저 저니 순서 | Tier 3 |
 | **visual** | 컴포넌트 상태, 반응형 브레이크포인트 | Tier 3 |
-| **performance** | 응답 시간 SLA, 번들 크기 제한 | Tier 3 |
-| **security** | 인증 규칙, 입력 검증, CORS | Tier 3 (파괴자) |
+| **performance** | 응답 시간 SLA, 번들 크기 | Tier 3 |
+| **security** | 인증/인가, 입력 검증, CORS | Tier 3 (파괴자) |
+| **constants** | 공유 상수 SSOT (길이, rate, 토큰 만료 등) | Tier 0 |
+| **dependency** | 라이브러리 버전 핀, 호환성 | Tier 0 |
+| **architecture** | 병렬 에이전트 API/모듈/파일 소유권 | Tier 0 + 1 |
+
+**계약서 실수 방지:** 작성 직후 8종별 lint(`contract-lint.md`) → 통과해야 BUILD 진입. 자주 하는 실수(CM-001~020) 카탈로그가 `pulse-memory`의 `contract` 항체로 자동 누적되어 다음 BUILD에 주입.
 
 ---
 
-### 4. Failure Immunity — 실패 면역 시스템
+### 4. Pulse Memory — 항체 + 사용자 프로파일 (통합)
 
-> 한번 겪은 버그에 **항체**를 만들어 같은 실수를 자동 방지합니다.
+> 한번 겪은 실수와 사용자 선호도를 함께 누적하여 다음 Pulse·다음 세션에 자동 적용.
+
+**항체 (6종 type)**
 
 ```
-버그 발생 → 항체 생성 → 다음 BUILD에서 자동 주입
+버그 발견 → 항체 생성 → 다음 BUILD에 자동 주입
                 ↓
-           재발 시 → 항체 강화 (체크리스트 확장)
+            재발 → 강화 (recurrence +1, 체크리스트 확장)
                 ↓
-      5회 미발생 → 항체 약화 (체크리스트 제거, 기록 보존)
+       90일 무재발 → weakened (보존만)
 ```
 
----
+| type | 적용 영역 |
+|------|---------|
+| boundary / logic / ui / performance / security | 코드 버그 패턴 |
+| **contract** | **계약서 작성 실수** (단위 누락, 종단 가드 누락 등) |
 
-### 5. User DNA — 사용자 프로파일
+**사용자 프로파일** (`.pulse/memory/profile.md`)
 
-> 세션별로 사용자의 성향을 학습하여, **다음 세션에서 자동 적응**합니다.
-
-추적 항목: 커뮤니케이션 스타일 / 기술 선호 / 의사결정 패턴 / 코딩 컨벤션
+추적: 커뮤니케이션 스타일 / 기술 선호 / 의사결정 패턴 / 코딩 컨벤션
+2회 반복 관찰 → 자동 학습. 명시적 피드백("이렇게 하지 마") → 즉시 반영.
 
 ---
 
@@ -304,57 +310,66 @@ RAG 기반 고객 상담 챗봇을 만들어줘.
 ```
 pulse/
 ├── .claude-plugin/
-│   └── plugin.json                          # Plugin manifest
+│   ├── plugin.json
+│   └── marketplace.json
 │
 ├── skills/
 │   ├── pulse/                               # Core loop engine
 │   │   ├── SKILL.md                         #   ASK→EXPLORE→BUILD→VERIFY→LEARN
-│   │   └── references/
-│   │       └── convergence.md               #   Convergence detection criteria
+│   │   └── references/                      #   build/explore/rewind/convergence/...
 │   │
-│   ├── pulse-interview/                     # Socratic interview
-│   │   ├── SKILL.md                         #   5-Layer interview framework
-│   │   └── references/
-│   │       ├── layers.md                    #   Question trees per layer
-│   │       ├── scorecard.md                 #   Interview quality evaluation
-│   │       ├── answer-to-arch.md            #   Answer → architecture mapping
-│   │       └── domains/
-│   │           ├── web-development.md       #   Web dev expert questions
-│   │           ├── smart-store.md           #   Dropshipping/smart store
-│   │           ├── video-creation.md        #   Video production
-│   │           ├── quant-trading.md         #   Quant/auto-trading
-│   │           └── ai-engineering.md        #   AI/ML engineering
+│   ├── pulse-interview/                     # 5-Layer Socratic interview
+│   │   ├── SKILL.md
+│   │   └── references/                      #   layers, scorecard, domains/, experts/
 │   │
-│   ├── pulse-qa/                            # 3-Tier QA system
-│   │   ├── SKILL.md                         #   QA orchestration
+│   ├── pulse-contracts/                     # 8종 계약 + lint
+│   │   ├── SKILL.md
 │   │   └── references/
-│   │       ├── tier1-boundary.md            #   Static boundary analysis
-│   │       ├── tier2-build.md               #   Build/type verification
-│   │       ├── tier3-live.md                #   Playwright live browser QA
-│   │       ├── ghost-user.md                #   AI free-exploration testing
-│   │       └── destroyer.md                 #   Destructive/security testing
+│   │       ├── contract-lint.md             #   8종 self-check + cross 검증
+│   │       ├── contract-mistakes.md         #   CM-001~020 실수 카탈로그(항체 시드)
+│   │       ├── stack-patterns.md            #   스택별 탐지/검증 명령
+│   │       └── {type|behavior|visual|performance|security|constants|dependency|architecture}.template.md
 │   │
-│   ├── pulse-contracts/                     # Interface contracts
-│   │   ├── SKILL.md                         #   Contract system overview
-│   │   └── references/
-│   │       ├── type.template.md             #   API shape contracts
-│   │       ├── behavior.template.md         #   State transition contracts
-│   │       ├── visual.template.md           #   UI state contracts
-│   │       ├── performance.template.md      #   SLA contracts
-│   │       └── security.template.md         #   Auth/security contracts
+│   ├── pulse-qa/                            # Tier 0~3 QA
+│   │   ├── SKILL.md
+│   │   └── references/                      #   tier1, tier2, tier3, ghost-user, destroyer
 │   │
-│   ├── pulse-immunity/                      # Failure immunity
-│   │   ├── SKILL.md                         #   Antibody lifecycle
-│   │   └── references/
-│   │       └── antibody-schema.md           #   Antibody file schema
-│   │
-│   └── pulse-dna/                           # User profiling
-│       ├── SKILL.md                         #   Learning mechanism
+│   └── pulse-memory/                        # 항체 + 프로파일 (통합)
+│       ├── SKILL.md
 │       └── references/
-│           └── profile-schema.md            #   Profile schema
+│           ├── antibody-schema.md           #   6종 type 포함 (boundary/.../contract)
+│           └── profile-schema.md            #   단일 프로파일 파일 스키마
 │
+├── hooks/                                   # SubagentStop 진행률 훅
+├── benchmarks/                              # 평가 픽스처
+├── docs/                                    # 다이어그램
 ├── LICENSE
 └── README.md
+```
+
+### 프로젝트 런타임 디렉토리
+
+Pulse가 동작할 때 사용자 프로젝트에 만들어지는 디렉토리:
+
+```
+프로젝트루트/
+├── _workspace/                  # git 추적 - 이번 프로젝트 산출물
+│   ├── pulse-status.md          # 현재 위치 + 자동화 체크리스트
+│   ├── pulse-log.md             # Pulse별 학습 기록
+│   ├── contracts/               # 8종 계약서 단일 경로
+│   │   ├── README.md
+│   │   ├── ui-stack.md
+│   │   └── *.md
+│   └── pulse-N/                 # Pulse별 결과
+│       └── {agent}-result.md
+│
+└── .pulse/                      # 학습 메모리 + 세션 상태
+    ├── memory/
+    │   ├── antibodies/          # git 추적 (팀 공유)
+    │   │   └── {type}-{name}.md
+    │   └── profile.md           # git 미추적 (.gitignore)
+    ├── pulse-log.json           # 훅 출력
+    └── state.json               # 세션 상태 (.gitignore)
 ```
 
 ## Comparison
