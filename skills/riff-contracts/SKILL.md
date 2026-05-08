@@ -1,9 +1,9 @@
 ---
-name: pulse-contracts
-description: "에이전트 간 경계면 계약 시스템. 전체 코드가 아닌 계약서만 교환해 컨텍스트 ~94% 절약. 8종 계약서(type/behavior/visual/performance/security/constants/dependency/architecture) 생성·lint·cross-validation. Pulse의 BUILD-CONTRACT 단계에서 호출. '계약', 'contract', '인터페이스', 'API 정의', '경계면' 시 사용."
+name: riff-contracts
+description: "에이전트 간 경계면 계약 시스템. 전체 코드가 아닌 계약서만 교환해 컨텍스트 ~94% 절약. 8종 계약서(type/behavior/visual/performance/security/constants/dependency/architecture) 생성·lint·cross-validation. Riff의 BUILD-CONTRACT 단계에서 호출. '계약', 'contract', '인터페이스', 'API 정의', '경계면' 시 사용."
 ---
 
-# pulse-contracts: 인터페이스 계약 시스템
+# riff-contracts: 인터페이스 계약 시스템
 
 ## 핵심 가치
 
@@ -64,7 +64,7 @@ VERIFY Tier 0 (계약서 frontmatter + 코드 정합성 재확인)
 
 자주 빠뜨리는 실수 카탈로그(시드 항체): `references/contract-mistakes.md` (CM-001 ~ CM-020)
 
-이 두 파일은 `pulse-memory`의 `contract` 타입 항체와 cross-reference된다 — 같은 실수가 2회 이상 발생하면 항체로 누적되어 다음 BUILD-CONTRACT 시 자동 주입.
+이 두 파일은 `riff-memory`의 `contract` 타입 항체와 cross-reference된다 — 같은 실수가 2회 이상 발생하면 항체로 누적되어 다음 BUILD-CONTRACT 시 자동 주입.
 
 ### 복귀 루프 가드
 
@@ -126,8 +126,8 @@ cross 위반은 단일 위반보다 위험도 높음 (누락이 명백하지 않
 
 ```
 _workspace/contracts/
-├── README.md                    ← 전체 목록 (Pulse 통합)
-├── ui-stack.md                  ← UI 스택 (Pulse 0)
+├── README.md                    ← 전체 목록 (Riff 통합)
+├── ui-stack.md                  ← UI 스택 (Riff 0)
 ├── {이름}-type.md
 ├── {이름}-behavior.md
 ├── {이름}-visual.md
@@ -138,12 +138,12 @@ _workspace/contracts/
 └── architecture.md              ← 병렬 에이전트 소유권 맵
 ```
 
-> 계약서는 Pulse 번호 무관, 단일 경로. 생성 Pulse는 README.md에만 기록.
+> 계약서는 Riff 번호 무관, 단일 경로. 생성 Riff는 README.md에만 기록.
 
 ### README 형식
 
 ```markdown
-| 계약서 | 유형 | 생성 Pulse | 소비자 | linted | 상태 |
+| 계약서 | 유형 | 생성 Riff | 소비자 | linted | 상태 |
 |--------|------|----------|--------|--------|------|
 | auth-type.md | type | 1 | frontend, backend | 2026-05-04 | 활성 |
 | auth-constants.md | constants | 1 | frontend, backend | 2026-05-04 | 활성 |
@@ -156,7 +156,7 @@ _workspace/contracts/
 BUILD-CONTRACT 진입 전 오케스트레이터 실행:
 
 **기존 코드베이스가 있을 때**
-1. 이번 Pulse 수정·생성 파일 목록 확정
+1. 이번 Riff 수정·생성 파일 목록 확정
 2. import 문과 생성자 파라미터 읽기
 3. "다른 파일에서 정의되고 이 파일에서 소비되는 타입" 추출
 4. 추출된 타입마다 계약서 1개

@@ -1,9 +1,9 @@
 ---
-name: pulse-qa
-description: "4단계 QA 시스템(Tier 0~3): 계약서 lint → 정적 경계면 → 빌드/타입 → Live Browser. Pulse의 VERIFY 단계에서 호출. 유령 사용자·파괴자·시간축·다중 인격 변형 포함. '테스트', 'QA', '검증', '확인해줘', '동작하는지', '버그 찾아', '품질 검사' 시 사용."
+name: riff-qa
+description: "4단계 QA 시스템(Tier 0~3): 계약서 lint → 정적 경계면 → 빌드/타입 → Live Browser. Riff의 VERIFY 단계에서 호출. 유령 사용자·파괴자·시간축·다중 인격 변형 포함. '테스트', 'QA', '검증', '확인해줘', '동작하는지', '버그 찾아', '품질 검사' 시 사용."
 ---
 
-# pulse-qa — 4단계 QA 시스템 (Tier 0~3)
+# riff-qa — 4단계 QA 시스템 (Tier 0~3)
 
 ## 개요
 
@@ -44,11 +44,11 @@ Tier 3 (Live Browser)
 
 1. **lint frontmatter 검증**: `_workspace/contracts/*.md` 모두에 `linted: YYYY-MM-DD` 존재 확인. 없으면 차단.
 2. **mtime > linted 검증**: 계약서 파일이 수정됐는데 재린트 안 됐으면 차단.
-3. **공유 타입 커버리지**: 이번 Pulse의 import/생성자 파라미터 ↔ 계약서 README.md 비교. 누락 시 BUILD-CONTRACT 복귀.
+3. **공유 타입 커버리지**: 이번 Riff의 import/생성자 파라미터 ↔ 계약서 README.md 비교. 누락 시 BUILD-CONTRACT 복귀.
 4. **상수 정합성**: Constants Contract 값 ↔ 코드 하드코딩 비교. 불일치 시 코드 수정.
 5. **의존성 정합성**: Dependency Contract 핀 ↔ 잠금 파일 비교.
 
-스택별 탐지 명령: `pulse-contracts/references/stack-patterns.md`
+스택별 탐지 명령: `riff-contracts/references/stack-patterns.md`
 
 ### 통과 조건
 
@@ -79,7 +79,7 @@ Tier 0 실패 → BUILD-CONTRACT 복귀 → Tier 0 재실행 사이클이 같은
 3. **상태 전이 ↔ 실제 status 업데이트 코드** — Behavior Contract 위반
 4. **DB 스키마 ↔ API 응답 ↔ 프론트 타입 체인** — 이름·타입 단절 지점
 
-계약서 기반 검증: pulse-contracts가 생성한 계약을 기준점으로 사용.
+계약서 기반 검증: riff-contracts가 생성한 계약을 기준점으로 사용.
 
 ---
 
@@ -130,7 +130,7 @@ flutter build web
 
 ### 유저 저니 → Playwright 시나리오 변환
 
-`pulse-interview`의 `journeys.md` 또는 `master-plan.md`를 변환:
+`riff-interview`의 `journeys.md` 또는 `master-plan.md`를 변환:
 
 | 저니 문장 | Playwright |
 |----------|-----------|
@@ -142,7 +142,7 @@ flutter build web
 
 selector 우선순위: `data-testid` > `getByRole(role, name)` > `getByText`.
 
-시나리오 저장: `_workspace/pulse-N/playwright-scenarios.md`
+시나리오 저장: `_workspace/riff-N/playwright-scenarios.md`
 
 ### 변형
 
@@ -195,7 +195,7 @@ selector 우선순위: `data-testid` > `getByRole(role, name)` > `getByText`.
 권장 수정 우선순위: [...]
 ```
 
-실패 항목은 LEARN 단계에서 `pulse-memory`의 항체로 기록된다.
+실패 항목은 LEARN 단계에서 `riff-memory`의 항체로 기록된다.
 
 ---
 
@@ -218,7 +218,7 @@ selector 우선순위: `data-testid` > `getByRole(role, name)` > `getByText`.
 
 | 파일 | 역할 |
 |------|------|
-| `pulse-contracts/references/stack-patterns.md` | 스택별 Tier 0 탐지/검증 명령 |
+| `riff-contracts/references/stack-patterns.md` | 스택별 Tier 0 탐지/검증 명령 |
 | `references/tier1-boundary.md` | 4종 경계면 검증 상세 |
 | `references/tier2-build.md` | 빌드/타입 검증 상세 |
 | `references/tier3-live.md` | Live Browser 흐름 + 시간축 + 다중 인격 |

@@ -69,7 +69,7 @@
 ## 최종 출력: 마스터 기획서
 
 모든 전문가 결정사항을 통합한 단일 문서 생성.
-저장 위치: `_workspace/pulse-0/master-plan.md`
+저장 위치: `_workspace/riff-0/master-plan.md`
 
 ```markdown
 # 마스터 기획서 — [프로젝트명]
@@ -108,7 +108,7 @@
 ## 제약 조건 (에이전트 준수 필수)
 [Architecture Contract의 기초 자료]
 
-## 초기 항체 목록 (pulse-immunity)
+## 초기 항체 목록 (riff-immunity)
 [Pre-mortem에서 도출된 리스크 → 항체 후보]
 ```
 

@@ -1,7 +1,7 @@
-# Pulse 벤치마크 — OMC Ground Truth 방식
+# Riff 벤치마크 — OMC Ground Truth 방식
 
-Pulse 플러그인의 4가지 핵심 능력을 자동 채점하는 벤치마크 스위트입니다.
-OMC(oh-my-claudecode)의 harsh-critic 벤치마크 방식을 Pulse 도메인에 맞게 포팅했습니다.
+Riff 플러그인의 4가지 핵심 능력을 자동 채점하는 벤치마크 스위트입니다.
+OMC(oh-my-claudecode)의 harsh-critic 벤치마크 방식을 Riff 도메인에 맞게 포팅했습니다.
 
 ---
 
@@ -43,10 +43,10 @@ export ANTHROPIC_API_KEY=sk-ant-...
 ### 기본 실행
 
 ```bash
-cd /path/to/pulse/benchmarks
+cd /path/to/riff/benchmarks
 
-# 전체 벤치마크 실행 (Pulse 적용)
-./run-benchmark.sh --with-pulse
+# 전체 벤치마크 실행 (Riff 적용)
+./run-benchmark.sh --with-riff
 
 # 특정 차원만 실행
 ./run-benchmark.sh --dimension interview
@@ -55,14 +55,14 @@ cd /path/to/pulse/benchmarks
 # 특정 fixture만 실행
 ./run-benchmark.sh --fixture interview-ecommerce
 
-# Pulse 없이 실행 (baseline 측정)
-./run-benchmark.sh --without-pulse
+# Riff 없이 실행 (baseline 측정)
+./run-benchmark.sh --without-riff
 
 # 양쪽 비교
 ./run-benchmark.sh --compare
 
 # 베이스라인 저장
-./run-benchmark.sh --with-pulse --save-baseline
+./run-benchmark.sh --with-riff --save-baseline
 ```
 
 ### 결과 확인
@@ -133,8 +133,8 @@ cat results/results.json
 ### 베이스라인 저장
 
 ```bash
-# Pulse 적용 결과를 베이스라인으로 저장
-./run-benchmark.sh --with-pulse --save-baseline
+# Riff 적용 결과를 베이스라인으로 저장
+./run-benchmark.sh --with-riff --save-baseline
 
 # 저장 위치: baselines/baseline_YYYY-MM-DD.json
 ```
@@ -154,15 +154,15 @@ cat results/results.json
 
 ---
 
-## With-Pulse vs Without-Pulse 비교
+## With-Riff vs Without-Riff 비교
 
 `--compare` 모드는 동일 fixture를 두 가지 모드로 실행하고 head-to-head 비교를 생성합니다.
 
 ```
 fixture: vague-ecommerce
-  with-pulse:    composite=82.3%  tp=90%  fn=10%
-  without-pulse: composite=41.5%  tp=35%  fn=65%
-  delta:         +40.8%  ← Pulse 효과
+  with-riff:    composite=82.3%  tp=90%  fn=10%
+  without-riff: composite=41.5%  tp=35%  fn=65%
+  delta:         +40.8%  ← Riff 효과
 ```
 
 ---
@@ -173,7 +173,7 @@ fixture: vague-ecommerce
 |------|-----------|----------|---------|
 | `--dimension interview` | 2 | ~8K | ~$0.05 |
 | `--dimension boundary` | 2 | ~6K | ~$0.04 |
-| `--with-pulse` (전체) | 6 | ~30K | ~$0.20 |
+| `--with-riff` (전체) | 6 | ~30K | ~$0.20 |
 | `--compare` (전체) | 6×2 | ~60K | ~$0.40 |
 
 _claude-sonnet 기준. opus 사용 시 5× 비용 예상._

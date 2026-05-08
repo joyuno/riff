@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Pulse Benchmark Scorer
+Riff Benchmark Scorer
 OMC harsh-critic scorer.ts를 Python으로 포팅한 키워드 매칭 채점기.
 
 사용법:
@@ -446,7 +446,7 @@ def score_all(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Pulse 벤치마크 채점기 — 키워드 매칭 기반 자동 채점",
+        description="Riff 벤치마크 채점기 — 키워드 매칭 기반 자동 채점",
     )
     parser.add_argument(
         "--ground-truth",

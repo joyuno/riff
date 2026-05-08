@@ -1,6 +1,6 @@
 #!/bin/bash
-# Pulse Hooks Installer
-# Claude Code settings.json에 pulse-progress 훅을 자동 등록합니다.
+# Riff Hooks Installer
+# Claude Code settings.json에 riff-progress 훅을 자동 등록합니다.
 #
 # 사용법:
 #   bash install.sh
@@ -31,7 +31,7 @@ done
 
 # ── 경로 설정 ─────────────────────────────────────────────────────────────────
 HOOKS_DIR="$(cd "$(dirname "$0")" && pwd)"
-HOOK_SCRIPT="$HOOKS_DIR/pulse-progress.sh"
+HOOK_SCRIPT="$HOOKS_DIR/riff-progress.sh"
 SETTINGS_FILE="$HOME/.claude/settings.json"
 SETTINGS_DIR="$(dirname "$SETTINGS_FILE")"
 
@@ -39,19 +39,19 @@ SETTINGS_DIR="$(dirname "$SETTINGS_FILE")"
 show_summary() {
   echo ""
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  echo " Pulse Progress 훅 설치 완료"
+  echo " Riff Progress 훅 설치 완료"
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   echo " 훅 스크립트 : $HOOK_SCRIPT"
   echo " 설정 파일   : $SETTINGS_FILE"
   echo ""
   echo " 다음 단계:"
-  echo "   1. 프로젝트 루트에 .pulse/ 디렉토리를 생성하세요."
-  echo "      mkdir -p <프로젝트루트>/.pulse"
+  echo "   1. 프로젝트 루트에 .riff/ 디렉토리를 생성하세요."
+  echo "      mkdir -p <프로젝트루트>/.riff"
   echo "   2. Claude Code 를 재시작하면 훅이 활성화됩니다."
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 }
 
-info "Pulse Hooks Installer 시작"
+info "Riff Hooks Installer 시작"
 info "훅 스크립트 경로: $HOOK_SCRIPT"
 info "설정 파일 경로:   $SETTINGS_FILE"
 $DRY_RUN && warn "DRY-RUN 모드 — 실제 파일은 변경되지 않습니다."
@@ -61,8 +61,8 @@ echo ""
 
 # 1) 훅 스크립트 존재 확인
 if [ ! -f "$HOOK_SCRIPT" ]; then
-  error "pulse-progress.sh 를 찾을 수 없습니다: $HOOK_SCRIPT"
-  error "install.sh 와 pulse-progress.sh 가 같은 디렉토리에 있어야 합니다."
+  error "riff-progress.sh 를 찾을 수 없습니다: $HOOK_SCRIPT"
+  error "install.sh 와 riff-progress.sh 가 같은 디렉토리에 있어야 합니다."
   exit 1
 fi
 success "훅 스크립트 확인됨"
@@ -131,7 +131,7 @@ EXISTING=$(jq \
   "$SETTINGS_FILE" 2>/dev/null || echo "0")
 
 if [ "$EXISTING" -gt 0 ]; then
-  warn "pulse-progress 훅이 이미 등록되어 있습니다. 중복 등록을 건너뜁니다."
+  warn "riff-progress 훅이 이미 등록되어 있습니다. 중복 등록을 건너뜁니다."
   echo ""
   show_summary
   exit 0

@@ -92,7 +92,7 @@
 
 ## 4. 에이전트 팀 구성 매핑
 
-Pulse 에이전트 팀의 수와 구성을 결정합니다.
+Riff 에이전트 팀의 수와 구성을 결정합니다.
 
 ### 입력 변수
 - `timeline`: Q7 답변
@@ -168,20 +168,20 @@ scale=A 또는 timeline=A → Tier 1
 
 ---
 
-## 6. 예상 Pulse 수 계산
+## 6. 예상 Riff 수 계산
 
 ### 공식
 
 ```
-기본 Pulse = feature_count (Q6 반드시 항목 수) × 3
+기본 Riff = feature_count (Q6 반드시 항목 수) × 3
               + feature_count (Q6 있으면 좋음) × 1
 
 조정:
 + timeline=A: × 1.5 (병렬화로 증가)
-+ scale=C: + 3 (인프라/스케일링 Pulse 추가)
-+ reliability_critical: + 2 (테스트/검증 Pulse 추가)
-+ compliance_required: + 4 (보안/감사 Pulse 추가)
-+ domain 전문가 질문 완료: + 2 (도메인 특화 Pulse 추가)
++ scale=C: + 3 (인프라/스케일링 Riff 추가)
++ reliability_critical: + 2 (테스트/검증 Riff 추가)
++ compliance_required: + 4 (보안/감사 Riff 추가)
++ domain 전문가 질문 완료: + 2 (도메인 특화 Riff 추가)
 ```
 
 ### 예시 계산
@@ -192,7 +192,7 @@ scale=A 또는 timeline=A → Tier 1
 timeline=B → 조정 없음
 scale=B → 조정 없음
 도메인 완료 → +2
-합계: 13 Pulse
+합계: 13 Riff
 ```
 
 **시나리오: 퀀트 트레이딩, 반드시 2개, 2주, A규모, reliability_critical**
@@ -200,7 +200,7 @@ scale=B → 조정 없음
 기본 = 2×3 = 6
 timeline=A → ×1.5 = 9
 reliability_critical → +2 = 11
-합계: 11 Pulse
+합계: 11 Riff
 ```
 
 ---
@@ -225,7 +225,7 @@ reliability_critical → +2 = 11
 | 배포 환경 | Railway (초기) → AWS 이전 준비 | scale=B, 이후 C 대비 |
 | 에이전트 수 | 6개, 표준 병렬 | timeline=B + scale=B + feature=3 |
 | QA Tier | Tier 2 | timeline=B + scale=B |
-| 예상 Pulse 수 | 13개 | 계산식 적용 |
+| 예상 Riff 수 | 13개 | 계산식 적용 |
 
 **핵심 트레이드오프:**
 1. Supabase 사용 → 초기 속도 UP, 장기 비용 UP (월 $25~$500)

@@ -6,7 +6,7 @@
 ## 평가 목표
 
 Next.js App Router의 Route Group `(dashboard)` 구조에서 발생하는
-경로 접두사 누락 버그들을 Pulse가 탐지하는지 평가합니다.
+경로 접두사 누락 버그들을 Riff가 탐지하는지 평가합니다.
 
 ---
 

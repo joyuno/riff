@@ -114,10 +114,10 @@ claude plugin install https://github.com/{owner}/{repo}
 
 | 단계 | 스킬 | 용도 |
 |------|------|------|
-| ASK | pulse-interview | 5-Layer 기획 |
+| ASK | riff-interview | 5-Layer 기획 |
 | BUILD | [설치된 UI 스킬] | UI 컴포넌트 생성 |
-| VERIFY | pulse-qa | Tier 0~3 검증 |
-| LEARN | pulse-immunity | 버그 패턴 기록 |
+| VERIFY | riff-qa | Tier 0~3 검증 |
+| LEARN | riff-immunity | 버그 패턴 기록 |
 ```
 
 ---
@@ -131,7 +131,7 @@ claude plugin install https://github.com/{owner}/{repo}
 | taste-skill | 디자인 취향 분석 | 리서치 필요 |
 | frontend-design | UI 컴포넌트 생성 | 내장 |
 | oh-my-claudecode | 멀티 에이전트 | 내장 |
-| pulse | 프로젝트 루프 | joyuno/pulse |
+| riff | 프로젝트 루프 | joyuno/riff |
 | mcp-omnisearch | GitHub·웹 통합 검색 MCP | spences10/mcp-omnisearch |
 
 ---

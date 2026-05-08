@@ -18,14 +18,14 @@
 
 ## 탐색 결과 파일 형식
 
-저장 위치: `_workspace/pulse-N/explore-{방향명}-result.md`
+저장 위치: `_workspace/riff-N/explore-{방향명}-result.md`
 
 예시: `explore-rest-result.md`, `explore-graphql-result.md`
 
 ```markdown
 ---
 direction: [방향명 — 예: rest, graphql, websocket]
-pulse: N
+riff: N
 explored_at: [날짜]
 recommendation: proceed | reject | needs_more
 confidence: [0-100%]
@@ -67,10 +67,10 @@ confidence: [0-100%]
 
 모든 방향 탐색이 끝나면 오케스트레이터가 종합 보고서를 작성한다.
 
-저장 위치: `_workspace/pulse-N/explore-synthesis.md`
+저장 위치: `_workspace/riff-N/explore-synthesis.md`
 
 ```markdown
-## EXPLORE 종합 — Pulse N
+## EXPLORE 종합 — Riff N
 
 ### 탐색한 방향
 | 방향 | 추천 | 확신도 | 요약 |
@@ -140,8 +140,8 @@ confidence: [0-100%]
 
 ```
 에이전트 프롬프트에 추가:
-"탐색 결과: _workspace/pulse-N/explore-{방향명}-result.md 참조.
+"탐색 결과: _workspace/riff-N/explore-{방향명}-result.md 참조.
  이 방향의 트레이드오프를 이미 수용한 상태로 구현하라."
 ```
 
-`pulse-status.md` 갱신: 현재 위치를 `BUILD > PLAN`으로 이동. explore-synthesis.md 경로를 기록.
+`riff-status.md` 갱신: 현재 위치를 `BUILD > PLAN`으로 이동. explore-synthesis.md 경로를 기록.

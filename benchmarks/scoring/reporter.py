@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Pulse 벤치마크 보고서 생성기
+Riff 벤치마크 보고서 생성기
 scorer.py의 JSON 결과를 마크다운 보고서로 변환합니다.
 
 사용법:
   python reporter.py --input results/output.json --output results/report.md
   python reporter.py --input results/output.json --baseline baselines/baseline_2025-01-01.json
-  python reporter.py --compare results/with-pulse.json results/without-pulse.json --output results/comparison.md
+  python reporter.py --compare results/with-riff.json results/without-riff.json --output results/comparison.md
 """
 
 from __future__ import annotations
@@ -78,7 +78,7 @@ def generate_single_report(report: dict, baseline: dict | None = None) -> str:
     total = report.get("total_fixtures", 0)
 
     # 헤더
-    lines.append("# Pulse 벤치마크 보고서")
+    lines.append("# Riff 벤치마크 보고서")
     lines.append("")
     lines.append(f"**날짜**: {timestamp}")
     lines.append(f"**Fixture 수**: {total}")
@@ -183,24 +183,24 @@ def generate_single_report(report: dict, baseline: dict | None = None) -> str:
 
 
 # ============================================================
-# 비교 보고서 생성 (With-Pulse vs Without-Pulse)
+# 비교 보고서 생성 (With-Riff vs Without-Riff)
 # ============================================================
 
-def generate_comparison_report(with_pulse: dict, without_pulse: dict) -> str:
+def generate_comparison_report(with_riff: dict, without_riff: dict) -> str:
     lines: list[str] = []
 
-    wp_agg = with_pulse.get("aggregate", {})
-    wop_agg = without_pulse.get("aggregate", {})
+    wp_agg = with_riff.get("aggregate", {})
+    wop_agg = without_riff.get("aggregate", {})
 
     wp_composite = wp_agg.get("composite_score", 0.0)
     wop_composite = wop_agg.get("composite_score", 0.0)
     overall_delta = wp_composite - wop_composite
 
-    lines.append("# Pulse 벤치마크 비교 보고서")
+    lines.append("# Riff 벤치마크 비교 보고서")
     lines.append("")
-    lines.append("## With-Pulse vs Without-Pulse")
+    lines.append("## With-Riff vs Without-Riff")
     lines.append("")
-    lines.append(f"| | With Pulse | Without Pulse | Delta |")
+    lines.append(f"| | With Riff | Without Riff | Delta |")
     lines.append(f"|---|-----------|---------------|-------|")
     lines.append(
         f"| **Composite Score** | {pct(wp_composite)} ({grade(wp_composite)}) | "
@@ -211,7 +211,7 @@ def generate_comparison_report(with_pulse: dict, without_pulse: dict) -> str:
     # 메트릭별 비교
     lines.append("## 메트릭별 비교")
     lines.append("")
-    lines.append("| 메트릭 | With Pulse | Without Pulse | Delta |")
+    lines.append("| 메트릭 | With Riff | Without Riff | Delta |")
     lines.append("|--------|-----------|---------------|-------|")
 
     for key, label in METRIC_LABELS.items():
@@ -223,14 +223,14 @@ def generate_comparison_report(with_pulse: dict, without_pulse: dict) -> str:
     lines.append("")
 
     # Fixture별 Head-to-Head
-    wp_fixtures = {r["fixture_id"]: r for r in with_pulse.get("fixture_results", [])}
-    wop_fixtures = {r["fixture_id"]: r for r in without_pulse.get("fixture_results", [])}
+    wp_fixtures = {r["fixture_id"]: r for r in with_riff.get("fixture_results", [])}
+    wop_fixtures = {r["fixture_id"]: r for r in without_riff.get("fixture_results", [])}
     all_fixture_ids = sorted(set(wp_fixtures) | set(wop_fixtures))
 
     if all_fixture_ids:
         lines.append("## Fixture별 Head-to-Head")
         lines.append("")
-        lines.append("| Fixture | With Pulse | Without Pulse | Delta | Winner |")
+        lines.append("| Fixture | With Riff | Without Riff | Delta | Winner |")
         lines.append("|---------|-----------|---------------|-------|--------|")
 
         wp_wins = 0
@@ -248,10 +248,10 @@ def generate_comparison_report(with_pulse: dict, without_pulse: dict) -> str:
                 winner = "동점"
                 ties += 1
             elif delta > 0:
-                winner = "With Pulse ✓"
+                winner = "With Riff ✓"
                 wp_wins += 1
             else:
-                winner = "Without Pulse"
+                winner = "Without Riff"
                 wop_wins += 1
 
             lines.append(
@@ -260,19 +260,19 @@ def generate_comparison_report(with_pulse: dict, without_pulse: dict) -> str:
 
         lines.append("")
         lines.append(
-            f"**종합**: With Pulse {wp_wins}승 / Without Pulse {wop_wins}승 / 동점 {ties}"
+            f"**종합**: With Riff {wp_wins}승 / Without Riff {wop_wins}승 / 동점 {ties}"
         )
         lines.append("")
 
     # 차원별 비교
-    wp_dims = with_pulse.get("dimension_scores", {})
-    wop_dims = without_pulse.get("dimension_scores", {})
+    wp_dims = with_riff.get("dimension_scores", {})
+    wop_dims = without_riff.get("dimension_scores", {})
     all_dims = sorted(set(wp_dims) | set(wop_dims))
 
     if all_dims:
-        lines.append("## 차원별 Pulse 효과")
+        lines.append("## 차원별 Riff 효과")
         lines.append("")
-        lines.append("| 차원 | With Pulse | Without Pulse | Pulse 효과 |")
+        lines.append("| 차원 | With Riff | Without Riff | Riff 효과 |")
         lines.append("|------|-----------|---------------|-----------|")
 
         for dim in all_dims:
@@ -289,17 +289,17 @@ def generate_comparison_report(with_pulse: dict, without_pulse: dict) -> str:
     lines.append("")
     if overall_delta > 0.10:
         lines.append(
-            f"Pulse 적용 시 종합 점수가 **{sign(overall_delta)}** 향상됩니다. "
+            f"Riff 적용 시 종합 점수가 **{sign(overall_delta)}** 향상됩니다. "
             f"특히 인터뷰 품질과 경계면 QA 차원에서 효과가 두드러집니다."
         )
     elif overall_delta > 0:
         lines.append(
-            f"Pulse 적용 시 종합 점수가 {sign(overall_delta)} 향상됩니다."
+            f"Riff 적용 시 종합 점수가 {sign(overall_delta)} 향상됩니다."
         )
     elif overall_delta < -REGRESSION_THRESHOLD:
         lines.append(
-            f"⚠️  Without Pulse가 {sign(-overall_delta)} 높은 점수를 기록했습니다. "
-            f"Pulse 시스템 점검이 필요합니다."
+            f"⚠️  Without Riff가 {sign(-overall_delta)} 높은 점수를 기록했습니다. "
+            f"Riff 시스템 점검이 필요합니다."
         )
     else:
         lines.append("두 실행 결과가 유사합니다. 추가 fixture가 필요할 수 있습니다.")
@@ -314,7 +314,7 @@ def generate_comparison_report(with_pulse: dict, without_pulse: dict) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Pulse 벤치마크 보고서 생성기",
+        description="Riff 벤치마크 보고서 생성기",
     )
     parser.add_argument(
         "--input",
@@ -329,8 +329,8 @@ def main() -> None:
     parser.add_argument(
         "--compare",
         nargs=2,
-        metavar=("WITH_PULSE_JSON", "WITHOUT_PULSE_JSON"),
-        help="With-Pulse vs Without-Pulse 비교 모드",
+        metavar=("WITH_RIFF_JSON", "WITHOUT_RIFF_JSON"),
+        help="With-Riff vs Without-Riff 비교 모드",
     )
     parser.add_argument(
         "--output",
@@ -344,10 +344,10 @@ def main() -> None:
         # 비교 모드
         with_path, without_path = args.compare
         with open(with_path, encoding="utf-8") as f:
-            with_pulse = json.load(f)
+            with_riff = json.load(f)
         with open(without_path, encoding="utf-8") as f:
-            without_pulse = json.load(f)
-        report_md = generate_comparison_report(with_pulse, without_pulse)
+            without_riff = json.load(f)
+        report_md = generate_comparison_report(with_riff, without_riff)
 
     elif args.input:
         # 단일 보고서 모드

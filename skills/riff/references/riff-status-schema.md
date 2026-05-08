@@ -1,6 +1,6 @@
-# pulse-status.md 포맷 정의
+# riff-status.md 포맷 정의
 
-이 파일은 `_workspace/pulse-status.md`의 형식을 정의한다.
+이 파일은 `_workspace/riff-status.md`의 형식을 정의한다.
 오케스트레이터는 매 단계 진입/종료 시 이 파일을 갱신한다.
 새 세션 시작 시 이 파일이 있으면 읽고 즉시 재개한다.
 
@@ -9,10 +9,10 @@
 ## 포맷
 
 ```markdown
-# Pulse 실행 상태
+# Riff 실행 상태
 
 ## 현재 위치
-- Pulse: [N]
+- Riff: [N]
 - 단계: [ASK / EXPLORE / BUILD / VERIFY / LEARN]
 - 하위 단계: [BUILD의 경우 PLAN / CONTRACT / EXECUTE]
 - 최종 갱신: [YYYY-MM-DD HH:mm]
@@ -28,8 +28,8 @@
 | [이름] | ⏳ 대기 / 🔄 진행 / ✅ 완료 / ❌ 실패 | [경로] |
 
 ## 자동화 체크리스트
-- [ ] DNA 로드 (.pulse/user-dna/)
-- [ ] 항체 주입 (.pulse/antibodies/ → active 항체 매칭)
+- [ ] DNA 로드 (.riff/user-dna/)
+- [ ] 항체 주입 (.riff/antibodies/ → active 항체 매칭)
 - [ ] 계약서 확인 (_workspace/contracts/README.md)
 - [ ] explore-synthesis.md 읽기 (존재하는 경우)
 - [ ] master-plan.md 읽기 (존재하는 경우)
@@ -68,14 +68,14 @@
 4. "현재 위치"를 다음 단계로 이동
 
 ### 세션 시작 시 (필수)
-1. `_workspace/pulse-status.md` 존재 확인
+1. `_workspace/riff-status.md` 존재 확인
 2. 있으면 읽고 "현재 위치"에서 즉시 재개
 3. "자동화 체크리스트" 미체크 항목 실행 (DNA 로드, 항체 주입 등)
-4. 없으면 Pulse 0부터 시작
+4. 없으면 Riff 0부터 시작
 
-### Pulse 완료 시
-1. "현재 위치" Pulse 번호 +1
-2. 이전 Pulse 에이전트 상태 초기화
+### Riff 완료 시
+1. "현재 위치" Riff 번호 +1
+2. 이전 Riff 에이전트 상태 초기화
 3. LEARN 결과 반영
 
 ---
@@ -83,22 +83,22 @@
 ## 자동화 체크리스트 상세
 
 ### DNA 로드
-- `.pulse/user-dna/preferences.md` 존재 시 읽기
+- `.riff/user-dna/preferences.md` 존재 시 읽기
 - 커뮤니케이션 스타일, 코딩 선호 적용
 - 체크 후: `- [x] DNA 로드`
 
 ### 항체 주입
-- `.pulse/antibodies/` 스캔
+- `.riff/antibodies/` 스캔
 - `status: active`이고 현재 작업과 관련된 항체 필터
 - 에이전트 프롬프트에 체크리스트 포함
 - 체크 후: `- [x] 항체 주입 (api-response-wrapping, auth-token-expiry)`
 
 ### 계약서 확인
 - `_workspace/contracts/README.md` 읽기
-- 이번 Pulse에서 필요한 계약서 목록 파악
+- 이번 Riff에서 필요한 계약서 목록 파악
 - 체크 후: `- [x] 계약서 확인`
 
 ### explore-synthesis 읽기
-- `_workspace/pulse-N/explore-synthesis.md` 존재 시 읽기
+- `_workspace/riff-N/explore-synthesis.md` 존재 시 읽기
 - BUILD 제약 조건 반영
 - 체크 후: `- [x] explore-synthesis.md 읽기`

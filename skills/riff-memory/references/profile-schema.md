@@ -7,10 +7,10 @@
 ## 저장 위치
 
 ```
-.pulse/memory/profile.md   (단일 파일)
+.riff/memory/profile.md   (단일 파일)
 ```
 
-`.gitignore`에 `.pulse/memory/profile.md` 필수 (개인 단위).
+`.gitignore`에 `.riff/memory/profile.md` 필수 (개인 단위).
 
 > 4개 파일(preferences/domain-knowledge/pain-points/decision-history)에서 1개로 압축한 이유: 매번 4파일 다 읽어야 의미 있어 분리는 컨텍스트 비용만 증가.
 
@@ -196,7 +196,7 @@
 전체 프로파일 초기화:
 
 ```bash
-rm .pulse/memory/profile.md
+rm .riff/memory/profile.md
 ```
 
 특정 카테고리만: 사용자가 직접 `profile.md`에서 해당 섹션 삭제. 다음 LEARN에서 새 관찰부터 다시 누적.

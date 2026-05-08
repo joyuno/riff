@@ -124,7 +124,7 @@ ast-grep --pattern 'router.push("$PATH")'
 
 ### 절차
 
-1. 설계된 상태 전이 맵 확인 (pulse-dna 또는 코드 주석에서)
+1. 설계된 상태 전이 맵 확인 (riff-dna 또는 코드 주석에서)
 
 ```
 설계된 상태: draft → pending → processing → done → archived

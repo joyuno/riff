@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Pulse Benchmark Runner
+# Riff Benchmark Runner
 # OMC Ground Truth 방식 기반의 자동 채점 벤치마크 실행 스크립트
 #
 # 사용법:
-#   ./run-benchmark.sh                         # 전체 실행 (with-pulse)
+#   ./run-benchmark.sh                         # 전체 실행 (with-riff)
 #   ./run-benchmark.sh --dimension interview   # 특정 차원만
 #   ./run-benchmark.sh --fixture interview-ecommerce  # 특정 fixture만
-#   ./run-benchmark.sh --with-pulse            # Pulse 적용 실행
-#   ./run-benchmark.sh --without-pulse         # 기본 실행 (baseline 측정)
+#   ./run-benchmark.sh --with-riff            # Riff 적용 실행
+#   ./run-benchmark.sh --without-riff         # 기본 실행 (baseline 측정)
 #   ./run-benchmark.sh --compare               # 양쪽 비교
 #   ./run-benchmark.sh --save-baseline         # 베이스라인 저장
 #   ./run-benchmark.sh --dry-run               # 파이프라인 검증만 (API 호출 없음)
@@ -50,12 +50,12 @@ header()  { echo -e "\n${BOLD}=== $* ===${RESET}\n"; }
 # 기본값
 # ============================================================
 
-MODE="with-pulse"         # with-pulse | without-pulse | compare
+MODE="with-riff"         # with-riff | without-riff | compare
 DIMENSION=""              # 비어있으면 전체
 FIXTURE_FILTER=""         # 비어있으면 전체
 SAVE_BASELINE=false
 DRY_RUN=false
-MODEL="${PULSE_MODEL:-claude-sonnet-4-5}"
+MODEL="${RIFF_MODEL:-claude-sonnet-4-5}"
 
 # ============================================================
 # 인자 파싱
@@ -63,12 +63,12 @@ MODEL="${PULSE_MODEL:-claude-sonnet-4-5}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --with-pulse)
-      MODE="with-pulse"
+    --with-riff)
+      MODE="with-riff"
       shift
       ;;
-    --without-pulse)
-      MODE="without-pulse"
+    --without-riff)
+      MODE="without-riff"
       shift
       ;;
     --compare)
@@ -110,7 +110,7 @@ done
 # 사전 검증
 # ============================================================
 
-header "Pulse 벤치마크 시작"
+header "Riff 벤치마크 시작"
 
 # API 키 확인 (dry-run 제외)
 if [[ "${DRY_RUN}" == false ]]; then
@@ -237,8 +237,8 @@ run_fixture() {
 
   # 시스템 프롬프트 구성
   local system_prompt
-  if [[ "${mode}" == "with-pulse" ]]; then
-    system_prompt="$(build_pulse_system_prompt "${dim}")"
+  if [[ "${mode}" == "with-riff" ]]; then
+    system_prompt="$(build_riff_system_prompt "${dim}")"
   else
     system_prompt="$(build_baseline_system_prompt "${dim}")"
   fi
@@ -273,12 +273,12 @@ run_fixture() {
 # 시스템 프롬프트 빌더
 # ============================================================
 
-build_pulse_system_prompt() {
+build_riff_system_prompt() {
   local dim="$1"
   case "${dim}" in
     interview)
       cat <<'PROMPT'
-당신은 Pulse — 소프트웨어 프로젝트의 품질 게이트 에이전트입니다.
+당신은 Riff — 소프트웨어 프로젝트의 품질 게이트 에이전트입니다.
 
 모호하거나 불완전한 요청을 받았을 때, 개발을 시작하기 전에 반드시 확인해야 할
 핵심 의사결정 질문들을 체계적으로 도출합니다.
@@ -300,7 +300,7 @@ PROMPT
       ;;
     boundary)
       cat <<'PROMPT'
-당신은 Pulse — 소프트웨어 프로젝트의 품질 게이트 에이전트입니다.
+당신은 Riff — 소프트웨어 프로젝트의 품질 게이트 에이전트입니다.
 
 코드 경계면(API↔훅, 라우트↔컴포넌트, DB↔서비스 레이어)에서 발생하는
 버그를 탐지하는 것이 전문입니다.
@@ -320,7 +320,7 @@ PROMPT
       ;;
     live-app)
       cat <<'PROMPT'
-당신은 Pulse — 소프트웨어 프로젝트의 품질 게이트 에이전트입니다.
+당신은 Riff — 소프트웨어 프로젝트의 품질 게이트 에이전트입니다.
 
 실제 동작하는 앱의 유저 저니를 분석하여 사용자가 마주칠 수 있는
 UI/UX 버그와 데이터 정합성 문제를 찾습니다.
@@ -335,7 +335,7 @@ PROMPT
       ;;
     immunity)
       cat <<'PROMPT'
-당신은 Pulse — 소프트웨어 프로젝트의 품질 게이트 에이전트입니다.
+당신은 Riff — 소프트웨어 프로젝트의 품질 게이트 에이전트입니다.
 
 면역 시스템 모드: 이전 대화에서 발견하고 수정한 버그 패턴을 기억하여,
 동일한 패턴이 다른 곳에서 반복될 때 사전에 방지합니다.
@@ -350,7 +350,7 @@ PROMPT
 PROMPT
       ;;
     *)
-      echo "You are Pulse, a software quality gate agent."
+      echo "You are Riff, a software quality gate agent."
       ;;
   esac
 }
@@ -512,25 +512,25 @@ save_baseline() {
 
 main() {
   case "${MODE}" in
-    with-pulse)
-      score_file="$(run_mode "with-pulse")"
+    with-riff)
+      score_file="$(run_mode "with-riff")"
       if [[ "${SAVE_BASELINE}" == true ]]; then
         save_baseline "${score_file}"
       fi
       ;;
 
-    without-pulse)
-      score_file="$(run_mode "without-pulse")"
+    without-riff)
+      score_file="$(run_mode "without-riff")"
       if [[ "${SAVE_BASELINE}" == true ]]; then
         save_baseline "${score_file}"
       fi
       ;;
 
     compare)
-      header "비교 모드: With-Pulse vs Without-Pulse"
+      header "비교 모드: With-Riff vs Without-Riff"
 
-      wp_score="$(run_mode "with-pulse")"
-      wop_score="$(run_mode "without-pulse")"
+      wp_score="$(run_mode "with-riff")"
+      wop_score="$(run_mode "without-riff")"
 
       comparison_output="${RESULTS_DIR}/comparison-${TIMESTAMP}.md"
       python3 "${SCORING_DIR}/reporter.py" \

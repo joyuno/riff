@@ -1,6 +1,6 @@
 # UI 스택 가이드
 
-이 파일은 Pulse 0의 UI 스택 확정 시, 그리고 BUILD-EXECUTE 에이전트가 라이브러리를 선택할 때만 읽는다. SKILL.md에 포함하지 않는다.
+이 파일은 Riff 0의 UI 스택 확정 시, 그리고 BUILD-EXECUTE 에이전트가 라이브러리를 선택할 때만 읽는다. SKILL.md에 포함하지 않는다.
 
 ---
 
