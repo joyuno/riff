@@ -6,10 +6,10 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-0.1.0-brightgreen.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Version-0.3.0-brightgreen.svg" alt="Version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/Claude_Code-Plugin-purple.svg" alt="Claude Code Plugin">
-  <img src="https://img.shields.io/badge/Modules-5_Skills-orange.svg" alt="5 Modules">
+  <img src="https://img.shields.io/badge/Modules-4_Skills-orange.svg" alt="4 Modules">
   <img src="https://img.shields.io/badge/Contracts-8_Types-blue.svg" alt="8 Contract Types">
   <img src="https://img.shields.io/badge/QA-Tier_0~3_+_Playwright-red.svg" alt="Tier 0-3 QA">
   <a href="https://github.com/joyuno/riff/stargazers"><img src="https://img.shields.io/github/stars/joyuno/riff?style=social" alt="GitHub Stars"></a>
