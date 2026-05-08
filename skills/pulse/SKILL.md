@@ -5,6 +5,49 @@ description: "신규 프로젝트·앱·MVP를 처음부터 만드는 AI-Native 
 
 # Pulse — AI-Native Project Loop
 
+## Bootstrap (첫 호출 시 1회)
+
+이 프로젝트에서 `pulse`를 처음 호출할 때 다음 의존성을 점검하고, 누락된 것을 사용자에게 한 번 물어 자동 설치한다. 부트스트랩 재실행 가드: `_workspace/.pulse-bootstrap-done` **또는** `_workspace/.pulse-bootstrap-skip-all` 둘 중 하나라도 존재하면 스킵.
+
+### 점검 항목 (각 항목마다 on/off 선택 가능)
+
+| 의존성 | 점검 방법 | 누락 시 자동 동작 | 효과 |
+|--------|-----------|------------------|------|
+| `ralph-loop` 플러그인 | `~/.claude/plugins/cache/claude-plugins-official/ralph-loop` 존재 | `/plugin install ralph-loop@anthropic` | VERIFY-FIX 자동 루프 |
+| `codex` 플러그인 | `~/.claude/plugins/cache/openai-codex/codex` 존재 | `/plugin marketplace add openai/codex-plugin-cc` + `/plugin install codex@openai-codex` | EXPLORE 분신, VERIFY cross-check |
+| Codex CLI | `command -v codex` | `npm install -g @openai/codex` | 위 두 기능의 런타임 |
+| Codex 로그인 | `node ~/.claude/plugins/cache/openai-codex/codex/*/scripts/codex-companion.mjs setup --json` 의 `loggedIn: true` (codex 플러그인 캐시의 절대 경로 사용 — `${CLAUDE_PLUGIN_ROOT}`는 pulse 컨텍스트라 부적합) | 사용자에게 `!codex login` 안내 (OAuth는 브라우저 필요) | Codex 호출 권한 |
+
+### 사용자 응답 처리
+
+- **Install (Recommended)**: 자동 설치 후 다음 항목 점검
+- **Skip**: 해당 항목 비활성화하고 다음 항목으로 — Pulse는 보강 기능 없이 기본 흐름만 사용
+- **Skip all**: 일괄 비활성화, 더 이상 묻지 않음 (`_workspace/.pulse-bootstrap-skip-all` 마킹 — 위 가드가 이 파일도 체크함)
+
+설치 후 `_workspace/.pulse-bootstrap-done`에 timestamps + 활성화된 의존성 목록 기록.
+
+---
+
+## 보강 통합 (의존성이 활성화돼 있을 때만 적용)
+
+### EXPLORE — Codex 분신
+대립 토론 패턴에서 트레이드오프가 명확하지 않을 때, 분신 중 하나로 Codex 투입:
+`/codex:adversarial-review --wait <focus>` — 결정 1회만, 자동 호출 X.
+
+### VERIFY tier 0~3 — Codex cross-check
+각 tier 통과 후 변경 규모/위험도가 임계 이상(대형 리팩토링·아키텍처·보안·DB 마이그레이션)이면:
+`/codex:review --wait --scope working-tree` — Codex 의견을 LEARN 입력으로 흘림.
+
+### VERIFY 실패 — ralph-loop 자동 루프
+VERIFY 실패 시 즉시 다음 호출:
+`/ralph-loop:ralph-loop "<failure context + 수정 지시>" --max-iterations 3 --completion-promise 'VERIFY_PASSED'`
+통과 시 `<promise>VERIFY_PASSED</promise>` 출력 후 LEARN 단계 진입. 3회 초과 시 되감기 패턴.
+
+### Codex/GPT 모델 정책
+**모든 Codex 호출에 `--model` 플래그를 명시하지 않는다.** Codex CLI 기본값이 그 시점의 최신 모델이며 자동 업데이트된다. 사용자가 명시 요청하면 그때만 `--model <name>` 사용.
+
+---
+
 ## 핵심 원칙
 
 - 한 번에 잘 만들지 않는다. 빠르게 많이 시도한다.

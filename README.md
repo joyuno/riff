@@ -98,6 +98,51 @@ Claude Code에서 바로 사용:
 
 ---
 
+## Optional Companions — Codex 토론 + Ralph 자동 루프
+
+Pulse는 단독으로 동작하지만, 다음 두 플러그인이 함께 있으면 **EXPLORE 단계의 대립 토론**과 **VERIFY 실패 시 자동 수정 루프**가 자동 강화됩니다.
+
+| 컴패니언 | 역할 | 설치 |
+|---|---|---|
+| [`ralph-loop`](https://github.com/anthropics/claude-code-plugins) | VERIFY 실패 시 통과까지 자동 수정 루프 | `/plugin install ralph-loop@anthropic` |
+| [`codex`](https://github.com/openai/codex-plugin-cc) | OpenAI Codex로 적대적 검토·교차 검증 | `/plugin marketplace add openai/codex-plugin-cc` + `/plugin install codex@openai-codex` |
+
+### 자동 부트스트랩
+
+`pulse`를 프로젝트에서 처음 호출하면 다음 의존성을 점검하고 **누락된 것을 사용자에게 한 번 물어 자동 설치**합니다:
+
+1. `ralph-loop` 플러그인 → 누락 시 설치 제안
+2. `codex` 플러그인 → 누락 시 설치 제안
+3. Codex CLI (`npm install -g @openai/codex`) → 누락 시 자동 설치
+4. Codex 로그인 (`!codex login`) → 미인증 시 안내
+
+각 항목마다 **Install / Skip / Skip all**로 on/off 선택 가능. Skip 시 해당 보강 기능만 비활성화하고 Pulse 기본 흐름은 그대로 동작합니다.
+
+### 결합된 흐름
+
+```
+PULSE 사이클
+├─ ASK         → 사용자
+├─ EXPLORE     → 분신술 (Pulse 내장)
+│                  └─ 트레이드오프 명확하지 않을 때:
+│                       /codex:adversarial-review --wait <focus>
+├─ BUILD       → 구현
+├─ VERIFY      → pulse-qa Tier 0~3
+│                  ├─ 큰 변화(아키텍처·보안·DB 마이그레이션)일 때:
+│                  │    /codex:review --wait --scope working-tree (cross-check)
+│                  └─ 실패 시 자동:
+│                       /ralph-loop:ralph-loop "<failure>" \
+│                         --max-iterations 3 \
+│                         --completion-promise 'VERIFY_PASSED'
+└─ LEARN       → pulse-memory + Codex 의견 반영
+```
+
+### Codex 모델 정책
+
+Codex 호출 시 **`--model` 플래그를 자동 명시하지 않습니다**. Codex CLI 기본값이 그 시점 OpenAI의 최신 모델(GPT-5.4-codex 등)이며 자동 업데이트됩니다. 사용자가 `--model spark` 같은 별칭을 명시할 때만 적용.
+
+---
+
 ## Architecture
 
 ### Pulse Cycle
