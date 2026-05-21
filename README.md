@@ -137,6 +137,8 @@ RIFF 사이클
 └─ LEARN       → riff-memory + Codex 의견 반영
 ```
 
+> 💡 위 `'VERIFY_PASSED'`는 generic 종료 조건입니다. ASK Layer의 **MEASURE 응답이 측정 가능**할 때는 그 기준을 promise로 구체화하면 자동 루프 종료 판단 정확도가 올라갑니다 — 예: `--completion-promise 'CONVERSION_GE_10PCT'` (전환율 10% 이상), `--completion-promise 'LOGIN_DURATION_LE_3000MS'` (3초 내 로그인). 메인 모델(Opus 등)이 본인 출력에 promise를 명시할 때만 루프가 종료됩니다.
+
 ### Codex 모델 정책
 
 Codex 호출 시 **`--model` 플래그를 자동 명시하지 않습니다**. Codex CLI 기본값이 그 시점 OpenAI의 최신 모델(GPT-5.4-codex 등)이며 자동 업데이트됩니다. 사용자가 `--model spark` 같은 별칭을 명시할 때만 적용.
