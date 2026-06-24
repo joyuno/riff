@@ -278,7 +278,7 @@ Riff: 에이전트A ──30줄 계약서────→ 에이전트B (효율)
 
 > 한번 겪은 실수와 사용자 선호도를 함께 누적하여 다음 Riff·다음 세션에 자동 적용.
 
-**항체 (6종 type)**
+**항체 (7종 type)**
 
 ```
 버그 발견 → 항체 생성 → 다음 BUILD에 자동 주입
@@ -292,6 +292,7 @@ Riff: 에이전트A ──30줄 계약서────→ 에이전트B (효율)
 |------|---------|
 | boundary / logic / ui / performance / security | 코드 버그 패턴 |
 | **contract** | **계약서 작성 실수** (단위 누락, 종단 가드 누락 등) |
+| **secret** | **시크릿/PII 외부 유출** (외부 전송 직전 차단) |
 
 **사용자 프로파일** (`.riff/memory/profile.md`)
 
@@ -384,7 +385,7 @@ riff/
 │   └── riff-memory/                        # 항체 + 프로파일 (통합)
 │       ├── SKILL.md
 │       └── references/
-│           ├── antibody-schema.md           #   6종 type 포함 (boundary/.../contract)
+│           ├── antibody-schema.md           #   7종 type 포함 (boundary/.../contract/secret)
 │           └── profile-schema.md            #   단일 프로파일 파일 스키마
 │
 ├── hooks/                                   # SubagentStop 진행률 훅

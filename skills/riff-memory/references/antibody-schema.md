@@ -9,7 +9,7 @@
 ```yaml
 ---
 name: {항체명}
-type: boundary | logic | ui | performance | security | contract
+type: boundary | logic | ui | performance | security | contract | secret
 severity: critical | high | medium | low
 discovered: YYYY-MM-DD
 recurrence: {정수, 최초 0}
@@ -23,7 +23,7 @@ status: active | weakened | dormant
 | 필드 | 필수 | 설명 |
 |------|------|------|
 | `name` | 필수 | 파일명과 일치, 영문 소문자 + 하이픈 |
-| `type` | 필수 | 6종 중 하나 (`contract` 신규) |
+| `type` | 필수 | 7종 중 하나 (`contract`, `secret` 신규) |
 | `severity` | 필수 | critical / high / medium / low |
 | `discovered` | 필수 | 최초 발견일 |
 | `recurrence` | 필수 | 누적 재발 횟수 (최초 생성 시 0) |
@@ -40,8 +40,29 @@ status: active | weakened | dormant
 | `performance` | 성능 | N+1 쿼리, 큰 번들 |
 | `security` | 보안 | 권한 체크 누락, 토큰 정책 |
 | `contract` | **계약서 작성 실수** | 단위 누락, 종단 상태 가드 누락 |
+| `secret` | **시크릿/PII 외부 유출** | API 키·토큰·PEM·PII가 코드/계약서/PR 본문에 노출 |
 
 `contract` 타입은 **BUILD-CONTRACT 단계에서 우선 주입**된다 (코드 작성 전 계약서 단계).
+`secret` 타입은 **외부 전송 직전(PR/이슈 본문, 커밋, codex 디스패치) 게이트**로 주입된다 —
+gstack의 redaction guard를 Riff 항체로 흡수한 것. ML 분류기까지 가지 않고 정규식 차단으로 충분하다
+(Riff는 "가볍게"가 정체성). 매칭 시 BUILD/SHIP을 **차단**하고 사용자에게 보고한다.
+
+#### secret 탐지 패턴 (HIGH = 차단, MEDIUM = 확인 후 진행)
+
+| 티어 | 패턴(정규식) | 처리 |
+|------|------------|------|
+| HIGH | `AKIA[0-9A-Z]{16}` (AWS 액세스 키) | 차단 |
+| HIGH | `-----BEGIN [A-Z ]*PRIVATE KEY-----` (PEM) | 차단 |
+| HIGH | `gh[pousr]_[A-Za-z0-9]{36,}` (GitHub 토큰) | 차단 |
+| HIGH | `xox[baprs]-[A-Za-z0-9-]{10,}` (Slack 토큰) | 차단 |
+| MEDIUM | `eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.` (JWT) | 확인 |
+| MEDIUM | `(sk|pk)_(live\|test)_[A-Za-z0-9]{20,}` (Stripe) | 확인 |
+| MEDIUM | `[A-Z0-9_]*(KEY\|SECRET\|TOKEN\|PASSWORD)\s*=\s*['"][^'"]{8,}` (env 대입) | 확인 |
+| MEDIUM | 이메일·주민번호·카드번호 형태 PII | 확인 |
+
+> 스캔은 **보낼 바이트 그대로**(PR 본문 파일·커밋 메시지 파일)에 적용한다. 문자열을 스캔한 뒤
+> 다시 렌더링하면 스캔-전송 간극이 생긴다(gstack 규칙). `riff-contracts`의 security 계약서가
+> 예시로 든 시크릿은 ` ```example ` 펜스로 감싸 오탐(WARN)으로 강등한다.
 
 ### severity 정의
 
@@ -99,6 +120,7 @@ status: active | weakened | dormant
 - `performance-n-plus-one.md`
 - `security-missing-authz.md`
 - `contract-cm-013-unit-missing.md`
+- `secret-aws-key-in-pr-body.md`
 
 `contract` 타입 항체는 `contract-{cm-id}-{slug}.md` 형식 권장 (CM 카탈로그와 cross-reference).
 
@@ -206,6 +228,42 @@ status: active
 - src/components/
 - src/hooks/useAsync.ts
 ```
+
+---
+
+## 예시 4: secret 타입 (신규)
+
+```markdown
+---
+name: secret-aws-key-in-pr-body
+type: secret
+severity: critical
+discovered: 2026-06-24
+recurrence: 0
+last_seen: 2026-06-24
+status: active
+---
+
+## 버그 설명
+SHIP 단계에서 PR 본문에 디버그용 AWS 액세스 키(AKIA...)가 그대로 포함되어 외부로 나갈 뻔함.
+
+## 근본 원인
+로그에서 복붙한 에러 메시지에 키가 섞여 있었고, 외부 전송 직전 스캔이 없었음.
+
+## 예방 체크리스트
+- [ ] PR/이슈 본문, 커밋 메시지를 **보낼 파일 그대로** secret 패턴 스캔했는가?
+- [ ] HIGH 매칭(AWS/PEM/GitHub/Slack) 시 차단했는가?
+- [ ] 예시 시크릿은 ```example 펜스로 감쌌는가?
+- [ ] .riff/, _workspace/ 산출물에 실 키가 남지 않았는가?
+
+## 관련 파일
+- (SHIP 직전 외부 전송 경로 전체)
+
+## 재발 이력
+| 날짜 | 상황 | 강화 내용 |
+```
+
+`secret` 항체는 매칭 시 보고로 끝내지 않고 **해당 단계를 차단**한다는 점에서 다른 타입과 다르다.
 
 ---
 

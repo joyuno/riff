@@ -28,7 +28,8 @@ Riff가 다음 세션·다음 Riff에서 같은 실수를 반복하지 않도록
 │   ├── ui-{name}.md
 │   ├── performance-{name}.md
 │   ├── security-{name}.md
-│   └── contract-{name}.md      ← 계약서 작성 실수 (신규)
+│   ├── contract-{name}.md      ← 계약서 작성 실수
+│   └── secret-{name}.md        ← 시크릿/PII 외부 유출 차단 (신규)
 └── profile.md                   ← 사용자 프로파일 단일 파일
 ```
 
@@ -42,7 +43,7 @@ Riff가 다음 세션·다음 Riff에서 같은 실수를 반복하지 않도록
 
 상세 스키마: `references/antibody-schema.md`
 
-### 6가지 type
+### 7가지 type
 
 | type | 적용 영역 | 예시 |
 |------|----------|------|
@@ -52,8 +53,11 @@ Riff가 다음 세션·다음 Riff에서 같은 실수를 반복하지 않도록
 | `performance` | 성능 | N+1 쿼리, 큰 번들 |
 | `security` | 보안 | 권한 체크 누락, 토큰 만료 |
 | `contract` | **계약서 작성 실수** | 단위 누락, 종단 상태 가드 누락 |
+| `secret` | **시크릿/PII 외부 유출** | API 키·토큰·PEM·PII가 코드/PR 본문에 노출 |
 
 `contract` 타입 시드 카탈로그: `riff-contracts/references/contract-mistakes.md`의 CM-001 ~ CM-020.
+`secret` 타입은 외부 전송 직전(PR/이슈 본문·커밋·codex 디스패치) **차단 게이트**로 작동한다 —
+탐지 패턴과 처리는 `references/antibody-schema.md`의 secret 섹션 참조.
 
 ### 생명주기
 
