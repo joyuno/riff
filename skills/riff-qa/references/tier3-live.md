@@ -1,204 +1,160 @@
 # Tier 3: Live Browser QA — 상세 가이드
 
-Playwright MCP 도구를 사용한 실제 브라우저 테스트.
-Tier 1, 2를 통과한 뒤에만 실행한다.
-정적 분석으로 잡을 수 없는 런타임 버그, UX 문제, 비동기 타이밍 버그를 발견한다.
+gstack `/qa`의 브라우저 구동 방식을 모방한다: **외부 Playwright MCP를 쓰지 않고**, 경량
+러너 `riff-browse.mjs`(데몬)를 Bash로 호출한다. 한 명령 = 한 동작, 데몬이 페이지·요소맵·콘솔을
+메모리에 유지하므로 두 번째 명령부터 ~100ms. Tier 1·2 통과 후에만 실행한다. 정적 분석으로
+잡을 수 없는 런타임 버그·UX 문제·비동기 타이밍 버그를 발견한다.
+
+> 왜 MCP를 버렸나: MCP는 명령마다 왕복(round-trip)이 있어 느리고 비결정적이다. gstack은
+> 자체 브라우저 CLI를 "소유"해서 빠르고 재현 가능하게 만든다. Riff는 같은 철학을 58MB
+> 바이너리·데몬 의존 없이, 프로젝트의 playwright만으로 재현한다.
 
 ---
 
-## 환경 준비
-
-### 1. 의존성 설치
+## 0. 러너 설치 (첫 Tier 3 실행 시 1회)
 
 ```bash
-npm install
+mkdir -p _workspace/.riff
+# 이 스킬의 references/riff-browse.mjs를 프로젝트 작업공간으로 복사
+cp "$CLAUDE_PLUGIN_ROOT/skills/riff-qa/references/riff-browse.mjs" _workspace/.riff/riff-browse.mjs 2>/dev/null \
+  || cp ~/.claude/plugins/*/joyuno-riff/skills/riff-qa/references/riff-browse.mjs _workspace/.riff/riff-browse.mjs
+# playwright 확인 (프로젝트 dep 없으면)
+node -e "require.resolve('playwright')" 2>/dev/null || npx playwright install chromium
 ```
 
-패키지 설치 실패 시 Tier 3 진행 불가. 에러 로그 수집 후 보고.
+이후 매 명령은 `R="node _workspace/.riff/riff-browse.mjs"` 별칭으로 호출한다.
 
-### 2. 개발 서버 시작 (백그라운드)
+---
+
+## 1. 환경 준비
+
+### 개발 서버 백그라운드 기동 + health check
 
 ```bash
 npm run dev &
 DEV_PID=$!
-echo "개발 서버 PID: $DEV_PID"
-```
-
-### 3. 서버 Ready 확인 (health check)
-
-서버가 준비되기 전에 테스트를 시작하면 모든 테스트가 실패한다.
-반드시 준비 완료를 확인한 뒤 진행한다.
-
-```bash
-# 최대 30초 대기
 for i in $(seq 1 30); do
   curl -s http://localhost:3000 > /dev/null && echo "서버 준비 완료" && break
-  echo "대기 중... ${i}초"
-  sleep 1
+  echo "대기 중... ${i}초"; sleep 1
 done
 ```
 
-또는 Playwright `browser_wait_for`로 특정 텍스트 출현 대기.
-
-### 4. 테스트 완료 후 서버 종료
+### 브라우저 데몬 기동
 
 ```bash
+R="node _workspace/.riff/riff-browse.mjs"
+$R start            # 헤드리스. 사람이 보면서 디버그하려면: $R start --headed
+```
+
+### 테스트 종료 후 정리
+
+```bash
+$R stop             # storageState 저장 후 브라우저 종료
 kill $DEV_PID
 ```
 
 ---
 
-## Playwright MCP 도구 사용법
+## 2. riff-browse 명령 어휘 (gstack `$B` 모방)
 
-### browser_navigate — URL 접속
+| 명령 | 용도 | gstack 대응 |
+|------|------|------------|
+| `$R goto <url>` | 페이지 이동 | `$B goto` |
+| `$R snapshot -i [-o shot.png]` | 클릭/입력 가능 요소에 `@e1..` 라벨 부여(+스크린샷) | `$B snapshot -i -o` |
+| `$R click @e5` | 요소 클릭 | `$B click @e5` |
+| `$R fill @e3 "값"` | 폼 입력 | `$B fill @e3` |
+| `$R text [selector]` | 보이는 텍스트 확인 | `$B text` |
+| `$R console --errors` | 콘솔 에러 수집 | `$B console --errors` |
+| `$R network --errors` | 4xx/5xx 응답 | `$B console` |
+| `$R js "<expr>"` | API 직접 타격/평가 | `$B js` |
+| `$R links` | 페이지 링크 맵 | `$B links` |
+| `$R wait "<텍스트>" [ms]` | 비동기 완료 대기 | `$B snapshot -D` |
+| `$R screenshot <path>` | 증거 스크린샷 | `$B screenshot` |
+| `$R cookie-import <file>` | storageState 주입 | `$B cookie-import` |
 
-```
-도구: browser_navigate
-입력: { url: "http://localhost:3000/dashboard" }
-용도: 페이지 이동, 첫 진입
-```
-
-### browser_snapshot — 접근성 스냅샷 (요소 탐색의 시작점)
-
-```
-도구: browser_snapshot
-용도: 현재 페이지의 모든 상호작용 가능한 요소와 ref 값 확인
-출력: 각 요소의 ref, role, name, 텍스트
-```
-
-스냅샷을 먼저 찍어 `ref` 값을 확인한 뒤, 해당 ref로 클릭/입력한다.
-
-### browser_click — 요소 클릭
-
-```
-도구: browser_click
-입력: { ref: "e12" }  ← snapshot에서 얻은 ref 값
-용도: 버튼, 링크, 탭 클릭
-```
-
-### browser_fill_form — 폼 입력
-
-```
-도구: browser_fill_form
-입력: {
-  ref: "e5",
-  value: "test@example.com"
-}
-용도: input, textarea, select 값 입력
-```
-
-### browser_take_screenshot — 증거 스크린샷
-
-```
-도구: browser_take_screenshot
-용도: 각 Step 완료 후 현재 상태 캡처
-파일명 규칙: step-01-login-form.png, step-02-after-submit.png
-```
-
-### browser_console_messages — 콘솔 에러 수집
-
-```
-도구: browser_console_messages
-용도: JavaScript 에러, 경고, 로그 수집
-확인: error 레벨 메시지 필터링
-```
-
-### browser_network_requests — 네트워크 요청 확인
-
-```
-도구: browser_network_requests
-용도: API 호출 상태 코드, 응답 body 확인
-확인: 4xx, 5xx 응답 필터링
-```
-
-### browser_wait_for — 대기
-
-```
-도구: browser_wait_for
-입력: {
-  text: "주문이 완료되었습니다",  ← 출현 대기
-  timeout: 5000
-}
-용도: 비동기 처리 완료 대기, 로딩 스피너 사라짐 대기
-```
+**핵심 흐름: snapshot으로 `@eN` 라벨을 얻은 뒤 그 라벨로 click/fill 한다.** 라벨은 DOM에
+`data-riff-ref` 속성으로 고정되므로 같은 페이지 내 후속 명령에서 안정적으로 재사용된다.
 
 ---
 
-## 유저 저니 → Playwright 시나리오 변환
+## 3. 유저 저니 → riff-browse 시나리오 변환
 
-### 변환 원칙
-
-`riff-interview`가 수집한 유저 저니의 각 Step을 Playwright 행동 시퀀스로 변환한다.
+`riff-interview`가 수집한 `journeys.md`(또는 `master-plan.md`)의 각 Step을 명령 시퀀스로 변환한다.
 
 **유저 저니 원문:**
 ```
 사용자가 로그인한다 → 대시보드에서 새 주문을 생성한다 → 주문 완료를 확인한다
 ```
 
-**Playwright 시나리오:**
+**riff-browse 시나리오:**
+```bash
+R="node _workspace/.riff/riff-browse.mjs"
+SHOT=_workspace/riff-N/screenshots; mkdir -p "$SHOT"
+
+# Step 1: 로그인 페이지 접속
+$R goto http://localhost:3000/login
+$R snapshot -i -o "$SHOT/step-01-login.png"   # @e1 email, @e2 password, @e3 submit ...
+
+# Step 2: 로그인
+$R fill @e1 "user@test.com"
+$R fill @e2 "[REDACTED]"                       # 실제 비밀번호는 보고서에 절대 기록 금지
+$R click @e3
+$R wait "대시보드"
+$R console --errors                            # 에러 없는지
+$R screenshot "$SHOT/step-02-dashboard.png"
+
+# Step 3: 새 주문 생성
+$R snapshot -i -o "$SHOT/step-03-orders.png"   # "새 주문" 버튼 @eN 확인
+$R click @e7
+$R fill @e9 "상품A"
+$R click @e12                                  # 제출
+$R network --errors                            # API 호출 상태(4xx/5xx) 확인
+
+# Step 4: 완료 확인
+$R wait "주문이 완료되었습니다" 5000
+$R screenshot "$SHOT/step-04-complete.png"
 ```
-Step 1: 로그인 페이지 접속
-  browser_navigate({ url: "http://localhost:3000/login" })
-  browser_snapshot()  → ref 확인
-  browser_take_screenshot()  → 증거: step-01-login-page.png
 
-Step 2: 로그인 정보 입력
-  browser_fill_form({ ref: "e2", value: "user@test.com" })  → 이메일
-  browser_fill_form({ ref: "e3", value: "password123" })   → 비밀번호
-  browser_click({ ref: "e4" })  → 로그인 버튼
-  browser_take_screenshot()  → 증거: step-02-login-submit.png
-
-Step 3: 로그인 완료 확인
-  browser_wait_for({ text: "대시보드" })
-  browser_console_messages()  → 에러 없는지 확인
-  browser_take_screenshot()  → 증거: step-03-dashboard.png
-
-Step 4: 새 주문 생성
-  browser_snapshot()  → "새 주문" 버튼 ref 확인
-  browser_click({ ref: "e15" })
-  browser_take_screenshot()  → 증거: step-04-new-order.png
-
-Step 5: 주문 폼 작성 및 제출
-  browser_fill_form({ ref: "e20", value: "상품A" })
-  browser_click({ ref: "e25" })  → 제출 버튼
-  browser_network_requests()   → API 호출 상태 확인
-
-Step 6: 주문 완료 확인
-  browser_wait_for({ text: "주문이 완료되었습니다", timeout: 5000 })
-  browser_take_screenshot()  → 증거: step-06-order-complete.png
-  browser_console_messages()  → 에러 없는지 확인
-```
+selector/라벨 우선순위는 gstack과 동일: **`data-testid` > role+name > text**. `snapshot -i`가
+부여한 `@eN`은 role+name 기반이므로 안정적이다. 시나리오는 `_workspace/riff-N/scenario.sh`에 저장.
 
 ### 매 Step에서 반드시 수행
-
-1. **browser_take_screenshot** — 현재 상태 증거 캡처
-2. **browser_console_messages** — 에러 발생 여부 확인
-3. 중요 비동기 작업 후 **browser_network_requests** — API 상태 확인
+1. **screenshot** — 현재 상태 증거 캡처
+2. **console --errors** — 에러 발생 여부
+3. 중요 비동기 작업 후 **network --errors** — API 상태
 
 ---
 
-## 검증 실패 시 대응
+## 4. API 직접 타격 (gstack 패턴)
+
+UI 없이 엔드포인트만 검증할 땐 브라우저 컨텍스트에서 직접 fetch:
+
+```bash
+$R js "await fetch('/api/orders', {method:'POST', body: JSON.stringify({item:'A'})}).then(r => r.status)"
+$R js "await fetch('/api/orders').then(r => r.json()).then(d => d.length)"
+```
+
+세션 쿠키가 데몬 컨텍스트에 살아있으므로 인증된 요청이 그대로 나간다.
+
+---
+
+## 5. 검증 실패 시 대응
 
 ### 실패 감지 기준
-
-- `browser_wait_for` timeout 발생
-- `browser_console_messages`에서 error 레벨 메시지
-- `browser_network_requests`에서 4xx/5xx 응답
-- 스냅샷에서 예상 요소가 없음
-- 스크린샷에서 에러 화면 확인
+- `$R wait` timeout
+- `$R console --errors`에 error 레벨 메시지
+- `$R network --errors`에 4xx/5xx
+- `$R snapshot -i`에 예상 요소(@eN)가 없음
 
 ### 실패 시 수집 절차
-
-```
-1. browser_take_screenshot()  → 실패 시점 상태 캡처
-2. browser_console_messages() → 전체 콘솔 에러 전문 캡처
-3. browser_network_requests() → 실패한 API 요청/응답 body 캡처
-4. browser_snapshot()         → 현재 DOM 상태 확인
+```bash
+$R screenshot "$SHOT/FAIL-$(date +%s).png"   # 실패 시점
+$R console --errors                           # 콘솔 에러 전문
+$R network --errors                           # 실패 API 요청/응답
+$R snapshot -i                                # 현재 DOM 상태
 ```
 
 ### Tier 1 경계면으로 역추적
-
-실패 원인을 Tier 1 경계면 유형으로 분류한다:
 
 | 실패 증상 | 경계면 유형 | 역추적 방향 |
 |----------|-----------|-----------|
@@ -206,55 +162,48 @@ Step 6: 주문 완료 확인
 | 클릭 후 404 이동 | 경로↔링크 불일치 | href 값 vs 실제 파일 재확인 |
 | 상태가 변하지 않음 | 상태전이 누락 | status 업데이트 코드 재확인 |
 | 데이터가 undefined | DB↔API↔UI 체인 단절 | 체인 전체 재추적 |
-| 콘솔에 타입 에러 | Tier 2 미탐지 타입 버그 | as any 우회 코드 검사 |
+| 콘솔에 타입 에러 | Tier 2 미탐지 타입 버그 | `as any` 우회 코드 검사 |
+
+**실패 발견 후에는 보고로 끝내지 말고 `riff-qa/SKILL.md`의 "VERIFY-FIX 루프"로 진입한다.**
 
 ---
 
-## 시나리오 우선순위
-
-유저 저니가 여러 개인 경우 다음 순서로 실행한다:
+## 6. 시나리오 우선순위
 
 1. **핵심 전환 경로** (가입 → 핵심 기능 → 결제 등)
-2. **가장 많이 쓰이는 경로** (riff-interview의 사용 빈도 기준)
-3. **에러가 예상되는 경계면** (Tier 1에서 위험 신호가 나온 영역)
-4. **선택적**: 유령 사용자, 파괴자 변형
+2. **가장 많이 쓰이는 경로** (riff-interview 사용 빈도 기준)
+3. **에러가 예상되는 경계면** (Tier 1 위험 신호 영역)
+4. **선택적 변형**: 유령 사용자(`ghost-user.md`), 파괴자(`destroyer.md`)
+
+변형도 같은 `$R` 어휘를 쓴다 — 유령 사용자는 `$R snapshot -i` 결과를 보고 자유 클릭,
+파괴자는 `$R fill @eN`에 SQL/XSS/초장문 페이로드를 주입한다.
 
 ---
 
-## Tier 3 보고서 형식
+## 7. Tier 3 보고서 형식
 
 ### Step별 결과
-
-| Step | 행동 | 예상 결과 | 실제 결과 | 결과 | 증거 |
-|------|------|----------|----------|------|------|
-| 1 | 로그인 페이지 접속 | 로그인 폼 표시 | 로그인 폼 표시됨 | PASS | step-01.png |
-| 2 | 이메일/비밀번호 입력 후 로그인 | 대시보드 이동 | 500 에러 응답 | FAIL | step-02.png |
+| Step | 행동 | 예상 | 실제 | 결과 | 증거 |
+|------|------|------|------|------|------|
+| 1 | 로그인 페이지 접속 | 폼 표시 | 표시됨 | PASS | step-01-login.png |
+| 2 | 이메일+로그인 | 대시보드 이동 | 500 에러 | FAIL | step-02-dashboard.png |
 
 ### 실패 상세
-
 ```
-Step 2 실패 상세:
-  콘솔 에러: TypeError: Cannot read property 'userId' of undefined
-             at Dashboard.tsx:42
-  네트워크:  POST /api/auth/login → 500
-             응답 body: { "error": "user_id column not found" }
-  원인 추정: DB 컬럼명 'user_id' → API 응답 'userId' 변환 누락
+Step 2 실패:
+  콘솔: TypeError: Cannot read property 'userId' of undefined (Dashboard.tsx:42)
+  네트워크: POST /api/auth/login → 500  body: {"error":"user_id column not found"}
+  원인 추정: DB 컬럼명 user_id → API 응답 userId 변환 누락
   경계면 유형: DB↔API↔UI 체인 (Tier 1 검증 대상 4)
 ```
 
-### 전체 요약
-
+### 전체 요약 (Health Score 포함 — `riff-qa/SKILL.md` 루브릭)
 ```
-시나리오: 로그인 → 주문 생성 → 완료 확인
-총 Step: 6개
-통과: 1개 (17%)
-실패: 1개 (Step 2)
-건너뜀: 4개 (실패로 인한 중단)
-
-발견된 버그:
-  [CRITICAL] 로그인 API 500 에러 — DB 컬럼명 불일치
-              파일: src/pages/api/auth/login.ts:28
-
-권장 수정 순서:
-  1. [CRITICAL] API 응답 직렬화에서 user_id → userId 변환 추가
+시나리오: 로그인 → 주문 생성 → 완료
+총 Step 6 / 통과 1 (17%) / 실패 1 / 건너뜀 4
+Health Score: before 4/10 → (수정 후 재검증) after ?/10
+발견 버그: [CRITICAL] 로그인 API 500 — DB 컬럼명 불일치 (src/pages/api/auth/login.ts:28)
 ```
+
+실패 항목은 VERIFY-FIX 루프에서 수정 후, LEARN 단계에서 `riff-memory` 항체로 기록된다
+(재현 시나리오 `scenario.sh`의 해당 Step을 항체에 첨부 → 회귀 방지).

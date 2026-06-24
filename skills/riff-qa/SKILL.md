@@ -30,7 +30,7 @@ Tier 3 (Live Browser)
 | 0 | 계약서 lint + 커버리지 | 최소 (Grep/parse) | linted 누락, 공유 타입 계약 누락, 상수/버전 불일치 |
 | 1 | 정적 경계면 | 매우 낮음 (Grep/AST) | API shape, 깨진 링크, 상태 전이, DB↔API↔UI 체인 |
 | 2 | 빌드/타입 | 낮음 (tsc/lint/build) | 타입 에러, 린트 위반, 번들 실패 |
-| 3 | Live Browser | 높음 (Playwright) | 렌더링, 비동기 타이밍, UX, 보안, 접근성 |
+| 3 | Live Browser | 높음 (riff-browse) | 렌더링, 비동기 타이밍, UX, 보안, 접근성 |
 
 앞 Tier 통과 없이 다음 Tier로 진행 금지.
 
@@ -116,33 +116,34 @@ flutter build web
 
 > 상세: `references/tier3-live.md`
 
-### 흐름
+### 흐름 (gstack `/qa` 모방 — 외부 MCP 없이 경량 러너 `riff-browse.mjs` 사용)
 
 ```
 개발 서버 시작 (백그라운드)
-   → health check
-   → Playwright 브라우저 열기
-   → 유저 저니 시나리오 실행
+   → health check (curl)
+   → riff-browse 데몬 기동 ($R start)
+   → 유저 저니 시나리오 실행 ($R goto/snapshot/click/fill/wait)
    → 스크린샷 / 콘솔 / 네트워크 수집
-   → 서버 종료
-   → QA 보고서 생성
+   → 데몬·서버 종료 ($R stop)
+   → QA 보고서 생성 (Health Score 포함)
 ```
 
-### 유저 저니 → Playwright 시나리오 변환
+### 유저 저니 → riff-browse 시나리오 변환
 
-`riff-interview`의 `journeys.md` 또는 `master-plan.md`를 변환:
+`riff-interview`의 `journeys.md` 또는 `master-plan.md`를 변환 (`R="node _workspace/.riff/riff-browse.mjs"`):
 
-| 저니 문장 | Playwright |
+| 저니 문장 | riff-browse |
 |----------|-----------|
-| "사용자가 [페이지]에 접근" | `await page.goto('[URL]')` |
-| "[필드]에 [값] 입력" | `await page.fill('[selector]', '[값]')` |
-| "[버튼] 클릭" | `await page.click('[selector]')` |
-| "[텍스트] 보임" | `await expect(page.locator('text=[텍스트]')).toBeVisible()` |
-| "[페이지]로 이동" | `await expect(page).toHaveURL('[URL]')` |
+| "사용자가 [페이지]에 접근" | `$R goto <URL>` |
+| "요소 탐색" | `$R snapshot -i -o shot.png` → `@eN` 라벨 |
+| "[필드]에 [값] 입력" | `$R fill @eN "[값]"` |
+| "[버튼] 클릭" | `$R click @eN` |
+| "[텍스트] 보임" | `$R wait "[텍스트]"` |
+| "API 직접 검증" | `$R js "await fetch('/api/...').then(r=>r.status)"` |
 
-selector 우선순위: `data-testid` > `getByRole(role, name)` > `getByText`.
+라벨/selector 우선순위: `data-testid` > role+name > text. 상세·러너 설치는 `references/tier3-live.md`.
 
-시나리오 저장: `_workspace/riff-N/playwright-scenarios.md`
+시나리오 저장: `_workspace/riff-N/scenario.sh`
 
 ### 변형
 
@@ -166,6 +167,60 @@ selector 우선순위: `data-testid` > `getByRole(role, name)` > `getByText`.
 | 전체 | 0 + 1 + 2 + 3 | 다중 인격 |
 
 계약서 변경만 있으면 Tier 0만으로 종결될 수 있음.
+
+---
+
+## VERIFY-FIX 루프 (gstack `/qa` 모방 — 보고로 끝내지 않는다)
+
+riff-qa는 **버그를 보고만 하지 않는다.** gstack `/qa`처럼 발견 → 수정 → 재검증을 닫힌 루프로 돌린다.
+
+```
+발견 → 원자적 수정(한 버그=한 커밋) → 회귀 시나리오 첨부 → 재검증 → Health Score before/after
+```
+
+### 루프 절차
+
+1. **발견**: Tier에서 버그 1건 확정 (증거: 콘솔/네트워크/스크린샷).
+2. **수정**: 해당 버그만 고친다. 한 버그 = 한 커밋. 무관한 코드 건드리지 않는다.
+3. **회귀 첨부**: 그 버그를 재현하는 `scenario.sh`의 Step(또는 Tier1/2 검사)을 **회귀 시나리오로 고정**.
+   LEARN에서 `riff-memory` 항체에 이 재현 절차를 첨부한다.
+4. **재검증**: 같은 Tier를 다시 실행해 PASS 확인. 동시에 앞 Tier 회귀 없음 확인.
+5. **점수 갱신**: Health Score를 before → after로 기록.
+
+### 루프 제어 (loop-engineering 준수 — `riff/references/loop-engineering.md`)
+
+VERIFY-FIX는 무한히 돌면 안 된다. 다음 **다차원 예산** 중 하나라도 소진되면 즉시 멈추고 사용자에게 보고:
+
+| 한계 | 임계 | 초과 시 |
+|------|------|--------|
+| 같은 버그 수정 시도 | 3회 | 되감기(`rewind-protocol.md`) |
+| 같은 명령/파일 반복 | 명령 3회·파일 4회 | 정체(stall) 판정 → 접근 전환 |
+| 도구 호출 | 누적 20회 | 세션 분리 제안 |
+| 콘솔 에러 진동 | 같은 에러 메시지 3회 재출현 | 근본 원인 미해결 → 보고 |
+
+> **수정이 테스트를 통과시키되 요구를 충족 못 하는 "reward hacking" 방지:** 테스트/계약서
+> 파일을 수정해서 통과시키지 않는다. 통과 기준(계약서·success-criteria)은 **불가침**이다.
+> 검증자는 모델의 "됐다" 주장이 아니라 **종료 코드/스크린샷/콘솔 같은 결정적 증거**만 신뢰한다.
+
+---
+
+## Health Score 루브릭 (gstack 모방)
+
+QA 보고서는 `before X/10 → after Y/10`을 항상 포함한다. 가중 합산:
+
+| 차원 | 가중 | 10점 기준 |
+|------|------|----------|
+| Console | 15% | 콘솔 에러 0, 경고 최소 |
+| Links | 10% | 깨진 링크/404 0 |
+| Visual | 15% | 레이아웃 깨짐·반응형 오류 없음 |
+| Functional | 25% | 핵심 저니 전부 PASS |
+| UX | 10% | 로딩/빈/에러 상태 처리, 피드백 명확 |
+| Content | 5% | 오타·깨진 텍스트·플레이스홀더 없음 |
+| Performance | 10% | 느린 응답·과대 번들 없음 |
+| Accessibility | 10% | 키보드·라벨·대비 기본 충족 |
+
+점수 = Σ(차원 점수 × 가중). **수정 후 재검증에서 점수가 오르지 않으면 그 수정은 무효**로 보고
+원인을 다시 추적한다 (점수 정체 = 정체 신호).
 
 ---
 
