@@ -255,7 +255,7 @@ _workspace/
 | `riff-interview` | ASK | 5-Layer 인터뷰 |
 | `riff-contracts` | BUILD-CONTRACT | 8종 계약서 + lint |
 | `riff-qa` | VERIFY | Tier 0~3 |
-| `riff-memory` | LEARN | 항체(6종) + 프로파일 |
+| `riff-memory` | LEARN | 항체(7종) + 프로파일 |
 
 ---
 
@@ -266,8 +266,19 @@ _workspace/
 | 분신술 | EXPLORE 방향 2개 이상 | `references/explore-protocol.md` |
 | 되감기 | VERIFY 3회 실패 | `references/rewind-protocol.md` |
 | 점진적 확신 | EXPLORE 후 확신도 낮을 때 | `references/convergence.md` |
+| 루프 엔지니어링 | 매 VERIFY·되감기·자동화 등급 결정 | `references/loop-engineering.md` |
 
 대립 토론·시간 여행·미래 시뮬레이션은 README 비전이며 별도 프로토콜 미정의 — 필요 시 분신술/되감기로 대체.
+
+## 루프 엔지니어링 (자율 루프 안전장치)
+
+Riff를 감독 없이도 안전하게 도는 자율 루프로 만든다. 핵심만(상세 `references/loop-engineering.md`):
+
+- **상태는 디스크, 컨텍스트는 작게.** 각 Riff는 신선한 컨텍스트로 시작, 필요한 파일만 읽는다.
+- **완료는 결정적으로.** "됐다"는 모델이 아니라 기계가 확정한다 — VERIFY는 종료 코드, 프로젝트는 수렴식+사용자 승인.
+- **다차원 예산.** 수정 3회·도구 20회·같은 명령 3회·같은 파일 4회 중 하나라도 소진되면 멈춘다(정체/폭주 방어).
+- **불가침 기준.** 테스트·계약서·success-criteria를 고쳐서 통과시키지 않는다(reward hacking 방어). 매 Riff에 재주입.
+- **자동화 등급은 사용자가 고른다.** L2 반자동(기본) ↔ L3 AFK(결정적 acceptance가 있을 때만).
 
 ---
 
