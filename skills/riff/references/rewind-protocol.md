@@ -57,7 +57,7 @@ _workspace/riff-N/rewind-reason.md 생성:
 복원 시 주의:
 - `_workspace/riff-N/`의 파일은 삭제하지 않는다 (학습 자료로 보존).
 - `_workspace/contracts/`에서 Riff N에서 추가된 계약서만 `status: reverted`로 표시.
-- riff-immunity에 되감기 원인을 항체로 등록한다.
+- riff-memory에 되감기 원인을 항체로 등록한다.
 
 동시에 `_workspace/riff-status.md`의 현재 위치를 되감기 목표 Riff·단계로 업데이트한다. 자동화 체크리스트를 초기화(모두 미체크)하여 재시작 시 DNA·항체를 다시 로드하게 한다.
 
@@ -66,8 +66,8 @@ _workspace/riff-N/rewind-reason.md 생성:
 되감기 전에 반드시 LEARN을 실행한다:
 
 ```
-riff-immunity: 실패 패턴 → 항체 생성 (severity: high 이상)
-riff-dna: 방향 오류였다면 의사결정 패턴에 기록
+riff-memory: 실패 패턴 → 항체 생성 (severity: high 이상)
+riff-memory: 방향 오류였다면 의사결정 패턴에 기록
 riff-log.md에 되감기 이력 추가
 ```
 

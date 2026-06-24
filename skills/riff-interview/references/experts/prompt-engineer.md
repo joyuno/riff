@@ -108,7 +108,7 @@
 ## 제약 조건 (에이전트 준수 필수)
 [Architecture Contract의 기초 자료]
 
-## 초기 항체 목록 (riff-immunity)
+## 초기 항체 목록 (riff-memory)
 [Pre-mortem에서 도출된 리스크 → 항체 후보]
 ```
 
