@@ -6,12 +6,12 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-0.4.0-brightgreen.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Version-0.4.1-brightgreen.svg" alt="Version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/Claude_Code-Plugin-purple.svg" alt="Claude Code Plugin">
   <img src="https://img.shields.io/badge/Modules-4_Skills-orange.svg" alt="4 Modules">
   <img src="https://img.shields.io/badge/Contracts-8_Types-blue.svg" alt="8 Contract Types">
-  <img src="https://img.shields.io/badge/QA-Tier_0~3_+_Playwright-red.svg" alt="Tier 0-3 QA">
+  <img src="https://img.shields.io/badge/QA-Tier_0~3_Live_Browser_(no_MCP)-red.svg" alt="Tier 0-3 QA">
   <a href="https://github.com/joyuno/riff/stargazers"><img src="https://img.shields.io/github/stars/joyuno/riff?style=social" alt="GitHub Stars"></a>
 </p>
 
@@ -73,7 +73,7 @@ Riff = 올바른 질문(ASK) + 빠른 반복(EXPLORE → BUILD → VERIFY → LE
 
 # 3. 모듈 추가 (선택 — 있으면 더 강력)
 /plugin install riff@riff-interview    # 소크라테스 인터뷰
-/plugin install riff@riff-qa           # Tier 0~3 QA + Playwright
+/plugin install riff@riff-qa           # Tier 0~3 QA (자체 브라우저 러너, 외부 MCP 불필요)
 /plugin install riff@riff-contracts    # 인터페이스 계약 (8종 + lint)
 /plugin install riff@riff-memory       # 항체 + 사용자 프로파일 (통합)
 ```
@@ -223,9 +223,9 @@ Riff:    "이 제품이 없으면 그 일을 지금 어떻게 하고 있나요?"
 
 ---
 
-### 2. Tier 0~3 QA — 4단계 검증 + Live Browser
+### 2. Tier 0~3 QA — 4단계 검증 + Live Browser (외부 MCP 불필요)
 
-> 정적 분석으로 잡을 수 있는 건 앞 Tier에서 잡고, **런타임 버그만 Playwright로 검증**합니다.
+> 정적 분석으로 잡을 수 있는 건 앞 Tier에서 잡고, **런타임 버그만 경량 브라우저 러너(riff-browse)로 검증**합니다. gstack `/qa`의 방식을 모방하되 Playwright MCP·컴파일 바이너리 없이 프로젝트의 playwright만 씁니다.
 
 ```
 Tier 0: 계약서 lint + 커버리지   비용: 최소  | 계약서 frontmatter, 공유타입 누락 탐지
@@ -234,7 +234,7 @@ Tier 1: 정적 경계면 QA           비용: 낮음 | API shape, 깨진 링크,
         ──────────────────────────────────────
 Tier 2: 빌드/타입 QA             비용: 중간 | tsc --noEmit, eslint, npm run build
         ──────────────────────────────────────
-Tier 3: Live Browser QA          비용: 높음 | Playwright 유저 시나리오, 스크린샷
+Tier 3: Live Browser QA          비용: 높음 | riff-browse 유저 시나리오, 스크린샷
 ```
 
 **Tier 3 QA 변형:**
@@ -441,7 +441,7 @@ Riff가 동작할 때 사용자 프로젝트에 만들어지는 디렉토리:
 
 - Claude Code CLI
 - [Agent Teams enabled](https://code.claude.com/docs/en/agent-teams): `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
-- Playwright MCP (Tier 3 Live QA 사용 시)
+- playwright (Tier 3 Live QA 사용 시 — `npx playwright install chromium`. 외부 MCP 불필요, 자체 러너 riff-browse가 구동)
 
 ## License
 

@@ -17,12 +17,12 @@
   - "필수 항목입니다" 등 명확한 에러 메시지 표시
   - API 요청이 전송되지 않음 (또는 API가 400 반환)
 
-Playwright 실행:
-  browser_snapshot()  → 폼 요소 ref 확인
-  browser_click(제출 버튼 ref)  → 빈 상태로 제출
-  browser_console_messages()
-  browser_network_requests()  → API 호출 여부 확인
-  browser_take_screenshot()
+riff-browse 실행 ($R = node _workspace/.riff/riff-browse.mjs):
+  $R snapshot -i             → 폼 요소 @eN 확인
+  $R click @eN               → 빈 상태로 제출
+  $R console --errors
+  $R network --errors        → API 호출/4xx 5xx 여부 확인
+  $R screenshot dest-01.png
 
 실패 판정:
   - 빈 값이 API로 전송되어 500 에러 발생
@@ -104,11 +104,11 @@ Playwright 실행:
   - 입력값이 화면에 텍스트로만 표시됨 (스크립트 미실행)
   - innerHTML 직접 조작 코드가 없어야 함
 
-Playwright 확인:
-  browser_fill_form(ref, "스크립트 태그 패턴 입력")
-  browser_click(제출 ref)
-  browser_console_messages()  → 스크립트 실행 흔적 확인
-  browser_take_screenshot()   → 화면에 텍스트로 표시되는지 확인
+riff-browse 확인:
+  $R fill @eN "스크립트 태그 패턴 입력"
+  $R click @eN               → 제출
+  $R console --errors        → 스크립트 실행 흔적 확인
+  $R screenshot dest-05.png  → 화면에 텍스트로 표시되는지 확인
 
 실패 판정 (심각도: CRITICAL):
   - 스크립트가 실행됨 (console.messages로 확인)
@@ -127,10 +127,10 @@ Playwright 확인:
 ```
 테스트: 제출 버튼을 빠르게 여러 번 클릭 (또는 Enter 키 연타)
 시뮬레이션:
-  browser_click(제출 버튼 ref)
-  browser_click(제출 버튼 ref)  ← 즉시 연속 클릭
-  browser_click(제출 버튼 ref)
-  browser_network_requests()  → 요청이 몇 번 전송됐는지 확인
+  $R click @eN
+  $R click @eN               ← 즉시 연속 클릭
+  $R click @eN
+  $R network --errors        → 요청이 몇 번 전송됐는지 확인
 
 예상 정상 동작:
   - 첫 클릭 후 버튼 비활성화 (disabled)
@@ -151,12 +151,12 @@ Playwright 확인:
   2. 제출 완료 페이지에서 브라우저 뒤로가기
   3. 폼 페이지로 돌아온 후 다시 제출
 
-Playwright:
-  browser_click(제출 버튼 ref)
-  browser_wait_for({ text: "완료" })
-  browser_navigate_back()
-  browser_click(제출 버튼 ref)
-  browser_network_requests()
+riff-browse:
+  $R click @eN
+  $R wait "완료"
+  $R js "history.back()"
+  $R click @eN
+  $R network --errors
 
 예상 정상 동작:
   - 뒤로가기 시 "이 페이지를 재방문하면 제출이 반복됩니다" 경고
@@ -173,11 +173,11 @@ Playwright:
 ```
 테스트: 폼 제출 직후 (API 응답 전) 네트워크 차단 시뮬레이션
 
-Playwright:
-  browser_click(제출 버튼 ref)
-  browser_evaluate({ script: "window.dispatchEvent(new Event('offline'))" })
-  browser_take_screenshot()
-  browser_console_messages()
+riff-browse:
+  $R click @eN
+  $R js "window.dispatchEvent(new Event('offline'))"
+  $R screenshot dest-08.png
+  $R console --errors
 
 예상 정상 동작:
   - "네트워크 연결이 끊겼습니다" 또는 "잠시 후 다시 시도해주세요" 메시지
@@ -197,10 +197,10 @@ Playwright:
   - 다른 사용자의 리소스 URL 직접 입력
   - 예: /orders/123 (내 주문이 아닌 다른 사람의 주문 ID)
 
-Playwright:
-  browser_navigate({ url: "http://localhost:3000/orders/타인_주문_ID" })
-  browser_take_screenshot()
-  browser_network_requests()  → API 응답 상태 코드 확인
+riff-browse:
+  $R goto http://localhost:3000/orders/타인_주문_ID
+  $R screenshot dest-09.png
+  $R network --errors        → API 응답 상태 코드(403/404 기대) 확인
 
 예상 정상 동작:
   - 403 Forbidden 또는 404 반환
@@ -226,13 +226,11 @@ Playwright:
   2. 토큰 만료 시뮬레이션 (localStorage 직접 변조)
   3. API 요청 실행
 
-Playwright:
-  browser_evaluate({
-    script: "localStorage.setItem('token', 'expired.invalid.token')"
-  })
-  browser_navigate({ url: "http://localhost:3000/dashboard" })
-  browser_take_screenshot()
-  browser_network_requests()
+riff-browse:
+  $R js "localStorage.setItem('token', 'expired.invalid.token')"
+  $R goto http://localhost:3000/dashboard
+  $R screenshot dest-10.png
+  $R network --errors
 
 예상 정상 동작:
   - 401 Unauthorized 응답

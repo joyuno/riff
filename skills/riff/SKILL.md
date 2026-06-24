@@ -219,7 +219,7 @@ _workspace/
 | 0 | 계약 커버리지 + lint | 계약서 lint frontmatter 확인, 공유 타입 누락 탐지 |
 | 1 | 정적 경계면 | API shape, 깨진 링크, 상태 전이 |
 | 2 | 빌드/타입 | tsc / dart analyze / build |
-| 3 | Live Browser | Playwright 유저 저니 |
+| 3 | Live Browser | riff-browse 유저 저니 (MCP 불필요) |
 
 실패 시 즉시 수정 후 재실행. 3회 실패 시 되감기 (`references/convergence.md`).
 

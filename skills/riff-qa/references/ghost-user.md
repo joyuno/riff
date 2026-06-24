@@ -40,23 +40,25 @@
 시작 URL: http://localhost:3000
 ```
 
-### 탐색 루프
+### 탐색 루프 (riff-browse 어휘 — `R="node _workspace/.riff/riff-browse.mjs"`)
 
+```bash
+$R goto <시작 URL>
+$R screenshot ghost-00-start.png   # 첫 화면 확인
+
+# 루프:
+$R snapshot -i                      # 현재 @eN 요소 파악
+# [AI가 목표 기반으로 다음 행동 결정]
+$R click @eN   # 또는  $R fill @eN "값"
+$R screenshot ghost-NN.png          # 행동 결과 캡처
+$R console --errors                  # 에러 확인
+
+# 목표 달성 여부 판단:
+#   → 달성: 완료 기록
+#   → 미달성: 다른 경로 시도 또는 막힘 기록
 ```
-browser_navigate(시작 URL)
-browser_take_screenshot()  → 첫 화면 확인
 
-루프:
-  browser_snapshot()          → 현재 요소 파악
-  [AI가 목표 기반으로 다음 행동 결정]
-  browser_click() 또는 browser_fill_form()
-  browser_take_screenshot()   → 행동 결과 캡처
-  browser_console_messages()  → 에러 확인
-
-  목표 달성 여부 판단:
-    → 달성: 완료 기록
-    → 미달성: 다른 경로 시도 또는 막힘 기록
-```
+러너 설치·데몬 기동은 `tier3-live.md` 0~1절 참조.
 
 ---
 
@@ -128,11 +130,10 @@ browser_take_screenshot()  → 첫 화면 확인
 ### 접근성 이슈
 
 ```bash
-# 접근성 스냅샷에서 확인할 항목
-browser_snapshot() 결과에서:
-- img 요소에 alt 텍스트 없음
-- button에 name/label 없음 (스크린 리더 미지원)
-- 키보드로 접근 불가능한 상호작용 요소
+# 접근성 확인: $R snapshot -i 의 @eN role/name, 또는 $R js 로 직접 점검
+$R js "[...document.querySelectorAll('img')].filter(i=>!i.alt).length"          # alt 없는 img 수
+$R js "[...document.querySelectorAll('button')].filter(b=>!b.innerText&&!b.getAttribute('aria-label')).length"  # name 없는 button
+# - 키보드로 접근 불가능한 상호작용 요소 (tabindex/role 확인)
 ```
 
 ### i18n 이슈
