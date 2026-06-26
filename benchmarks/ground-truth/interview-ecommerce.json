@@ -1,6 +1,6 @@
 {
   "fixtureId": "interview-ecommerce",
-  "fixturePath": "fixtures/interview/vague-ecommerce.md",
+  "fixturePath": "fixtures/interview/interview-ecommerce.md",
   "domain": "plan",
   "isCleanBaseline": false,
   "findings": [

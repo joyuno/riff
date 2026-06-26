@@ -1,6 +1,6 @@
 {
-  "fixtureId": "immunity-unwrap",
-  "fixturePath": "fixtures/immunity/repeated-unwrap-bug.md",
+  "fixtureId": "memory-unwrap",
+  "fixturePath": "fixtures/memory/memory-unwrap.md",
   "domain": "analysis",
   "isCleanBaseline": false,
   "findings": [

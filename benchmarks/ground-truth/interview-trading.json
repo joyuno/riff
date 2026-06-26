@@ -1,6 +1,6 @@
 {
   "fixtureId": "interview-trading",
-  "fixturePath": "fixtures/interview/vague-trading.md",
+  "fixturePath": "fixtures/interview/interview-trading.md",
   "domain": "plan",
   "isCleanBaseline": false,
   "findings": [

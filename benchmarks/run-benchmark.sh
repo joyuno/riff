@@ -130,9 +130,16 @@ if [[ "${DRY_RUN}" == false ]]; then
   fi
 fi
 
-# Python 확인
-if ! command -v python3 &>/dev/null; then
-  error "python3을 찾을 수 없습니다."
+# Python 확인 (python3 우선, 없으면 python 폴백 — Windows/일부 환경 호환).
+# Windows의 Microsoft Store python 별칭 스텁은 import 검사에서 걸러진다.
+PYTHON=""
+for _cand in python3 python py; do
+  if command -v "${_cand}" &>/dev/null && "${_cand}" -c "import sys; sys.exit(0 if sys.version_info[0]==3 else 1)" &>/dev/null; then
+    PYTHON="${_cand}"; break
+  fi
+done
+if [[ -z "${PYTHON}" ]]; then
+  error "Python 3을 찾을 수 없습니다 (python3 또는 python)."
   exit 1
 fi
 
@@ -166,15 +173,15 @@ collect_fixtures() {
       interview) dims=("interview") ;;
       boundary)  dims=("boundary") ;;
       live-app)  dims=("live-app") ;;
-      immunity)  dims=("immunity") ;;
+      memory)  dims=("memory") ;;
       *)
         error "알 수 없는 차원: ${dimension}"
-        echo "  유효한 차원: interview, boundary, live-app, immunity"
+        echo "  유효한 차원: interview, boundary, live-app, memory"
         exit 1
         ;;
     esac
   else
-    dims=("interview" "boundary" "live-app" "immunity")
+    dims=("interview" "boundary" "live-app" "memory")
   fi
 
   for dim in "${dims[@]}"; do
@@ -333,7 +340,7 @@ UI/UX 버그와 데이터 정합성 문제를 찾습니다.
 - 에러 처리: 사용자에게 의미 있는 에러 메시지
 PROMPT
       ;;
-    immunity)
+    memory)
       cat <<'PROMPT'
 당신은 Riff — 소프트웨어 프로젝트의 품질 게이트 에이전트입니다.
 
@@ -367,7 +374,7 @@ build_baseline_system_prompt() {
     live-app)
       echo "You are a helpful QA analyst. Review the provided user journey and identify any issues."
       ;;
-    immunity)
+    memory)
       echo "You are a helpful code reviewer. Review the provided code and identify any issues."
       ;;
     *)
@@ -408,7 +415,7 @@ MSG
 ${fixture_content}
 MSG
       ;;
-    immunity)
+    memory)
       cat <<MSG
 다음 대화 히스토리와 새 코드를 검토하세요.
 이전에 수정한 버그 패턴이 새 코드에서 반복되고 있는지 확인하세요.
@@ -463,7 +470,7 @@ run_mode() {
   local report_output="${RESULTS_DIR}/report-${mode}-${TIMESTAMP}.md"
 
   local scorer_args=(
-    python3 "${SCORING_DIR}/scorer.py"
+    "${PYTHON}" "${SCORING_DIR}/scorer.py"
     --ground-truth "${GROUND_TRUTH_DIR}"
     --results-dir "${output_subdir}"
     --output "${score_output}"
@@ -479,7 +486,7 @@ run_mode() {
   fi
 
   # 보고서 생성
-  python3 "${SCORING_DIR}/reporter.py" \
+  "${PYTHON}" "${SCORING_DIR}/reporter.py" \
     --input "${score_output}" \
     --output "${report_output}"
   success "보고서 생성: ${report_output}"
@@ -533,7 +540,7 @@ main() {
       wop_score="$(run_mode "without-riff")"
 
       comparison_output="${RESULTS_DIR}/comparison-${TIMESTAMP}.md"
-      python3 "${SCORING_DIR}/reporter.py" \
+      "${PYTHON}" "${SCORING_DIR}/reporter.py" \
         --compare "${wp_score}" "${wop_score}" \
         --output "${comparison_output}"
 

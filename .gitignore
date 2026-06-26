@@ -1,3 +1,9 @@
 .omc/
 _workspace/
 session.md
+
+# benchmark run artifacts (keep dir placeholders)
+benchmarks/results/*
+!benchmarks/results/.gitkeep
+benchmarks/baselines/*
+!benchmarks/baselines/.gitkeep

@@ -1,6 +1,6 @@
 {
   "fixtureId": "live-order-dashboard",
-  "fixturePath": "fixtures/live-app/order-dashboard.md",
+  "fixturePath": "fixtures/live-app/live-order-dashboard.md",
   "domain": "analysis",
   "isCleanBaseline": false,
   "findings": [

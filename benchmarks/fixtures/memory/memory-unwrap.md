@@ -1,7 +1,7 @@
 # Benchmark Fixture: 반복 발생하는 Unwrap 버그
 
 ## Fixture ID
-`immunity-unwrap`
+`memory-unwrap`
 
 ## 평가 목표
 
