@@ -64,15 +64,27 @@ trust_level = "trusted"
 
 ---
 
+## 외부 전송 게이트 (secret 항체 — codex 설치 여부와 무관, riff-memory 활성 시 항상 적용)
+
+코드·diff·본문이 **외부로 나가기 직전**에 secret 스캔을 돌린다. 보낼 바이트 그대로 검사:
+- 커밋·푸시 (BUILD/LEARN에서 발생)
+- GitHub 이슈/PR 본문
+- Codex 디스패치(`/codex:review`, `/codex:adversarial-review`) — working-tree/diff
+
+HIGH 패턴(AWS/PEM/GitHub/Slack 토큰) → **차단**, MEDIUM(JWT/Stripe/env 대입/PII) → 사용자 확인.
+패턴·처리: `riff-memory/references/antibody-schema.md`의 secret 섹션. riff-memory 미설치 시 이 게이트는 생략.
+
+---
+
 ## 보강 통합 (의존성이 활성화돼 있을 때만 적용)
 
 ### EXPLORE — Codex 분신
 대립 토론 패턴에서 트레이드오프가 명확하지 않을 때, 분신 중 하나로 Codex 투입:
-`/codex:adversarial-review --wait <focus>` — 결정 1회만, 자동 호출 X.
+`/codex:adversarial-review --wait <focus>` — 결정 1회만, 자동 호출 X. **(외부 전송 게이트 먼저)**
 
 ### VERIFY tier 0~3 — Codex cross-check
 각 tier 통과 후 변경 규모/위험도가 임계 이상(대형 리팩토링·아키텍처·보안·DB 마이그레이션)이면:
-`/codex:review --wait --scope working-tree` — Codex 의견을 LEARN 입력으로 흘림.
+`/codex:review --wait --scope working-tree` — Codex 의견을 LEARN 입력으로 흘림. **(외부 전송 게이트 먼저)**
 
 ### VERIFY 실패 — ralph-loop 자동 루프
 VERIFY 실패 시 즉시 다음 호출:
@@ -221,7 +233,7 @@ _workspace/
 | 2 | 빌드/타입 | tsc / dart analyze / build |
 | 3 | Live Browser | riff-browse 유저 저니 (MCP 불필요) |
 
-실패 시 즉시 수정 후 재실행. 3회 실패 시 되감기 (`references/convergence.md`).
+**루프 제어는 `references/loop-engineering.md`를 따른다** — 완료 신호(`VERIFY_PASSED`는 종료 코드로 확정), 다차원 예산(수정 3회·도구 20회·같은 명령 3회·같은 파일 4회), 정체 감지. 실패 시 즉시 수정 후 재실행하되, 예산 소진·정체·3회 실패 시 되감기 (`references/convergence.md`, `references/rewind-protocol.md`).
 
 ---
 
@@ -236,6 +248,7 @@ _workspace/
 ```
 
 `riff-status.md`의 성공 기준 진행도 갱신. **세션 분리 전 riff-memory 저장 완료 확인 의무**.
+커밋·푸시가 동반되면 먼저 "외부 전송 게이트(secret 항체)"를 적용한다.
 
 ---
 

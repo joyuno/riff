@@ -1,7 +1,7 @@
 {
   "name": "riff",
   "description": "Question-Driven Development — 5-Layer 질문 프레임워크(JTBD + Mom Test + Pre-mortem + 소크라테스)로 신규 웹앱·MVP의 머릿속 아이디어를 끌어내고, ASK→EXPLORE→BUILD→VERIFY→LEARN 루프로 빠르게 만든다. 8종 계약서 + lint, Tier 0~3 QA, 항체+프로파일 통합 메모리 포함.",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "author": {
     "name": "joyuno",
     "url": "https://github.com/joyuno"
