@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-0.4.1-brightgreen.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Version-0.4.2-brightgreen.svg" alt="Version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/Claude_Code-Plugin-purple.svg" alt="Claude Code Plugin">
   <img src="https://img.shields.io/badge/Modules-4_Skills-orange.svg" alt="4 Modules">
@@ -301,19 +301,37 @@ Riff: 에이전트A ──30줄 계약서────→ 에이전트B (효율)
 
 ---
 
+### 5. Loop Engineering — 감독 없이도 안전한 자율(AFK) 루프
+
+> Riff 사이클을 "혼자 돌려도 폭주·표류하지 않는" 자율 루프로 만든다. 자율 코딩 루프 연구
+> (Ralph 기법, harness engineering, reward-hacking 완화)의 검증된 패턴만 추렸다.
+> 상세: `skills/riff/references/loop-engineering.md`
+
+| 장치 | 내용 |
+|------|------|
+| **상태는 디스크, 컨텍스트는 작게** | 각 Riff는 신선한 컨텍스트로 시작, 필요한 파일만 읽음 |
+| **결정적 완료 신호** | "됐다"는 모델이 아니라 기계가 확정 (종료 코드 / 수렴식 + 사용자 승인) |
+| **다차원 예산** | 수정 3회·도구 20회·같은 명령 3회·같은 파일 4회 중 하나라도 소진 시 정지 |
+| **정체·폭주 감지** | (명령,결과) 핑거프린트 반복 → 재시도 금지, 접근 전환 |
+| **reward hacking 방어** | 테스트·계약서·성공 기준은 불가침. 고쳐서 통과시키지 않음 |
+| **자동화 등급** | L1 보수 ↔ L2 반자동(기본) ↔ L3 AFK (결정적 acceptance가 있을 때만) |
+
+---
+
 ## AI-Native Patterns
 
-인간이 할 수 없지만 **AI라서 가능한** 7가지 협업 방식:
+인간이 할 수 없지만 **AI라서 가능한** 8가지 협업 방식:
 
 | 패턴 | 인간 | AI |
 |------|------|-----|
 | **분신술** | 한 명이 한 관점 | 같은 에이전트를 3개 관점으로 동시 스폰 |
 | **시간여행** | 설계→구현→테스트 1회 | 빠른 사이클을 5회 반복, 5번째가 최고 품질 |
 | **대립토론** | 회의 정치, 감정 개입 | 순수 논리로 찬성/반대 동시 수행 |
-| **되감기** | 3주 진행 후 되돌리면 3주 낭비 | git reset 후 항체/DNA는 보존 |
+| **되감기** | 3주 진행 후 되돌리면 3주 낭비 | git reset 후 항체/프로파일은 보존 |
 | **탐색 폭발** | 방법 A를 2주 시도 → 실패 → 방법 B | A, B, C를 동시에 5분간 시도 |
 | **미래 시뮬레이션** | "6개월 후 괜찮을까?" 알 수 없음 | 데이터 100만건, 신기능 추가 시나리오 검증 |
 | **점진적 확신** | 확신 없어도 일정 때문에 진행 | 확신 낮으면 자동 추가 탐색 |
+| **루프 엔지니어링** | 자동 루프가 폭주·표류해도 모름 | 완료 신호·다차원 예산·정체 감지로 감독 없이 안전하게 수렴 |
 
 ---
 
@@ -364,7 +382,7 @@ riff/
 ├── skills/
 │   ├── riff/                               # Core loop engine
 │   │   ├── SKILL.md                         #   ASK→EXPLORE→BUILD→VERIFY→LEARN
-│   │   └── references/                      #   build/explore/rewind/convergence/...
+│   │   └── references/                      #   build/explore/rewind/convergence/loop-engineering/...
 │   │
 │   ├── riff-interview/                     # 5-Layer Socratic interview
 │   │   ├── SKILL.md
@@ -378,9 +396,10 @@ riff/
 │   │       ├── stack-patterns.md            #   스택별 탐지/검증 명령
 │   │       └── {type|behavior|visual|performance|security|constants|dependency|architecture}.template.md
 │   │
-│   ├── riff-qa/                            # Tier 0~3 QA
+│   ├── riff-qa/                            # Tier 0~3 QA (외부 MCP 불필요)
 │   │   ├── SKILL.md
 │   │   └── references/                      #   tier1, tier2, tier3, ghost-user, destroyer
+│   │       └── riff-browse.mjs              #   경량 브라우저 러너 (gstack $B 어휘 모방)
 │   │
 │   └── riff-memory/                        # 항체 + 프로파일 (통합)
 │       ├── SKILL.md
