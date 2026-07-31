@@ -6,7 +6,7 @@
 
 | 위치 | 모델 | 방식 |
 |---|---|---|
-| FRAME·SHAPE (기획) | Fable/Opus 권장 | 메인 루프 — 다른 모델이면 STATUS에 권장 안내 1줄 |
+| FRAME·SHAPE (기획) | 최상위 티어 권장(사용자가 /model로 설정한 메인 모델) | 메인 루프 인라인 — 다른 모델이면 STATUS에 권장 안내 1줄 |
 | SHAPE 잼 | `opus` | 스폰 |
 | BUILD core (병렬) | `opus` | 스폰 |
 | BUILD support (병렬) | `sonnet` | 스폰 |
@@ -15,8 +15,10 @@
 | PROVE Tier 0~2 | — | 메인 루프 인라인 |
 | PROVE Tier 3 (유령·파괴자) | `sonnet` | 스폰 (격리 가치) |
 | PROVE diff-review (복잡/core) | `sonnet` | 스폰 (fresh-context 가치) |
-| DROP 보안 딥스캔 | `sonnet` | 스폰 (보안 플래그 시 1회) |
-| TUNE 스톡테이크 | `sonnet` | 스폰 (fresh-context 가치) |
+| DROP 보안 딥스캔(`drop.md`) | `sonnet` | 스폰 (보안 플래그 시 1회) |
+| TUNE 스톡테이크(`tune.md`) | `sonnet` | 스폰 (fresh-context 가치) |
 | LEARN | — | 메인 루프 인라인 |
+
+**컨텍스트 압박 예외**: 인라인 지정 행(BUILD 순차·PROVE Tier 0~2·LEARN)도 컨텍스트 압박 시 스폰으로 승격 가능 — 모델은 해당 태스크 등급을 따르고, 게이트 기준은 동일하다.
 
 등급은 BUILD-PLAN에서 태스크 보드에 명시 → 사용자가 스폰 전 오버라이드 가능(`build.md`).
