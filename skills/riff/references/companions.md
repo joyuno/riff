@@ -13,7 +13,7 @@
 | `ralph-loop` 플러그인 | `~/.claude/plugins/cache/claude-plugins-official/ralph-loop` 존재 | `/plugin install ralph-loop@anthropic` | PROVE 실패 루프 |
 | `codex` 플러그인 | `~/.claude/plugins/cache/openai-codex/codex` 존재 | `/plugin marketplace add openai/codex-plugin-cc` + `/plugin install codex@openai-codex` | SHAPE 대립 검토, diff-review cross-check |
 | Codex CLI | `command -v codex` | `npm install -g @openai/codex` | 위 두 기능의 런타임 |
-| Codex 로그인 | `node ~/.claude/plugins/cache/openai-codex/codex/*/scripts/codex-companion.mjs setup --json` 의 `loggedIn: true` (codex 플러그인 캐시의 절대 경로 사용 — `${CLAUDE_PLUGIN_ROOT}`는 riff 컨텍스트라 부적합) | 사용자에게 `!codex login` 안내 (OAuth는 브라우저 필요) | Codex 호출 권한 |
+| Codex 로그인 | `node ~/.claude/plugins/cache/openai-codex/codex/*/scripts/codex-companion.mjs setup --json` 의 `loggedIn: true` (codex 플러그인 캐시의 절대 경로 사용 — `${CLAUDE_PLUGIN_ROOT}`는 riff 컨텍스트라 부적합) (버전 디렉토리 다중 매치 시 최신 선택: `ls -d ~/.claude/plugins/cache/openai-codex/codex/*/ \| sort -V \| tail -1`. `/codex:setup`을 직접 쓰지 않는 이유: 미설치 시 설치 프롬프트 부작용) | 사용자에게 `!codex login` 안내 (OAuth는 브라우저 필요) | Codex 호출 권한 |
 | Codex sandbox 설정 | `~/.codex/config.toml`에 `sandbox_mode`/`approval_policy` 키 + 현재 프로젝트 `[projects."<cwd>"]` 섹션의 `trust_level = "trusted"` 존재 여부 | 누락된 키만 append (기존 설정 보존, 변경 전 `~/.codex/config.toml.bak`로 백업) — 아래 "Codex sandbox 권장 설정" 참조 | `/codex:review`·`/codex:adversarial-review` 호출 시 sandbox 권한 거부·trust 프롬프트 0건 |
 | ecc plan-canvas | `command -v ecc-plan-canvas` | `npm install -g ecc-universal` | verdict 게이트 브라우저 리뷰 |
 
@@ -72,8 +72,15 @@ trust_level = "trusted"
 |---|---|---|
 | PROVE 실패 루프 | `/ralph-loop:ralph-loop "<failure>" --max-iterations 3 --completion-promise 'VERIFY_PASSED'` | 자체 재시도 2회 → 실패 유형 진단 → 에스컬레이션 |
 | SHAPE 대립 검토 | `/codex:adversarial-review --wait <focus>` 1회 | 잼에 반대 관점 에이전트 1개 추가 |
-| diff-review (복잡 depth) | `/codex:review --wait --scope working-tree` | 인라인 self-review / `sonnet` 독립 리뷰 |
-| verdict 게이트 | `ecc-plan-canvas open _workspace/CANVAS.md` → `await` — 요소 앵커 주석 + approve/request-changes, 수정 시 라이브 리로드, 끝나면 `end` | 터미널 구조화 질문 |
+| diff-review (복잡 depth) | `/codex:review --wait --scope working-tree` | 보통: 인라인 self-review / 복잡: `sonnet` 독립 리뷰 |
+| verdict 게이트 | `ecc-plan-canvas open _workspace/CANVAS.md` → `await` — 요소 앵커 주석 + approve/request-changes, 수정 시 라이브 리로드, 끝나면 `end` | 터미널 구조화 질문(아래 상세) |
 
 **codex 리뷰 단일 트리거 규칙**: `/codex:review`는 diff-review의 복잡 depth 슬롯에서만 호출한다.
 (구 버전의 "대형 변경 시 별도 cross-check" 트리거는 이 슬롯에 통합 — 동일 사이클 이중 호출 금지.)
+
+### verdict 게이트 터미널 폴백 (상세)
+
+plan-canvas 미설치 시: 구조화 질문 도구(AskUserQuestion 등)로 **approve / request-changes** 2택 제시.
+- approve → 게이트 통과, 다음 스테이지로.
+- request-changes → 변경 요청 사유를 수집해 CANVAS 해당 섹션에 반영 → 해당 스테이지 재작업 후 **재게이트**.
+  (FRAME 산출 게이트면 FRAME 재진입, 사이클 종료 게이트면 PROVE 실패 루프와 동일하게 처리.)
