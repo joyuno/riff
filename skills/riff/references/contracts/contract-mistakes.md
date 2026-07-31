@@ -1,9 +1,9 @@
 # Contract Mistakes: 자주 발생하는 계약서 작성 실수 카탈로그
 
-이 파일은 `riff-memory`의 `contract` 타입 항체 시드 카탈로그다.
+이 파일은 LEARN 단계(`references/learn/antibody-schema.md`)의 `contract` 타입 항체 시드 카탈로그다.
 새 계약서 작성 직전 또는 lint 실패 시 참조한다.
 
-각 실수는 항체 형식과 1:1 대응되도록 작성됐다 — 재발 시 `riff-memory`가 동일 ID로 항체 강화한다.
+각 실수는 항체 형식과 1:1 대응되도록 작성됐다 — 재발 시 LEARN 단계가 동일 ID로 항체 강화한다.
 
 ---
 
@@ -286,7 +286,7 @@ Architecture Contract에 공유 영역의 수정 정책(orchestrator 승인 / �
 
 ## 항체 강화 정책
 
-같은 ID의 실수가 2회 이상 발생하면 `riff-memory`가 다음을 수행:
+같은 ID의 실수가 2회 이상 발생하면 LEARN 단계가 다음을 수행:
 
 1. `.riff/memory/antibodies/contract-{ID}.md`의 `recurrence` +1
 2. 해당 항체의 예방 체크리스트를 lint 파일에 자동 반영(우선순위 ↑)
