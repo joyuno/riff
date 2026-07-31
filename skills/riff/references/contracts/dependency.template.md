@@ -88,7 +88,7 @@ PROVE Tier 0이 이 파일을 계약서와 비교한다.
 
 ## Lint 통과 의무
 
-`references/contract-lint.md`의 Dependency 체크리스트:
+`contract-lint.md`의 Dependency 체크리스트:
 - 모든 핵심 라이브러리가 정확한 핀
 - 런타임 버전 명시
 - 잠금 파일 위치 명시

@@ -81,7 +81,7 @@
 
 ## Lint 통과 의무
 
-이 계약서는 `references/contract-lint.md`의 Constants 체크리스트를 통과해야 한다.
+이 계약서는 `contract-lint.md`의 Constants 체크리스트를 통과해야 한다.
 특히:
 - 모든 수치에 단위 명시
 - bound 포함/미포함 명시

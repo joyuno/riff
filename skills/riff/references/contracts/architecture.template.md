@@ -1,6 +1,6 @@
 # Architecture Contract 템플릿
 
-이 파일은 `references/architecture.template.md`이다.
+이 파일은 `contracts/architecture.template.md`이다.
 병렬 에이전트 스폰 전 오케스트레이터가 직접 작성한다.
 
 ---
