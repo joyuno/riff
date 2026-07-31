@@ -1,0 +1,12 @@
+# DROP — 랜딩·발매 (이벤트 스테이지)
+
+발동: 잼 병합 시 · 성공 기준 달성 시 · 사용자 요청 시. 사이클 핫패스 아님.
+
+1. **검증 확인**: 마지막 PROVE 통과 + clean tree. 아니면 PROVE부터.
+2. **잼 랜딩** (잼 병합으로 발동한 경우): 승자 워크트리의 구현 diff를 메인 브랜치에 merge하고, 워크트리 안의 `detail/shape-*.md` 결과 파일을 메인 `_workspace/detail/`로 복사한 **후에** 정리 목록에 등록한다 — 순서를 지키지 않으면 승자 결과가 워크트리와 함께 소실된다.
+3. **랜딩 메뉴** (4택, 사용자 선택): merge / PR / keep(브랜치 유지) / discard
+4. **worktree 정리**: 미채택 잼 워크트리 `git worktree remove` + `git worktree prune`
+5. **보안 딥스캔**: CANVAS [3]에 보안 플래그가 하나라도 있으면 `sonnet` 보안 패스 1회 필수(auth·인가·입력 검증·시크릿·CORS)
+6. **원웨이도어**: push·publish·배포는 실행 전 사용자 확인(depth 무관)
+7. **카나리 체크** (배포한 경우): 배포 URL 1패스 — HTTP 상태·콘솔 에러·핵심 요소 렌더·주요 API 응답. 실패 시 롤백 안내 + 원인을 다음 사이클 후보로.
+8. **기록**: CANVAS STATUS·[5]에 DROP 기록, README quickstart 갱신.
