@@ -27,6 +27,7 @@ Riff v1.0의 adaptive depth 판정과 Living CANVAS.md 재개 로직을 검증�
 | depth-ambiguous-notes | `fixtures/depth/ambiguous-brief-notes.md` | `ground-truth/depth-ambiguous-notes.json` | "메모 앱" 같은 모호 브리프에서 depth 판정 정답률(복잡 또는 가정 선언 노출)을 측정 |
 | depth-ambiguous-tracker | `fixtures/depth/ambiguous-brief-tracker.md` | `ground-truth/depth-ambiguous-tracker.json` | "뚝딱" 같은 어휘에 낚이지 않고 성공 기준 부재 시 가정 선언을 강제하는지 측정 |
 | canvas-mid-build-restart | `fixtures/canvas/mid-build-restart.md` | `ground-truth/canvas-restart.json` | BUILD 도중 dirty exit 후 재시작 정확도(canvas-lint 선실행 + 미완료 태스크부터 재개) 측정 |
+| rewind-anchor | `fixtures/canvas/rewind-anchor.md` | `ground-truth/rewind-anchor.json` | PROVE 3회 연속 실패 시 커밋 앵커 기반 되감기가 증거 백업 선행·CANVAS 갱신·항체/`.riff/` 보존을 지키는지 측정 |
 
 **speed-tax**(계획됨): medium 프로파일 사이클의 오버헤드 wall-clock 측정(목표 ≤15%) — 측정 스크립트는 후속 릴리스 범위.
 
@@ -218,7 +219,8 @@ benchmarks/
 │   │   ├── ambiguous-brief-notes.md
 │   │   └── ambiguous-brief-tracker.md
 │   └── canvas/                   # v1.0: Living CANVAS.md 재개 로직 측정
-│       └── mid-build-restart.md
+│       ├── mid-build-restart.md
+│       └── rewind-anchor.md      # 커밋 앵커 기반 되감기 측정
 ├── ground-truth/
 │   ├── interview-ecommerce.json
 │   ├── interview-trading.json
@@ -228,7 +230,8 @@ benchmarks/
 │   ├── immunity-unwrap.json
 │   ├── depth-ambiguous-notes.json
 │   ├── depth-ambiguous-tracker.json
-│   └── canvas-restart.json
+│   ├── canvas-restart.json
+│   └── rewind-anchor.json
 ├── baselines/                    # 저장된 베이스라인 결과
 └── results/                      # 벤치마크 실행 결과
 ```

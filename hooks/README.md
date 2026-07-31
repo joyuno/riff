@@ -21,6 +21,8 @@ Riff 플러그인의 Claude Code 훅 모음입니다.
 
 ## 1. riff-progress 훅 개요
 
+> 참고: 이 훅은 v0.3.1의 `.riff/riff-log.json` 스키마를 읽는다. v1.0 프로젝트(`.riff/state.json` 체계)에서는 데이터가 없으면 조용히 건너뛰며, v1.0 스키마 연동은 후속 릴리스 범위.
+
 **이벤트**: `SubagentStop` — 서브에이전트가 완료될 때마다 트리거됩니다.
 
 **동작 순서**:
