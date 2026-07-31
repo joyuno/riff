@@ -23,7 +23,8 @@ PROVE 3회 연속 실패 또는 방향 오류 감지 시 실행한다.
 
 0. **git 앵커 복원** (실행 시점 주의 — 증거 캡처 후):
    ① 먼저 1단계(사유 기록)를 완료하고, 실패 구현의 증거를 백업한다:
-      `git diff <anchor>..HEAD > _workspace/detail/rewind-cycle-N.diff`
+      `git diff <anchor> > _workspace/detail/rewind-cycle-N.diff`
+      (앵커 대비 워킹트리 전체 diff — 되감기는 사이클 커밋 전에 발동하므로 미커밋 변경 포함 필수. 미추적 신규 파일은 `git add -N .`로 먼저 인덱스에 등록해야 diff에 잡힌다.)
       (4단계 LEARN의 항체 red-green 재현은 이 백업 diff를 사용한다.)
    ② 그 다음 되감기 목표 사이클의 커밋 앵커(`cycle-N`, `.riff/state.json`의 `last_anchor`)로
       `git reset --hard <anchor>` — 항체·`.riff/`는 별도 디렉토리라 보존된다.
