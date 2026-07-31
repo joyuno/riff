@@ -1,6 +1,6 @@
 # Profile Schema: 사용자 프로파일 단일 파일 스키마
 
-이 파일은 LEARN 단계에서 프로파일 갱신 또는 ASK/BUILD에서 적용 시에만 읽는다. SKILL.md에 포함하지 않는다.
+이 파일은 LEARN 단계에서 프로파일 갱신 또는 FRAME/BUILD에서 적용 시에만 읽는다. SKILL.md에 포함하지 않는다.
 
 ---
 
@@ -157,7 +157,7 @@
 
 ## 적용 메커니즘
 
-### ASK 단계
+### FRAME 단계
 
 질문 선호 형식에 따라 인터뷰 톤 조정:
 - `choices` → "A vs B 중?"

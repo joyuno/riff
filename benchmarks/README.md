@@ -212,15 +212,23 @@ benchmarks/
 │   │   └── route-prefix-missing.md
 │   ├── live-app/                 # Live QA 측정
 │   │   └── order-dashboard.md    # 주문 대시보드 유저 저니
-│   └── immunity/                 # 면역 시스템 측정
-│       └── repeated-unwrap-bug.md
+│   ├── immunity/                 # 면역 시스템 측정
+│   │   └── repeated-unwrap-bug.md
+│   ├── depth/                    # v1.0: adaptive depth 판정 측정
+│   │   ├── ambiguous-brief-notes.md
+│   │   └── ambiguous-brief-tracker.md
+│   └── canvas/                   # v1.0: Living CANVAS.md 재개 로직 측정
+│       └── mid-build-restart.md
 ├── ground-truth/
 │   ├── interview-ecommerce.json
 │   ├── interview-trading.json
 │   ├── boundary-api-shape.json
 │   ├── boundary-route-prefix.json
 │   ├── live-order-dashboard.json
-│   └── immunity-unwrap.json
+│   ├── immunity-unwrap.json
+│   ├── depth-ambiguous-notes.json
+│   ├── depth-ambiguous-tracker.json
+│   └── canvas-restart.json
 ├── baselines/                    # 저장된 베이스라인 결과
 └── results/                      # 벤치마크 실행 결과
 ```

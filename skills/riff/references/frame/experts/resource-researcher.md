@@ -117,7 +117,7 @@ claude plugin install https://github.com/{owner}/{repo}
 | FRAME | (riff 내장) | 5-Layer 기획 |
 | BUILD | [설치된 UI 스킬] | UI 컴포넌트 생성 |
 | PROVE | (riff 내장) | Tier 0~3 검증 |
-| LEARN | riff-immunity | 버그 패턴 기록 |
+| LEARN | (riff 내장) | 버그 패턴 기록 |
 ```
 
 ---

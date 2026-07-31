@@ -144,7 +144,7 @@ confidence: [0-100%]
  이 방향의 트레이드오프를 이미 수용한 상태로 구현하라."
 ```
 
-`riff-status.md` 갱신: 현재 위치를 `BUILD > PLAN`으로 이동. shape-synthesis.md 경로를 기록.
+`CANVAS.md` STATUS 갱신: 현재 위치를 `BUILD > PLAN`으로 이동. shape-synthesis.md 경로를 기록.
 
 ---
 

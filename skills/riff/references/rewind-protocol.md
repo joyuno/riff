@@ -50,7 +50,7 @@ _workspace/detail/rewind-reason-cycle-N.md 생성:
 |-----------|------------|
 | 구현 오류 (로직 버그) | 직전 Cycle (N-1) |
 | 설계 오류 (인터페이스 잘못됨) | 계약서 생성 이전 (BUILD-CONTRACT 단계) |
-| 방향 오류 (요구사항 미충족) | Cycle 0 또는 ASK 단계 |
+| 방향 오류 (요구사항 미충족) | Cycle 0 또는 FRAME 단계 |
 
 ### 3단계: state.json 복원
 
