@@ -6,10 +6,10 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-0.3.1-brightgreen.svg" alt="Version">
+  <img src="https://img.shields.io/badge/Version-1.0.0-brightgreen.svg" alt="Version">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
   <img src="https://img.shields.io/badge/Claude_Code-Plugin-purple.svg" alt="Claude Code Plugin">
-  <img src="https://img.shields.io/badge/Modules-4_Skills-orange.svg" alt="4 Modules">
+  <img src="https://img.shields.io/badge/Canvas-Single_SSOT-orange.svg" alt="Single SSOT Canvas">
   <img src="https://img.shields.io/badge/Contracts-8_Types-blue.svg" alt="8 Contract Types">
   <img src="https://img.shields.io/badge/QA-Tier_0~3_+_Playwright-red.svg" alt="Tier 0-3 QA">
   <a href="https://github.com/joyuno/riff/stargazers"><img src="https://img.shields.io/github/stars/joyuno/riff?style=social" alt="GitHub Stars"></a>
@@ -24,13 +24,11 @@
 
 # Riff
 
-**Question-Driven Development** — A Claude Code Plugin
+**질문이 캔버스를 채운다.** Riff는 FRAME → SHAPE → BUILD → PROVE → LEARN 사이클을 빠르게 반복하며, 매 사이클마다 작동하는 결과물과 살아있는 `CANVAS.md`를 남기는 Question-Driven 개발 루프입니다. 마일스톤에서는 DROP(랜딩), 정체·되감기 후에는 TUNE(조율) 이벤트가 사이클 밖에서 개입합니다.
 
 **한국어** | [English (coming soon)]()
 
 코드를 잘 짜는 건 AI가 합니다. 하지만 **"무엇을 만들어야 하는가"는 여전히 사람의 머릿속에 있습니다.**
-
-Riff는 처음 기획 단계에서 **올바른 질문을 던져서**, 개발 경험이 없는 사람도 자신의 아이디어를 완성도 높은 서비스로 만들 수 있게 해주는 질문 프레임워크입니다.
 
 ## Why Riff?
 
@@ -46,46 +44,28 @@ AI가 아무리 뛰어나도, **질문이 잘못되면 결과도 잘못됩니다
 
 > 문제는 AI의 능력이 아닙니다. **당신의 머릿속에 있는 것을 꺼내는 과정**이 빠져 있었을 뿐입니다.
 
-Riff는 JTBD(Jobs-to-Be-Done), Mom Test, Pre-mortem, 소크라테스 대화법을 결합한 **5-Layer 질문 프레임워크**로, 기획 단계에서 올바른 의사결정을 유도합니다. 질문이 끝나면, AI가 빠른 반복 루프로 실제 서비스를 만듭니다.
-
+세션이 끊겨도 `CANVAS.md`만 읽으면 재시작됩니다:
 ```
-Riff = 올바른 질문(ASK) + 빠른 반복(EXPLORE → BUILD → VERIFY → LEARN)
-
-           ┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃→ 완성
-           각 ┃ = 하나의 Riff (수분~수십분)
-           매 Riff마다 "질문 → 시도 → 검증 → 학습"
+STATUS       → 현재 Cycle · 진행도 · 다음 액션 한눈에
+[1]~[5]      → 문제·결정·계약·검증·항체가 지도로 압축, 전문은 detail/·contracts/에
 ```
 
-> 9주짜리 기존 프로젝트 = **15~25 Riff** = **3~8시간**
+## 사이클
 
----
+```mermaid
+flowchart LR
+  F[FRAME] --> S[SHAPE] --> B[BUILD] --> P[PROVE] --> L[LEARN]
+  L -->|다음 사이클| F
+  L -.->|3~5사이클·rewind 후| T[TUNE]
+  L -->|마일스톤| D[DROP]
+```
 
 ## Quick Start
 
-### Installation
-
 ```shell
-# 1. 마켓플레이스 등록
 /plugin marketplace add joyuno/riff
-
-# 2. 핵심 엔진 설치 (이것만으로 동작)
-/plugin install riff@riff
-
-# 3. 모듈 추가 (선택 — 있으면 더 강력)
-/plugin install riff@riff-interview    # 소크라테스 인터뷰
-/plugin install riff@riff-qa           # Tier 0~3 QA + Playwright
-/plugin install riff@riff-contracts    # 인터페이스 계약 (8종 + lint)
-/plugin install riff@riff-memory       # 항체 + 사용자 프로파일 (통합)
+/plugin install riff@joyuno-riff
 ```
-
-### Direct Installation
-
-```shell
-# 글로벌 스킬로 직접 복사
-cp -r skills/* ~/.claude/skills/
-```
-
-### Usage
 
 Claude Code에서 바로 사용:
 
@@ -96,225 +76,60 @@ Claude Code에서 바로 사용:
 "앱 만들어줘"
 ```
 
----
+## 핵심 기능
 
-## Optional Companions — Codex 토론 + Ralph 자동 루프
+### 1. Living Canvas — `_workspace/CANVAS.md`
 
-Riff는 단독으로 동작하지만, 다음 두 플러그인이 함께 있으면 **EXPLORE 단계의 대립 토론**과 **VERIFY 실패 시 자동 수정 루프**가 자동 강화됩니다.
+```
+현재 사이클만 상세히. 스테이지 종료 시 해당 섹션 갱신. 섹션 상한 초과 시
+오래된 내용은 detail/로 내리고 링크만 남긴다. 완료 사이클은 1줄 요약으로 접는다.
+아키텍처·플로우·상태머신은 mermaid 블록으로 그린다.
+이 문서의 쓰기는 메인 루프 단독(single-writer) — 서브에이전트는 detail/·contracts/·태스크 보드에만 기록.
+```
 
-| 컴패니언 | 역할 | 설치 |
+> **이 문서만으로 재시작 가능해야 한다** — 캔버스는 지도, `detail/`·`contracts/`는 영토.
+
+### 2. Adaptive Depth — 8신호로 깊이 자동 조정
+
+사이클 시작 시 8신호를 가중치 없이 개수만 체크합니다: 같은 패턴 검증됨 · 요구사항 명시적 · 유사 도메인 표준 패턴 존재 · 성공 기준 측정 가능 · 요구 모호하지 않음 · 같은 영역 되감기 없음 · 외부 의존 낮음 · 트레이드오프 분석 완료.
+
+| 체크 수 | 프로파일 | 동작 |
 |---|---|---|
-| [`ralph-loop`](https://github.com/anthropics/claude-code-plugins) | VERIFY 실패 시 통과까지 자동 수정 루프 | `/plugin install ralph-loop@anthropic` |
-| [`codex`](https://github.com/openai/codex-plugin-cc) | OpenAI Codex로 적대적 검토·교차 검증 | `/plugin marketplace add openai/codex-plugin-cc` + `/plugin install codex@openai-codex` |
+| 6+/8 | 단순 | 가정 선언(FRAME 스킵) → SHAPE 스킵 → PROVE-lite(Tier 0+2) |
+| 4~5/8 | 보통 | FRAME 2문항 → PROVE Tier 0~2 + 인라인 diff-review |
+| <4/8 | 복잡 | 풀 스테이지 + 잼 + Tier 0~3 + 독립 diff-review |
 
-### 자동 부트스트랩
+사용자가 "가볍게" / "꼼꼼하게"로 강제 오버라이드할 수 있습니다.
 
-`riff`를 프로젝트에서 처음 호출하면 다음 의존성을 점검하고 **누락된 것을 사용자에게 한 번 물어 자동 설치**합니다:
+### 3. 모델 라우팅 — 등급별 스폰
 
-1. `ralph-loop` 플러그인 → 누락 시 설치 제안
-2. `codex` 플러그인 → 누락 시 설치 제안
-3. Codex CLI (`npm install -g @openai/codex`) → 누락 시 자동 설치
-4. Codex 로그인 (`!codex login`) → 미인증 시 안내
+| 등급 | 모델 | 용도 |
+|---|---|---|
+| core | `opus` | BUILD 병렬 핵심 태스크, SHAPE 잼 |
+| support | `sonnet` | BUILD 병렬 지원 태스크, PROVE Tier 3 · diff-review |
+| trivial | `haiku` | BUILD 병렬 사소한 태스크 |
 
-각 항목마다 **Install / Skip / Skip all**로 on/off 선택 가능. Skip 시 해당 보강 기능만 비활성화하고 Riff 기본 흐름은 그대로 동작합니다.
+스폰은 잼 · 병렬 태스크 ≥2 · 컨텍스트 압박일 때만 정당화됩니다 — 그 외 순차 작업은 메인 루프 인라인 실행이 기본입니다.
 
-### 결합된 흐름
+### 4. 잼 · 이벤트 스테이지
 
-```
-RIFF 사이클
-├─ ASK         → 사용자
-├─ EXPLORE     → 분신술 (Riff 내장)
-│                  └─ 트레이드오프 명확하지 않을 때:
-│                       /codex:adversarial-review --wait <focus>
-├─ BUILD       → 구현
-├─ VERIFY      → riff-qa Tier 0~3
-│                  ├─ 큰 변화(아키텍처·보안·DB 마이그레이션)일 때:
-│                  │    /codex:review --wait --scope working-tree (cross-check)
-│                  └─ 실패 시 자동:
-│                       /ralph-loop:ralph-loop "<failure>" \
-│                         --max-iterations 3 \
-│                         --completion-promise 'VERIFY_PASSED'
-└─ LEARN       → riff-memory + Codex 의견 반영
-```
+**잼(Jam)**: SHAPE에서 트레이드오프가 불명확하면 대안마다 격리 worktree에서 에이전트가 동시에 PoC를 시도합니다. 결정은 CANVAS [2]에 1행 + detail/ 링크로 남습니다.
 
-> 💡 위 `'VERIFY_PASSED'`는 generic 종료 조건입니다. ASK Layer의 **MEASURE 응답이 측정 가능**할 때는 그 기준을 promise로 구체화하면 자동 루프 종료 판단 정확도가 올라갑니다 — 예: `--completion-promise 'CONVERSION_GE_10PCT'` (전환율 10% 이상), `--completion-promise 'LOGIN_DURATION_LE_3000MS'` (3초 내 로그인). 메인 모델(Opus 등)이 본인 출력에 promise를 명시할 때만 루프가 종료됩니다.
+**DROP**(랜딩): 잼 병합 · 성공 기준 달성 · 사용자 요청 시 발동. 랜딩 메뉴(merge/PR/keep/discard), worktree 정리, 보안 딥스캔, 카나리 체크를 수행합니다.
 
-### Codex 모델 정책
+**TUNE**(조율): 3~5사이클마다 · 되감기 직후 · 진행 정체 시 발동. 코드-캔버스 재대조(스톡테이크), 데드코드 제거(가드닝), 항체 정리를 수행합니다.
 
-Codex 호출 시 **`--model` 플래그를 자동 명시하지 않습니다**. Codex CLI 기본값이 그 시점 OpenAI의 최신 모델(GPT-5.4-codex 등)이며 자동 업데이트됩니다. 사용자가 `--model spark` 같은 별칭을 명시할 때만 적용.
+## Companions
 
----
+Riff는 단독으로 전 기능 동작하지만, 다음 컴패니언이 있으면 자동으로 강화됩니다.
 
-## Architecture
+| 컴패니언 | 설치 | 효과 |
+|---|---|---|
+| [`ralph-loop`](https://github.com/anthropics/claude-code-plugins) | `/plugin install ralph-loop@anthropic` | PROVE 실패 시 통과까지 자동 수정 루프 |
+| [`codex`](https://github.com/openai/codex-plugin-cc) | `/plugin marketplace add openai/codex-plugin-cc` + `/plugin install codex@openai-codex` | SHAPE 대립 검토, diff-review cross-check |
+| `ecc-plan-canvas` | `npm install -g ecc-universal` | verdict 게이트 브라우저 리뷰(요소 앵커 주석 + 판정) |
 
-### Riff Cycle
-
-매 Riff는 5단계를 반복합니다. 각 사이클 후 **작동하는 결과물**이 존재합니다.
-
-<p align="center">
-  <img src="docs/riff_cycle.png" alt="Riff Cycle" width="700">
-</p>
-
-### Module System
-
-**핵심 원칙: 없어도 돌아가는 모듈 시스템.**
-
-```
-riff만 설치:           riff + interview:        riff + 전체:
-┌─────────────┐        ┌─────────────┐           ┌─────────────┐
-│ ASK: 기본 2개│        │ ASK: 5-Layer│           │ ASK: 전문가  │
-│ EXPLORE: 직접│        │ EXPLORE: 동일│           │ EXPLORE: 분신│
-│ BUILD: 직접  │        │ BUILD: 동일  │           │ BUILD: 8종   │
-│              │        │              │           │       계약+lint│
-│ VERIFY: build│        │ VERIFY: 동일 │           │ VERIFY: T0~3 │
-│ LEARN: 로그  │        │ LEARN: 동일  │           │ LEARN: memory │
-└─────────────┘        └─────────────┘           │   (항체+프로파일)│
-     기본 동작              ASK 강화               └─────────────┘
-                                                    최대 성능
-```
-
-### Modular Architecture
-
-<p align="center">
-  <img src="docs/architecture.png" alt="Modular Architecture" width="700">
-</p>
-
----
-
-## Features
-
-### 1. Question Engine — 멀티 프레임워크 질문 엔진
-
-> 검증된 4가지 질문법을 결합해서, **비개발자도 AI와 함께 상세 기획을 완성**할 수 있습니다.
-
-```
-일반 AI:  "쇼핑몰 만들어줘" → AI가 알아서 만듦 → 내가 원하던 게 아님
-
-Riff:    "이 제품이 없으면 그 일을 지금 어떻게 하고 있나요?"  ← JTBD
-          → "매주 엑셀로 3시간씩 주문 정리해요"
-          "지난주에 가장 짜증났던 순간은?"                     ← Mom Test
-          → "복붙하다 주문 2건을 빠뜨렸어요"
-          "딱 하나의 버튼만 있다면?"                           ← Constraint
-          → "주문 자동 확인 버튼이요"
-          "3개월 후 실패했다면, 왜?"                           ← Pre-mortem
-          → "주문량이 늘면 느려질 것 같아요"
-          → 기획 완성 → AI가 정확히 구현
-```
-
-**5-Layer 기획 프레임 — 각 Layer에 최적의 질문법:**
-
-| Layer | 프레임워크 | 핵심 질문 | 결정하는 것 |
-|-------|-----------|----------|-----------|
-| **WHY** | JTBD | 이 제품이 해결할 "일"은? | 핵심 Job, 리스크 태깅 |
-| **WHO** | Mom Test | 실제로 지금 어떻게 하고 있나? | 실제 행동 기반 페르소나 |
-| **WHAT** | Constraint Forcing | 딱 하나만 만든다면? | MVP 핵심, 우선순위 |
-| **HOW** | 소크라테스 | A와 B 중 비용은? | 트레이드오프, 기술 결정 |
-| **MEASURE** | Pre-mortem | 실패한다면 이유는? | 리스크 제거, 성공 기준 |
-
-**5개 전문 도메인:**
-
-| 도메인 | 전문가 질문 예시 |
-|--------|----------------|
-| **웹개발** | SSR vs CSR? 인증 방식? 실시간 필요? |
-| **스마트스토어** | 소싱 방식? 자동화 범위? 마진 구조? |
-| **영상 제작** | 숏폼/롱폼? AI 활용 범위? 다국어? |
-| **퀀트 투자** | 전략 유형? 실행 주기? 리스크 관리? |
-| **AI 엔지니어링** | RAG vs 파인튜닝? 가드레일? 비용 최적화? |
-
----
-
-### 2. Tier 0~3 QA — 4단계 검증 + Live Browser
-
-> 정적 분석으로 잡을 수 있는 건 앞 Tier에서 잡고, **런타임 버그만 Playwright로 검증**합니다.
-
-```
-Tier 0: 계약서 lint + 커버리지   비용: 최소  | 계약서 frontmatter, 공유타입 누락 탐지
-        ──────────────────────────────────────
-Tier 1: 정적 경계면 QA           비용: 낮음 | API shape, 깨진 링크, 상태전이
-        ──────────────────────────────────────
-Tier 2: 빌드/타입 QA             비용: 중간 | tsc --noEmit, eslint, npm run build
-        ──────────────────────────────────────
-Tier 3: Live Browser QA          비용: 높음 | Playwright 유저 시나리오, 스크린샷
-```
-
-**Tier 3 QA 변형:**
-
-| 변형 | 설명 |
-|------|------|
-| **유령 사용자** | AI가 스크린샷을 보고 자유 탐색 — 예상 못한 버그 발견 |
-| **파괴자** | SQL 인젝션, XSS, 버튼 연타, 초장문 입력 등 비정상 테스트 |
-| **시간축** | 상태 변화 흐름 추적 — 새로고침/탭 전환 후에도 일관성 검증 |
-| **다중 인격** | 급한 운영자 / 신규 사용자 / 모바일 사용자 등 다양한 관점 |
-
----
-
-### 3. Interface Contracts — 인터페이스 계약 (8종 + lint)
-
-> 에이전트 간 **500줄 대신 30줄 계약서만 교환**하여 컨텍스트를 ~94% 절약. 작성 직후 self-lint로 실수 사전 차단.
-
-```
-기존:  에이전트A ──500줄 전체 코드──→ 에이전트B (낭비)
-Riff: 에이전트A ──30줄 계약서────→ 에이전트B (효율)
-```
-
-**8종 계약서:**
-
-| 계약 유형 | 내용 | QA Tier |
-|----------|------|---------|
-| **type** | API 응답 shape, 타입 시그니처 | Tier 1 |
-| **behavior** | 상태 전이, 유저 저니 순서 | Tier 3 |
-| **visual** | 컴포넌트 상태, 반응형 브레이크포인트 | Tier 3 |
-| **performance** | 응답 시간 SLA, 번들 크기 | Tier 3 |
-| **security** | 인증/인가, 입력 검증, CORS | Tier 3 (파괴자) |
-| **constants** | 공유 상수 SSOT (길이, rate, 토큰 만료 등) | Tier 0 |
-| **dependency** | 라이브러리 버전 핀, 호환성 | Tier 0 |
-| **architecture** | 병렬 에이전트 API/모듈/파일 소유권 | Tier 0 + 1 |
-
-**계약서 실수 방지:** 작성 직후 8종별 lint(`contract-lint.md`) → 통과해야 BUILD 진입. 자주 하는 실수(CM-001~020) 카탈로그가 `riff-memory`의 `contract` 항체로 자동 누적되어 다음 BUILD에 주입.
-
----
-
-### 4. Riff Memory — 항체 + 사용자 프로파일 (통합)
-
-> 한번 겪은 실수와 사용자 선호도를 함께 누적하여 다음 Riff·다음 세션에 자동 적용.
-
-**항체 (6종 type)**
-
-```
-버그 발견 → 항체 생성 → 다음 BUILD에 자동 주입
-                ↓
-            재발 → 강화 (recurrence +1, 체크리스트 확장)
-                ↓
-       90일 무재발 → weakened (보존만)
-```
-
-| type | 적용 영역 |
-|------|---------|
-| boundary / logic / ui / performance / security | 코드 버그 패턴 |
-| **contract** | **계약서 작성 실수** (단위 누락, 종단 가드 누락 등) |
-
-**사용자 프로파일** (`.riff/memory/profile.md`)
-
-추적: 커뮤니케이션 스타일 / 기술 선호 / 의사결정 패턴 / 코딩 컨벤션
-2회 반복 관찰 → 자동 학습. 명시적 피드백("이렇게 하지 마") → 즉시 반영.
-
----
-
-## AI-Native Patterns
-
-인간이 할 수 없지만 **AI라서 가능한** 7가지 협업 방식:
-
-| 패턴 | 인간 | AI |
-|------|------|-----|
-| **분신술** | 한 명이 한 관점 | 같은 에이전트를 3개 관점으로 동시 스폰 |
-| **시간여행** | 설계→구현→테스트 1회 | 빠른 사이클을 5회 반복, 5번째가 최고 품질 |
-| **대립토론** | 회의 정치, 감정 개입 | 순수 논리로 찬성/반대 동시 수행 |
-| **되감기** | 3주 진행 후 되돌리면 3주 낭비 | git reset 후 항체/DNA는 보존 |
-| **탐색 폭발** | 방법 A를 2주 시도 → 실패 → 방법 B | A, B, C를 동시에 5분간 시도 |
-| **미래 시뮬레이션** | "6개월 후 괜찮을까?" 알 수 없음 | 데이터 100만건, 신기능 추가 시나리오 검증 |
-| **점진적 확신** | 확신 없어도 일정 때문에 진행 | 확신 낮으면 자동 추가 탐색 |
-
----
+없어도 전 기능 동작합니다(네이티브 폴백): ralph-loop 없으면 자체 재시도 후 에스컬레이션, codex 없으면 잼에 반대 관점 에이전트 추가, plan-canvas 없으면 터미널 구조화 질문(approve/request-changes)으로 대체됩니다. 첫 호출 시 누락된 컴패니언을 한 번 물어 자동 설치합니다(Install / Skip / Skip all).
 
 ## Use Cases — Try These Prompts
 
@@ -350,8 +165,6 @@ RAG 기반 고객 상담 챗봇을 만들어줘.
 회사 문서를 벡터 DB에 넣고, 질문에 답변하되 할루시네이션 방지 가드레일 포함.
 ```
 
----
-
 ## Plugin Structure
 
 ```
@@ -361,35 +174,26 @@ riff/
 │   └── marketplace.json
 │
 ├── skills/
-│   ├── riff/                               # Core loop engine
-│   │   ├── SKILL.md                         #   ASK→EXPLORE→BUILD→VERIFY→LEARN
-│   │   └── references/                      #   build/explore/rewind/convergence/...
-│   │
-│   ├── riff-interview/                     # 5-Layer Socratic interview
-│   │   ├── SKILL.md
-│   │   └── references/                      #   layers, scorecard, domains/, experts/
-│   │
-│   ├── riff-contracts/                     # 8종 계약 + lint
-│   │   ├── SKILL.md
-│   │   └── references/
-│   │       ├── contract-lint.md             #   8종 self-check + cross 검증
-│   │       ├── contract-mistakes.md         #   CM-001~020 실수 카탈로그(항체 시드)
-│   │       ├── stack-patterns.md            #   스택별 탐지/검증 명령
-│   │       └── {type|behavior|visual|performance|security|constants|dependency|architecture}.template.md
-│   │
-│   ├── riff-qa/                            # Tier 0~3 QA
-│   │   ├── SKILL.md
-│   │   └── references/                      #   tier1, tier2, tier3, ghost-user, destroyer
-│   │
-│   └── riff-memory/                        # 항체 + 프로파일 (통합)
-│       ├── SKILL.md
+│   └── riff/                                # 단일 스킬 — SSOT 오케스트레이션
+│       ├── SKILL.md                         #   FRAME→SHAPE→BUILD→PROVE→LEARN + 이벤트 스테이지
 │       └── references/
-│           ├── antibody-schema.md           #   6종 type 포함 (boundary/.../contract)
-│           └── profile-schema.md            #   단일 프로파일 파일 스키마
+│           ├── canvas-schema.md             #   CANVAS.md 템플릿 + 운영 규칙
+│           ├── model-routing.md             #   등급별 모델 라우팅
+│           ├── companions.md                #   컴패니언 부트스트랩 + 폴백 매트릭스
+│           ├── frame.md, frame/              #   FRAME — 5-Layer 인터뷰, 도메인, 전문가
+│           ├── shape-jam.md                 #   SHAPE — 잼(worktree 병렬 탐색) 프로토콜
+│           ├── build.md                     #   BUILD — 태스크 보드 + 계약 연동
+│           ├── contracts/                   #   8종 계약 템플릿 + lint + 실수 카탈로그
+│           ├── prove/                       #   PROVE — Tier 0~3 + canvas-lint + diff-review
+│           ├── learn.md, learn/              #   LEARN — 항체 + 프로파일 스키마
+│           ├── drop.md                      #   DROP 이벤트 스테이지
+│           ├── tune.md                      #   TUNE 이벤트 스테이지
+│           ├── rewind-protocol.md           #   3연속 실패 시 되감기
+│           ├── convergence.md               #   수렴 지표
+│           └── ui-stack-guide.md            #   웹앱 UI 스택 확정 가이드
 │
-├── hooks/                                   # SubagentStop 진행률 훅
-├── benchmarks/                              # 평가 픽스처
-├── docs/                                    # 다이어그램
+├── hooks/                                   # SessionStart(CANVAS 로드) + SubagentStop(진행률) 훅
+├── benchmarks/                              # 평가 픽스처 + ground-truth
 ├── LICENSE
 └── README.md
 ```
@@ -400,46 +204,39 @@ Riff가 동작할 때 사용자 프로젝트에 만들어지는 디렉토리:
 
 ```
 프로젝트루트/
-├── _workspace/                  # git 추적 - 이번 프로젝트 산출물
-│   ├── riff-status.md          # 현재 위치 + 자동화 체크리스트
-│   ├── riff-log.md             # Riff별 학습 기록
-│   ├── contracts/               # 8종 계약서 단일 경로
-│   │   ├── README.md
-│   │   ├── ui-stack.md
-│   │   └── *.md
-│   └── riff-N/                 # Riff별 결과
-│       └── {agent}-result.md
+├── _workspace/                  # git 추적 — 캔버스 + 계약 + 상세
+│   ├── CANVAS.md                #   유일 SSOT
+│   ├── contracts/                #   8종 계약서 (병렬 빌드 시에만 생성)
+│   └── detail/                   #   인터뷰 전문·잼 결과·검증 상세·domains/
 │
-└── .riff/                      # 학습 메모리 + 세션 상태
+└── .riff/                       # 학습 메모리 + 세션 상태
     ├── memory/
-    │   ├── antibodies/          # git 추적 (팀 공유)
-    │   │   └── {type}-{name}.md
-    │   └── profile.md           # git 미추적 (.gitignore)
-    ├── riff-log.json           # 훅 출력
-    └── state.json               # 세션 상태 (.gitignore)
+    │   ├── antibodies/           #   git 추적 (팀 공유)
+    │   └── profile.md            #   git 미추적 (.gitignore)
+    └── state.json                #   세션 상태 (.gitignore)
 ```
 
 ## Comparison
 
 |  | Harness | OMC | **Riff** |
 |---|---------|-----|-----------|
-| **본질** | 팀을 만든다 | 팀을 굴린다 | **올바른 질문으로 제품을 만든다** |
+| **본질** | 팀을 만든다 | 팀을 굴린다 | **질문이 캔버스를 채운다** |
 | **관점** | 인간 팀 모방 | 인간 워크플로우 | **Question-Driven** |
-| **시간 단위** | Phase (시간~일) | Task (분~시간) | **Riff (분)** |
+| **시간 단위** | Phase (시간~일) | Task (분~시간) | **Cycle (분)** |
 | **설계** | 사전 전체 설계 | 계획→실행 | **점진적 발견** |
-| **QA 시점** | 완성 후 | 완성 후 | **매 Riff** |
+| **QA 시점** | 완성 후 | 완성 후 | **매 사이클 + 커밋 앵커** |
 | **실패 비용** | 높음 | 중간 | **없음 (되감기)** |
-| **학습** | 수동 피드백 | 메모리 수동 | **자동 (항체/DNA)** |
+| **학습** | 수동 피드백 | 메모리 수동 | **자동 (항체 red-green · 도메인 brief)** |
 | **조합** | — | — | **Harness/OMC와 함께 사용 가능** |
 
 ## Inspired By
 
 - [revfactory/harness](https://github.com/revfactory/harness) — Agent Team & Skill Architect. Riff의 Progressive Disclosure 패턴과 에이전트 팀 설계는 Harness에서 영감을 받았습니다.
+- [affaan-m/ECC](https://github.com/affaan-m/ECC) — plan-canvas 컴패니언의 verdict 게이트(요소 앵커 주석 + approve/request-changes)는 ECC에서 영감을 받았습니다.
 
 ## Requirements
 
 - Claude Code CLI
-- [Agent Teams enabled](https://code.claude.com/docs/en/agent-teams): `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
 - Playwright MCP (Tier 3 Live QA 사용 시)
 
 ## License
