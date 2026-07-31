@@ -21,7 +21,13 @@ PROVE 3회 연속 실패 또는 방향 오류 감지 시 실행한다.
 
 ### 0단계: git 앵커 복원
 
-되감기 목표 사이클의 커밋 앵커(`cycle-N`, `.riff/state.json`의 `last_anchor`)로 `git reset --hard <anchor>` — 항체·`.riff/`는 별도 디렉토리라 보존된다. 앵커가 없으면(pre-v1.0 프로젝트) 기존 수동 절차 사용.
+0. **git 앵커 복원** (실행 시점 주의 — 증거 캡처 후):
+   ① 먼저 1단계(사유 기록)를 완료하고, 실패 구현의 증거를 백업한다:
+      `git diff <anchor>..HEAD > _workspace/detail/rewind-cycle-N.diff`
+      (4단계 LEARN의 항체 red-green 재현은 이 백업 diff를 사용한다.)
+   ② 그 다음 되감기 목표 사이클의 커밋 앵커(`cycle-N`, `.riff/state.json`의 `last_anchor`)로
+      `git reset --hard <anchor>` — 항체·`.riff/`는 별도 디렉토리라 보존된다.
+   ③ 앵커가 없으면(pre-v1.0 프로젝트) 기존 수동 절차 사용.
 
 ### 1단계: 상태 저장 (현재 Cycle)
 
@@ -64,7 +70,7 @@ _workspace/detail/rewind-reason-cycle-N.md 생성:
 - `_workspace/contracts/`에서 Cycle N에서 추가된 계약서만 `status: reverted`로 표시.
 - riff-immunity에 되감기 원인을 항체로 등록한다.
 
-동시에 `_workspace/riff-status.md`의 현재 위치를 되감기 목표 Cycle·단계로 업데이트한다. 자동화 체크리스트를 초기화(모두 미체크)하여 재시작 시 DNA·항체를 다시 로드하게 한다.
+동시에 `_workspace/riff-status.md`의 현재 위치를 되감기 목표 Cycle·단계로 업데이트한다. 자동화 체크리스트를 초기화(모두 미체크)하여 재시작 시 항체·프로파일을 다시 로드하게 한다.
 
 ### 4단계: LEARN 단계 강제 실행
 
@@ -72,6 +78,7 @@ _workspace/detail/rewind-reason-cycle-N.md 생성:
 
 ```
 riff-immunity: 실패 패턴 → 항체 생성 (severity: high 이상)
+  red-green 재현은 0단계에서 백업한 `_workspace/detail/rewind-cycle-N.diff`를 적용/롤백해 확인한다.
 CANVAS [2] 결정 로그: 방향 오류였다면 의사결정 패턴에 기록
 riff-log.md에 되감기 이력 추가
 ```
