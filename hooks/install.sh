@@ -166,10 +166,13 @@ SKIP_CANVAS=$([ "$EXISTING_CANVAS" -gt 0 ] && echo true || echo false)
 # - hooks / SubagentStop / SessionStart 키 없음 → 배열로 추가
 # - 이미 있음                                    → 배열에 append
 # - 이미 등록된 훅(skip 플래그)                  → 건드리지 않음
+# - 배열이 아닌 값(사용자 오타 등)               → 빈 배열로 교정 후 append (에러로 죽지 않게)
 JQ_FILTER='
   .hooks = (.hooks // {})
-  | if ($skip_progress | not) then .hooks.SubagentStop = ((.hooks.SubagentStop // []) + [$progress]) else . end
-  | if ($skip_canvas | not) then .hooks.SessionStart = ((.hooks.SessionStart // []) + [$canvas]) else . end
+  | .hooks.SubagentStop = ((.hooks.SubagentStop // []) | if type == "array" then . else [] end)
+  | .hooks.SessionStart = ((.hooks.SessionStart // []) | if type == "array" then . else [] end)
+  | if ($skip_progress | not) then .hooks.SubagentStop += [$progress] else . end
+  | if ($skip_canvas | not) then .hooks.SessionStart += [$canvas] else . end
 '
 
 if $DRY_RUN; then

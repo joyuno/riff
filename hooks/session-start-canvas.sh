@@ -13,8 +13,18 @@
 
 set -euo pipefail
 
-CANVAS="_workspace/CANVAS.md"
-[ -f "$CANVAS" ] || exit 0
+# ── 프로젝트 루트 감지 (_workspace/CANVAS.md 가 있는 곳, riff-progress.sh 와 동일 패턴) ──
+CANVAS=""
+CHECK_DIR="$(pwd)"
+while [ "$CHECK_DIR" != "/" ]; do
+  if [ -f "$CHECK_DIR/_workspace/CANVAS.md" ]; then
+    CANVAS="$CHECK_DIR/_workspace/CANVAS.md"
+    break
+  fi
+  CHECK_DIR="$(dirname "$CHECK_DIR")"
+done
+
+[ -n "$CANVAS" ] || exit 0
 
 STATUS=$(awk '/^## STATUS/{f=1;next}/^## /{f=0}f' "$CANVAS" | head -12)
 [ -n "$STATUS" ] || exit 0
