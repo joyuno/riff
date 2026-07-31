@@ -84,6 +84,8 @@ Riff 0의 `success-criteria.md`에서 정의한 성공 기준 각각의 달성 �
 
 모든 지표를 종합하여 수렴 여부를 결정한다.
 
+(보통·복잡 depth 기준)
+
 ```
 수렴 = (
   유저 저니 커버리지 >= 95%
@@ -93,6 +95,8 @@ Riff 0의 `success-criteria.md`에서 정의한 성공 기준 각각의 달성 �
   AND 핵심 성공 기준 달성 = 100%
 )
 ```
+
+**PROVE-lite(단순 depth) 사이클**: Tier 1·3 미실행이므로 위 공식의 해당 항을 제외하고 `Tier 0 통과 AND Tier 2(빌드+behavior) 통과 AND 회귀 없음`으로 수렴을 판정한다.
 
 ---
 
