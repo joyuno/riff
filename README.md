@@ -87,11 +87,11 @@ Claude Code에서 바로 사용:
 이 문서의 쓰기는 메인 루프 단독(single-writer) — 서브에이전트는 detail/·contracts/·태스크 보드에만 기록.
 ```
 
-> **이 문서만으로 재시작 가능해야 한다** — 캔버스는 지도, `detail/`·`contracts/`는 영토.
+> 캔버스는 지도, `detail/`·`contracts/`는 영토 — 세부는 필요할 때만 펼쳐본다.
 
 ### 2. Adaptive Depth — 8신호로 깊이 자동 조정
 
-사이클 시작 시 8신호를 가중치 없이 개수만 체크합니다: 같은 패턴 검증됨 · 요구사항 명시적 · 유사 도메인 표준 패턴 존재 · 성공 기준 측정 가능 · 요구 모호하지 않음 · 같은 영역 되감기 없음 · 외부 의존 낮음 · 트레이드오프 분석 완료.
+사이클 시작 시 8가지 신호를 가중치 없이 개수만 셉니다 — 같은 패턴이 이전에 검증됐는지, 요구사항이 명시적인지, 유사 도메인의 표준 패턴이 있는지, 성공 기준을 측정할 수 있는지, 요구가 모호하지 않은지, 같은 영역에서 되감은 적이 없는지, 외부 의존이 낮은지, 트레이드오프 분석이 끝났는지를 봅니다.
 
 | 체크 수 | 프로파일 | 동작 |
 |---|---|---|
@@ -117,7 +117,7 @@ Claude Code에서 바로 사용:
 
 **DROP**(랜딩): 잼 병합 · 성공 기준 달성 · 사용자 요청 시 발동. 랜딩 메뉴(merge/PR/keep/discard), worktree 정리, 보안 딥스캔, 카나리 체크를 수행합니다.
 
-**TUNE**(조율): 3~5사이클마다 · 되감기 직후 · 진행 정체 시 발동. 코드-캔버스 재대조(스톡테이크), 데드코드 제거(가드닝), 항체 정리를 수행합니다.
+**TUNE**(조율): 3~5사이클마다 · 되감기 직후 · 진행 정체 시 발동. 코드-캔버스 재대조(스톡테이크), 데드코드 제거(가드닝), 항체(한 번 겪은 버그를 재발 방지 체크로 저장하는 메모리) 정리를 수행합니다.
 
 ## Companions
 
@@ -129,7 +129,7 @@ Riff는 단독으로 전 기능 동작하지만, 다음 컴패니언이 있으�
 | [`codex`](https://github.com/openai/codex-plugin-cc) | `/plugin marketplace add openai/codex-plugin-cc` + `/plugin install codex@openai-codex` | SHAPE 대립 검토, diff-review cross-check |
 | `ecc-plan-canvas` | `npm install -g ecc-universal` | verdict 게이트 브라우저 리뷰(요소 앵커 주석 + 판정) |
 
-없어도 전 기능 동작합니다(네이티브 폴백): ralph-loop 없으면 자체 재시도 후 에스컬레이션, codex 없으면 잼에 반대 관점 에이전트 추가, plan-canvas 없으면 터미널 구조화 질문(approve/request-changes)으로 대체됩니다. 첫 호출 시 누락된 컴패니언을 한 번 물어 자동 설치합니다(Install / Skip / Skip all).
+컴패니언이 없어도 전 기능이 동작합니다 — 네이티브 폴백이 그 자리를 대신합니다. ralph-loop가 없으면 자체 재시도 후 에스컬레이션으로, codex가 없으면 잼에 반대 관점 에이전트를 추가하는 방식으로, plan-canvas가 없으면 터미널 구조화 질문(approve/request-changes)으로 대체됩니다. 첫 호출 시 누락된 컴패니언을 한 번 물어 자동 설치합니다(Install / Skip / Skip all).
 
 ## Use Cases — Try These Prompts
 
@@ -226,8 +226,10 @@ Riff가 동작할 때 사용자 프로젝트에 만들어지는 디렉토리:
 | **설계** | 사전 전체 설계 | 계획→실행 | **점진적 발견** |
 | **QA 시점** | 완성 후 | 완성 후 | **매 사이클 + 커밋 앵커** |
 | **실패 비용** | 높음 | 중간 | **없음 (되감기)** |
-| **학습** | 수동 피드백 | 메모리 수동 | **자동 (항체 red-green · 도메인 brief)** |
+| **학습** | 수동 피드백 | 메모리 수동 | **자동 — 버그 재발 방지(항체)·관례 축적(도메인 brief)** |
 | **조합** | — | — | **Harness/OMC와 함께 사용 가능** |
+
+> Harness = [revfactory/harness](https://github.com/revfactory/harness) (팀 아키텍처 생성기) · OMC = [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) (멀티 에이전트 오케스트레이션)
 
 ## Inspired By
 
