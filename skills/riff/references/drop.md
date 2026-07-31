@@ -7,6 +7,6 @@
 3. **랜딩 메뉴** (4택, 사용자 선택): merge / PR / keep(브랜치 유지) / discard
 4. **worktree 정리**: 미채택 잼 워크트리 `git worktree remove` + `git worktree prune`
 5. **보안 딥스캔**: CANVAS [3]에 보안 플래그가 하나라도 있으면 `sonnet` 보안 패스 1회 필수(auth·인가·입력 검증·시크릿·CORS)
-6. **원웨이도어**: push·publish·배포는 실행 전 사용자 확인(depth 무관)
+6. **원웨이도어**: 3에서 선택한 merge/PR/배포 명령을 **실제로 실행하기 직전** 사용자 확인(depth 무관). 3의 선택은 의사표시일 뿐 실행이 아니다 — 실행은 이 확인 후에만.
 7. **카나리 체크** (배포한 경우): 배포 URL 1패스 — HTTP 상태·콘솔 에러·핵심 요소 렌더·주요 API 응답. 실패 시 롤백 안내 + 원인을 다음 사이클 후보로.
 8. **기록**: CANVAS STATUS·[5]에 DROP 기록, README quickstart 갱신.
