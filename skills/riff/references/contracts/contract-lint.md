@@ -2,7 +2,7 @@
 
 > v1.0: 계약·lint는 **병렬 빌드(잼 또는 동시 태스크 ≥2)일 때만** 발동한다(`build.md`). Tier 0 계약 검사도 contracts/에 계약이 존재할 때만 실행.
 
-이 파일은 BUILD-CONTRACT 단계에서 계약서를 작성한 직후, 그리고 VERIFY Tier 0에서 재확인 시에만 읽는다.
+이 파일은 BUILD-CONTRACT 단계에서 계약서를 작성한 직후, 그리고 PROVE Tier 0에서 재확인 시에만 읽는다.
 SKILL.md에 포함하지 않는다.
 
 ---

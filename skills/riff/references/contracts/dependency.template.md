@@ -68,7 +68,7 @@
 | Node | `package-lock.json` (루트) |
 | Flutter | `pubspec.lock` (루트) |
 
-VERIFY Tier 0이 이 파일을 계약서와 비교한다.
+PROVE Tier 0이 이 파일을 계약서와 비교한다.
 
 ---
 

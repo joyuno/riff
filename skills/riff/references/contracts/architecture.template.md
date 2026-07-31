@@ -88,7 +88,7 @@
 4. 인터페이스 표에 없는 새 공유 타입을 발명하지 말 것.
    필요하면 오케스트레이터에게 보고 후 Type Contract 먼저 작성.
 
-5. 결과를 _workspace/riff-N/{에이전트명}-result.md에 저장.
+5. 결과를 _workspace/detail/{에이전트명}-result.md에 저장.
    대화로 결과 반환 금지.
 ```
 
