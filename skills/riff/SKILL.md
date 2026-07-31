@@ -57,7 +57,7 @@ FRAME 복잡 프로파일로 시작(`references/frame.md`) → CANVAS 생성 →
 
 ## 이벤트 스테이지 (사이클 밖)
 
-- **DROP** — 잼 병합·성공 기준 달성·사용자 요청 시: 잼 랜딩·랜딩 메뉴·worktree 정리·보안 딥스캔·카나리 (`references/drop.md`)
+- **DROP** — 잼 병합·성공 기준 달성(판정: `references/convergence.md`)·사용자 요청 시: 잼 랜딩·랜딩 메뉴·worktree 정리·보안 딥스캔·카나리 (`references/drop.md`)
 - **TUNE** — 3~5사이클·rewind 후·no-progress 시: 스톡테이크·가드닝·항체 정리·컨텍스트 감사 (`references/tune.md`)
 
 ## 가드 (전 스테이지 공통)
