@@ -9,8 +9,8 @@
     {
       "name": "riff",
       "source": "./",
-      "description": "Question-Driven Development — 올바른 질문이 올바른 제품을 만든다. 5-Layer 질문 프레임워크로 비개발자도 완성도 높은 서비스를 만들 수 있게 해주는 시스템.",
-      "version": "0.3.1"
+      "description": "질문이 캔버스를 채운다 — FRAME→SHAPE→BUILD→PROVE→LEARN 사이클과 Living CANVAS.md로 신규 웹앱·MVP를 빠르게 만드는 Question-Driven 루프. adaptive depth·모델 라우팅·잼(worktree 병렬 탐색)·Tier 0~3 QA·항체 메모리·DROP/TUNE 이벤트 스테이지 포함.",
+      "version": "1.0.0"
     }
   ]
 }
