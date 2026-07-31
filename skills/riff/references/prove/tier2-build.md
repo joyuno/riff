@@ -229,3 +229,14 @@ Tier 2를 통과해도 다음은 발견할 수 없다:
 Tier 3 진행 가능 여부: YES / NO
 미수정 시 Tier 3 영향: [설명]
 ```
+
+---
+
+## v1.0 확장 — behavior + acceptance + 시크릿
+
+1. **누적 behavior 검증**: `detail/acceptance/` 동결 체크 + core 태스크 행위 체크 전부 실행 (PROVE-lite에도 포함)
+2. **시크릿 grep 1회**: 하드코딩 키·토큰 패턴 매치 시 FAIL — 예:
+   ```bash
+   grep -rEn "(api[_-]?key|secret|token|password)[[:space:]]*[:=][[:space:]]*['\"][A-Za-z0-9_-]{16,}" src/ app/ lib/ 2>/dev/null
+   ```
+3. 실행 위치: 메인 루프 인라인(bash 직접 호출) — 서브에이전트 스폰 금지
