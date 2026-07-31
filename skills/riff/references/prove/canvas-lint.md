@@ -4,7 +4,7 @@
 
 | # | 술어 | 검사 방법 | 실패 시 조치 |
 |---|---|---|---|
-| 1 | 헤더 신선도 | CANVAS 헤더 `Cycle N` == `.riff/state.json`의 cycle && 최근 사이클 커밋 앵커 존재 | 헤더 갱신 지시 |
+| 1 | 헤더 신선도 | CANVAS 헤더 `Cycle N` == `.riff/state.json`의 cycle && 최근 사이클 커밋 앵커 존재 (앵커 정의: `../learn.md`의 사이클 커밋 규칙) | 헤더 갱신 지시 |
 | 2 | 태스크 보드 동기 | CANVAS [3] 행 상태 == TaskCreate 태스크 상태 (done↔completed, active↔in_progress) | 어긋난 행 갱신 |
 | 3 | 링크 해소 | CANVAS 안 `detail/`·`contracts/` 링크가 실존 파일 | 죽은 링크 제거·복원 |
 | 4 | 섹션 상한 | STATUS≤10줄, [1]≤30, [2]≤20행, [3]≤30, [4]≤5개, [5]≤15 | "압축 규칙 적용" — 초과분 detail/ 오프로드 |

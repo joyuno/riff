@@ -1,6 +1,7 @@
 # Tier 2: 빌드/타입 QA — 상세 가이드
 
 Tier 1 경계면 분석을 통과한 뒤 실행한다.
+예외: 단순 depth의 PROVE-lite(= Tier 0+2)에서는 Tier 1 없이 바로 실행한다.
 정적 도구로 잡을 수 있는 타입 에러, 린트 위반, 번들 실패를 전부 제거한다.
 
 ---
@@ -234,9 +235,9 @@ Tier 3 진행 가능 여부: YES / NO
 
 ## v1.0 확장 — behavior + acceptance + 시크릿
 
-1. **누적 behavior 검증**: `detail/acceptance/` 동결 체크 + core 태스크 행위 체크 전부 실행 (PROVE-lite에도 포함)
+1. **누적 behavior 검증**: `detail/acceptance/` 동결 체크 + core 태스크 행위 체크 전부 실행 (PROVE-lite에도 포함, PROVE-lite = 단순 depth의 Tier 0+2 축소 실행)
 2. **시크릿 grep 1회**: 하드코딩 키·토큰 패턴 매치 시 FAIL — 예:
    ```bash
-   grep -rEn "(api[_-]?key|secret|token|password)[[:space:]]*[:=][[:space:]]*['\"][A-Za-z0-9_-]{16,}" src/ app/ lib/ 2>/dev/null
+   grep -riEn "(api[_-]?key|secret|token|password)[[:space:]]*[:=][[:space:]]*['\"][A-Za-z0-9_-]{16,}" src/ app/ lib/ 2>/dev/null
    ```
 3. 실행 위치: 메인 루프 인라인(bash 직접 호출) — 서브에이전트 스폰 금지
