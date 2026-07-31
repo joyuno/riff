@@ -1,7 +1,7 @@
-# riff v1.0 전면 개편 설계 — "질문이 캔버스를 채운다" (spec v1.1)
+# riff v1.0 전면 개편 설계 — "질문이 캔버스를 채운다" (spec v1.2)
 
-- 날짜: 2026-07-31 (v1.1 — 적대적 감사 반영 + ECC plan-canvas 벤치마킹)
-- 상태: 브레인스토밍 결정 8건 승인 → 적대적 감사(16 에이전트, real 6/overstated 5) 보완 전부 반영 → ECC 캔버스 요소 4건 채택
+- 날짜: 2026-07-31 (v1.2 — 루프 엔지니어링 갭 스캔 반영: 이벤트 스테이지 DROP·TUNE + 보강 8건)
+- 상태: 브레인스토밍 결정 8건 승인 → 적대적 감사(16 에이전트, real 6/overstated 5) 보완 전부 반영 → ECC 캔버스 요소 4건 채택 → 루프 갭 스캔(Ralph 정론·superpowers/OMC 캐시·ECC 3소스) 채택
 - 근거: `exa-results/riff-revamp-research-2026-07-30.md` (리서치 232 소스) · `2026-07-31-riff-revamp-audit.md` (감사 상세)
 
 ## 1. 배경과 목표
@@ -30,6 +30,7 @@ riff v0.3.1은 Question-Driven Development 플러그인으로 interview-first·�
 | 8 | 용어 | **"분신술" → "잼(Jam)"** 전면 교체 (음악 은유로 브랜드 통일) |
 | 9 | 감사 보완 | **real 6건(R1~R6) + 명문화 4건 전부 반영** — 본문에 [R#] 표기 |
 | 10 | ECC 벤치마킹 | **plan-canvas 컴패니언(E1)·Update Rule(E2)·mermaid(E3)·verdict(E4)** 채택 |
+| 11 | 루프 갭 스캔 | **이벤트 스테이지 DROP·TUNE 추가 + 보강 8건** — 사이클 핫패스 불변, 본문 [루프 스캔] 표기 |
 
 ## 3. CANVAS.md 스키마
 
@@ -95,23 +96,45 @@ tier · 통과/실패 · diff-review 결과(Critical/Minor) [R2] · 에스컬레
 
 **FRAME 스킵 가드** [R4]: FRAME 완전 스킵은 CANVAS [1]에 성공 기준이 이미 존재할 때만 허용. 없으면 스킵 대신 **가정 선언** — 채택한 해석과 성공 기준 각 1줄을 [1]에 기록하고 STATUS에 "가정: X — 아니면 지금 말해주세요"로 노출(verdict 게이트 [E4] 대상). 조용한 해석이 외부에서 거부 가능한 커밋으로 바뀌고, canvas-lint의 앵커가 생겨 PROVE-lite로도 "잘못된 제품"이 탐지 가능해진다.
 
+**FRAME 수용 기준 규칙** [루프 스캔]: ① 얕은 경로의 성공 기준·가정 선언은 "Tier 2 체크가 실행할 수 있는 관찰 가능한 행동"을 명시해야 한다(testability 가드 — 'PRD theater' 방지). ② verdict 승인 시점에 core급 작업의 수용 기준에서 실행 가능한 acceptance check 1~3개를 유도해 **동결**하고 Tier 2가 함께 실행한다 — 코드를 쓴 에이전트가 검증도 쓰는 자기채점 차단(단순 depth는 스킵).
+
 **BUILD** [R1·R6]:
 - **계약 조건** [R6]: 계약 작성은 태스크 보드에 잼 또는 병렬 스폰이 계획된 경우에만(BUILD-PLAN이 이미 아는 정보). 순차 빌드는 코드의 타입 선언이 계약이고 tsc가 lint — 계약서 생략. deep 프로파일(병렬)은 8종 계약 + lint 게이트 불변.
 - **행위 체크** [R1]: core 등급 태스크의 산출물에는 해당 태스크의 행위 계약에서 유도한 **실행 가능한 체크 ≥1개**(테스트 또는 assertion 스크립트)를 포함한다. 작성 순서(테스트 우선 여부)는 강제하지 않는다.
+- **보안 트리거 술어** [루프 스캔]: BUILD-PLAN에서 변경이 auth·결제·시크릿·유저 데이터를 만지거나 >20파일이면 플래그 → DROP 전 `sonnet` 보안 패스 1회 예약(사이클당 비용 0, 판정은 불리언 1개).
 
 **PROVE**:
 - Tier 0: 계약 검사(계약 존재 시만 [R6]) + **canvas-lint — 기계적 술어 5개** [R3]: ① 헤더 `Cycle N` = `.riff/` 세션 상태 일치 ② 캔버스 [3] ↔ TaskCreate 상태 diff 청결 ③ `detail/`·`contracts/` 링크 해소 ④ 섹션 상한 준수(위반 = "압축 규칙 적용" 지시) ⑤ [4] PROVE 기록 최신성
-- Tier 2: **빌드/타입 + 누적 behavior 검증 실행** [R1] — PROVE-lite에도 포함되므로 얕은 사이클도 자기가 만든 core 작업만큼의 행위 검증을 유지
-- **diff-review 서브스텝 (사이클당 1회)** [R2]: 단순 = 스킵 / 보통 = 메인 루프 인라인 self-review / 복잡 또는 core 포함 = `sonnet` 독립 리뷰. 발견은 Critical/Minor 2단계만 — Critical은 기존 PROVE 실패 루프로 즉시 수정, Minor는 LEARN에 이연 기록. codex 있으면 codex review가 리뷰어(§6).
+- Tier 2: **빌드/타입 + 누적 behavior 검증 + 동결 acceptance check 실행** [R1·루프 스캔] — PROVE-lite에도 포함되므로 얕은 사이클도 행위 검증을 유지. **시크릿 패턴 grep 1회** 포함(하드코딩 키·토큰, <1% 오버헤드)
+- **diff-review 서브스텝 (사이클당 1회)** [R2]: 단순 = 스킵 / 보통 = 메인 루프 인라인 self-review / 복잡 또는 core 포함 = `sonnet` 독립 리뷰. 발견은 Critical/Minor 2단계만 — Critical은 기존 PROVE 실패 루프로 즉시 수정, Minor는 LEARN에 이연 기록. codex 있으면 codex review가 리뷰어(§6). 리뷰 체크리스트에 **스펙 준수 2문항** 포함 [루프 스캔]: "FRAME이 요구하지 않은 것을 만들었나(스코프 크립)? FRAME이 요구한 것이 diff에 빠졌나?"
 
 **에스컬레이션 트리거**:
 - PROVE 2회 실패 → **실패 유형 진단(메인 루프)** [명문화]: 기계적 실패(빌드·flaky)로 진단되면 같은 사이클에서 재시도 지속, 설계 실패면 SHAPE 소급(잼 발동)
 - 구현 중 요구 모호 발견 → FRAME 재진입 (질문 1~3개만)
-- 같은 계약 3회 수정 → 계약 재설계 + 사용자 개입 / 3회 초과 → 되감기(기존 프로토콜)
+- 같은 계약 3회 수정 → 계약 재설계 + 사용자 개입 / 3회 초과 → 되감기(기존 프로토콜, 사이클 커밋 앵커 기반)
+- **원웨이도어 게이트** [루프 스캔]: git push·패키지 publish·파괴적 마이그레이션·배포 등 비가역 행동 전에는 depth 무관 사용자 확인. **no-progress 상한**: 검증된 진행 없이 소비만 증가한 2사이클 연속 시 TUNE 발동 제안
+- **컨텍스트 압박 체크** [루프 스캔]: 스테이지 경계마다 사용률 확인 — 임계 초과 시 진행 중 태스크만 마무리, 캔버스 갱신 후 세션 분리 권고 (미드-스테이지 자동 컴팩션의 in-flight 상태 소실 방지)
 
 **LEARN**:
 - 재현 가능한 버그의 항체에는 **repro 테스트 첨부** [R1] → Tier 2가 회귀로 실행
 - **도메인 brief** [명문화]: 같은 도메인 태스크 ≥3 누적 시 ≤20줄 `detail/domains/<domain>.md` 생성, 이후 해당 도메인 스폰 프롬프트에 주입. 3개 도메인 초과 시 STATUS에 팀 아키텍처 툴(harness/Agent Teams) 졸업 안내 1줄.
+- **사이클 커밋 앵커** [루프 스캔]: LEARN 종료 = clean-tree 확인 후 `git add -A && git commit`(메인 루프 인라인, 초 단위) — 되감기가 git ref 기반으로 결정적이 되고 canvas-lint 술어 ①의 앵커가 된다.
+- **red-green 항체 검증** [루프 스캔]: 신규 항체의 repro 테스트는 fix를 임시 되돌려 실패(red) 확인 후 복원(green) — 항상 통과하는 가짜 repro의 거짓 면역 차단(신규 항체 생성 시에만, ~1분).
+
+### 이벤트 스테이지 (사이클 밖 — 핫패스 세금 0) [루프 스캔]
+
+**DROP — 랜딩·발매** (마일스톤 발동: 잼 병합·성공 기준 달성·사용자 요청)
+1. 검증 통과 확인 → 4택 랜딩 메뉴: **merge / PR / keep / discard**
+2. worktree 정리 (미채택 잼 워크트리 remove/prune)
+3. 보안 딥스캔 (BUILD의 보안 트리거 플래그가 있으면 `sonnet` 패스 필수)
+4. 배포 시 **카나리 체크**: 배포 URL의 HTTP 상태·콘솔 에러·핵심 요소·주요 API 1패스 — "로컬은 되는데 배포에서 죽는" 최빈 실패 차단
+5. CANVAS에 DROP 기록 + README quickstart 갱신
+
+**TUNE — 조율** (주기 발동: 3~5사이클마다 · rewind 직후 · no-progress 상한 도달 시)
+1. **스톡테이크**: 코드 현실 ↔ CANVAS 재대조 — TODO(prod)·placeholder·스킵된 테스트·미구현 스텁 사냥, [3] 태스크 보드 재유도 (`sonnet` 서브에이전트 1개, fresh-context 가치)
+2. **가드닝**: 데드 코드·미사용 의존성·중복 제거 — 제거마다 빌드+테스트 green 가드
+3. **항체 라이프사이클**: dedup·90일 무재발 weakened 정리·프로파일 정합 — 주입 페이로드 비대화 방지
+4. **컨텍스트·토큰 감사**: 캔버스 압축 상태 점검, detail/ 아카이빙
 
 ## 5. 모델 라우팅
 
@@ -129,7 +152,9 @@ tier · 통과/실패 · diff-review 결과(Critical/Minor) [R2] · 에스컬레
 | PROVE Tier 3 | 유령 사용자·파괴자 | `sonnet` | 서브에이전트 (격리 가치) |
 | PROVE diff-review | 복잡/core 사이클 독립 리뷰 [R2] | `sonnet` | 서브에이전트 (fresh-context 가치) |
 | PROVE 실패 분석 | 원인 진단·에스컬레이션 판단 | 메인 루프 | — |
-| LEARN | 항체·프로파일 기록 | 메인 루프 인라인 [R5] | — |
+| LEARN | 항체·프로파일 기록·사이클 커밋 | 메인 루프 인라인 [R5] | — |
+| DROP 보안 딥스캔 | 트리거 플래그 시 1회 | `sonnet` | 서브에이전트 |
+| TUNE 스톡테이크 | 코드↔캔버스 재대조 감사 | `sonnet` | 서브에이전트 (fresh-context 가치) |
 
 **등급 판정**: BUILD-PLAN에서 태스크마다 등급+병렬 여부 명시 → 캔버스 [3] 노출 → 스폰 전 사용자 오버라이드 가능. 기준: 성공 기준 직결(core) / 접점이나 대체 가능(support) / 실패해도 즉시 재시도(trivial). 애매하면 상위 등급.
 
@@ -169,6 +194,7 @@ riff/  (v1.0.0)
 │       ├─ learn.md          ←   구 riff-memory + repro 항체 [R1] + 도메인 brief
 │       ├─ model-routing.md  ←   라우팅 조건 [R5] + 등급표
 │       ├─ companions.md     ←   폴백 매트릭스(4행) + 부트스트랩 [E1]
+│       ├─ drop.md · tune.md ←   이벤트 스테이지 [루프 스캔]
 │       └─ rewind.md · convergence.md
 ├─ hooks/                    ← session-start-canvas 추가, riff-progress 유지
 ├─ benchmarks/               ← 기존 픽스처 + 신규 (§8)
@@ -185,7 +211,8 @@ riff/  (v1.0.0)
 1. **기존 벤치마크 픽스처 유지** (interview·boundary·immunity·live-app) — 회귀 없음 확인
 2. **canvas-restart**: 세션 종료 후 CANVAS.md만으로 재개 정확도. **스테이지 중간 강제 종료(dirty exit) 후 재개 케이스 포함** [명문화]
 3. **depth-reproducibility**: 동일 픽스처의 depth 판정 일관성 + **정답이 '복잡'인 모호 브리프 픽스처 2~3개** [R4] — 일관성만이 아니라 정답률 측정
-4. **speed-tax**: medium 프로파일 표준 사이클의 오버헤드 연산 수 측정 — bare 대비 wall-clock 세금이 목표선(≤15%) 이내인지 [R5·R6 회귀 방지]
+4. **speed-tax**: medium 프로파일 표준 사이클의 오버헤드 연산 수 측정 — bare 대비 wall-clock 세금이 목표선(≤15%) 이내인지 [R5·R6 회귀 방지]. 이벤트 스테이지(DROP·TUNE)는 사이클 밖이므로 측정 제외
+5. **rewind-anchor**: 사이클 커밋 앵커 기반 되감기가 워킹트리·캔버스·계약 상태를 일관되게 복원하는지 [루프 스캔]
 
 ## 9. 용어집
 
@@ -201,4 +228,8 @@ riff/  (v1.0.0)
 | **canvas-lint** | 캔버스↔실상태 일치를 검사하는 기계적 술어 5종 [R3] |
 | **도메인 brief** | 도메인별 ≤20줄 관례 요약, 스폰 프롬프트 주입물 |
 | **에스컬레이션** | 실패·모호 신호 시 건너뛴 스테이지를 소급 발동 |
-| **항체(Antibody)** | 실수 재발 방지 체크리스트 + 재현 시 repro 테스트 [R1] |
+| **항체(Antibody)** | 실수 재발 방지 체크리스트 + 재현 시 repro 테스트 [R1] — red-green 검증 필수 |
+| **DROP** | 마일스톤 랜딩·발매 이벤트 스테이지: 랜딩 메뉴·worktree 정리·보안 딥스캔·카나리 |
+| **TUNE** | 주기 조율 이벤트 스테이지: 스톡테이크·가드닝·항체 라이프사이클·컨텍스트 감사 |
+| **원웨이도어 게이트** | 비가역 행동(push·publish·마이그레이션·배포) 전 사용자 확인 |
+| **acceptance 동결** | FRAME verdict 시 수용 기준에서 유도한 실행 가능 체크 1~3개를 고정, Tier 2가 실행 |
