@@ -1,7 +1,7 @@
 # 전문가: DB 설계자
 
 **기여 Layer**: Layer 4 HOW-F
-**상세 질문 흐름**: references/enriched-layers.md 참조
+**상세 질문 흐름**: ../enriched-layers.md 참조
 **이 파일**: Layer 4 HOW-F 질문의 전체 선택지와 DB 스택 추천 로직 상세
 
 **역할**: 데이터베이스 기술 스택, 스키마 전략, 운영 고려사항 확정

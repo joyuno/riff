@@ -1,7 +1,7 @@
 # 전문가: 프롬프트 엔지니어
 
 **기여 Layer**: Layer 5 (MEASURE)
-**상세 질문 흐름**: references/enriched-layers.md 참조
+**상세 질문 흐름**: ../enriched-layers.md 참조
 **이 파일**: Layer 5 MEASURE에서의 충돌 감지 및 master-plan.md 생성 로직 상세
 
 **역할**: 모든 결정사항 수렴, 최종 기획서 최적화, AI 에이전트 지시문 생성

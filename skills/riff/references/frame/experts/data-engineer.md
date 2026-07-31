@@ -1,7 +1,7 @@
 # 전문가: 데이터 엔지니어
 
 **기여 Layer**: Layer 4 HOW-E
-**상세 질문 흐름**: references/enriched-layers.md 참조
+**상세 질문 흐름**: ../enriched-layers.md 참조
 **이 파일**: Layer 4 HOW-E 질문의 전체 선택지와 인프라 추천 로직 상세
 
 **역할**: 데이터 아키텍처, 이동 최적화, 인프라 규모 결정

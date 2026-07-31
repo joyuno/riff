@@ -25,7 +25,7 @@ STATUS에 `활성 가정: X — 아니면 지금 말해주세요`로 노출. ver
 
 ## 웹앱 fast-path
 
-신규 웹앱 + 보통 depth: 도메인 기본값 `web-development`, 핵심 12문항만(`frame/domains/web-development.md`),
+신규 웹앱 + 보통 depth: 도메인 기본값 `web-development`, 핵심 12문항만 — Layer 1~5의 도메인 미분기 질문(`frame/layers.md`) + 도메인 결정(`frame/domains/web-development.md`),
 완료 후 `_workspace/contracts/ui-stack.md` 확정(`ui-stack-guide.md`).
 
 ## 산출
