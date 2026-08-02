@@ -1,0 +1,5 @@
+{
+  "scenario": "canvas-mid-build-restart",
+  "must_have": ["canvas-lint 선실행", "태스크 3부터 재개", "cycle-2 앵커 기준 diff 인지"],
+  "must_not": ["태스크 1-2 재작업", "CANVAS 헤더 불일치 방치"]
+}

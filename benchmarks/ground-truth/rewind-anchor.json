@@ -1,0 +1,5 @@
+{
+  "scenario": "rewind-anchor",
+  "must_have": ["증거 백업 선행(rewind-cycle-N.diff)", "git reset --hard <anchor>", "CANVAS STATUS·[2] 갱신", "항체·.riff/ 보존"],
+  "must_not": ["백업 없이 reset", ".riff/ 삭제", "CANVAS 미갱신 방치"]
+}

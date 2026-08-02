@@ -1,7 +1,8 @@
 # Riff Hooks
 
 Riff 플러그인의 Claude Code 훅 모음입니다.
-서브에이전트 완료 시 진행률을 자동 추적하고 수렴 지표를 갱신합니다.
+서브에이전트 완료 시 진행률을 자동 추적하고 수렴 지표를 갱신하며,
+세션 시작 시 CANVAS.md의 STATUS를 컨텍스트로 주입합니다.
 
 ---
 
@@ -14,10 +15,13 @@ Riff 플러그인의 Claude Code 훅 모음입니다.
 5. [수렴 지표 설명](#5-수렴-지표-설명)
 6. [트러블슈팅](#6-트러블슈팅)
 7. [향후 추가 예정 훅](#7-향후-추가-예정-훅)
+8. [session-start-canvas 훅 개요](#8-session-start-canvas-훅-개요)
 
 ---
 
 ## 1. riff-progress 훅 개요
+
+> 참고: 이 훅은 v0.3.1의 `.riff/riff-log.json` 스키마를 읽는다. v1.0 프로젝트(`.riff/state.json` 체계)에서는 데이터가 없으면 조용히 건너뛰며, v1.0 스키마 연동은 후속 릴리스 범위.
 
 **이벤트**: `SubagentStop` — 서브에이전트가 완료될 때마다 트리거됩니다.
 
@@ -60,12 +64,18 @@ bash /path/to/riff/hooks/install.sh
         "matcher": "",
         "command": "bash /절대경로/riff/hooks/riff-progress.sh"
       }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "command": "bash /절대경로/riff/hooks/session-start-canvas.sh"
+      }
     ]
   }
 }
 ```
 
-`hooks` 섹션이 이미 있다면 `SubagentStop` 배열에 항목을 추가하면 됩니다.
+`hooks` 섹션이 이미 있다면 각 이벤트(`SubagentStop`, `SessionStart`) 배열에 항목을 추가하면 됩니다.
 설정 후 Claude Code를 재시작해야 훅이 활성화됩니다.
 
 ### 프로젝트별 활성화
@@ -200,10 +210,22 @@ chmod +x /path/to/riff/hooks/install.sh
 
 ## 7. 향후 추가 예정 훅
 
+`SessionStart` 시점의 Riff 상태 로드는 `session-start-canvas` 훅으로 구현 완료되었습니다 → [8. session-start-canvas 훅 개요](#8-session-start-canvas-훅-개요) 참고.
+
 | 훅 이름 | 이벤트 | 역할 |
 |---------|--------|------|
-| `riff-boot` | `SessionStart` | Claude Code 세션 시작 시 Riff 상태 로드 및 컨텍스트 주입 |
 | `riff-learn` | `SubagentStop` | 완료된 에이전트의 아웃풋에서 패턴 학습, `.riff/learnings.json` 갱신 |
 | `riff-antibody-inject` | `PreToolUse` | 과거 실패 패턴을 기반으로 위험 도구 호출 전 경고 주입 |
 
 각 훅은 이 디렉토리에 추가되며 `install.sh`가 자동으로 일괄 등록을 지원할 예정입니다.
+
+---
+
+## 8. session-start-canvas 훅 개요
+
+**이벤트**: `SessionStart` — Claude Code 세션이 시작될 때마다 트리거됩니다.
+
+**동작**: 프로젝트 루트의 `_workspace/CANVAS.md`가 존재하면 `## STATUS` 섹션(최대 12줄)을 읽어
+`additionalContext`로 주입합니다. CANVAS.md가 없거나 STATUS 섹션이 비어 있으면 조용히 종료(`exit 0`, 출력 없음)합니다.
+세션 재개 시 캔버스의 "다음 액션"부터 바로 이어갈 수 있도록 컨텍스트를 미리 채워주는 역할입니다.
+jq가 없으면 안전한 JSON 이스케이프를 보장할 수 없어 컨텍스트 주입을 건너뜁니다.

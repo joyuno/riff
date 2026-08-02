@@ -16,6 +16,21 @@ OMC(oh-my-claudecode)의 harsh-critic 벤치마크 방식을 Riff 도메인에 �
 | **Live QA** (live-app) | 실제 앱 유저 저니에서 숨겨진 UI/UX 버그를 발견하는가 | 1 |
 | **면역 시스템** (immunity) | 한 번 고친 버그 패턴이 다른 곳에서 반복될 때 사전 방지하는가 | 1 |
 
+### 신규 시나리오 (v1.0 — depth·canvas)
+
+Riff v1.0의 adaptive depth 판정과 Living CANVAS.md 재개 로직을 검증하는 시나리오입니다.
+`must_have`/`must_not` 체크리스트 형식의 ground truth를 사용하며, 아직 `scoring/scorer.py`의
+키워드 매칭 자동 채점 대상이 아닙니다 — 현재는 수동/정성 채점, 자동화는 후속 릴리스 범위입니다.
+
+| 시나리오 | Fixture | Ground Truth | 판정 기준 |
+|---|---|---|---|
+| depth-ambiguous-notes | `fixtures/depth/ambiguous-brief-notes.md` | `ground-truth/depth-ambiguous-notes.json` | "메모 앱" 같은 모호 브리프에서 depth 판정 정답률(복잡 또는 가정 선언 노출)을 측정 |
+| depth-ambiguous-tracker | `fixtures/depth/ambiguous-brief-tracker.md` | `ground-truth/depth-ambiguous-tracker.json` | "뚝딱" 같은 어휘에 낚이지 않고 성공 기준 부재 시 가정 선언을 강제하는지 측정 |
+| canvas-mid-build-restart | `fixtures/canvas/mid-build-restart.md` | `ground-truth/canvas-restart.json` | BUILD 도중 dirty exit 후 재시작 정확도(canvas-lint 선실행 + 미완료 태스크부터 재개) 측정 |
+| rewind-anchor | `fixtures/canvas/rewind-anchor.md` | `ground-truth/rewind-anchor.json` | PROVE 3회 연속 실패 시 커밋 앵커 기반 되감기가 증거 백업 선행·CANVAS 갱신·항체/`.riff/` 보존을 지키는지 측정 |
+
+**speed-tax**(계획됨): medium 프로파일 사이클의 오버헤드 wall-clock 측정(목표 ≤15%) — 측정 스크립트는 후속 릴리스 범위.
+
 ### 핵심 설계 원칙
 
 1. **Fixture**: 의도적 결함이 심어진 입력물 (모호한 요청, 버그 있는 코드, 시나리오)
@@ -198,15 +213,25 @@ benchmarks/
 │   │   └── route-prefix-missing.md
 │   ├── live-app/                 # Live QA 측정
 │   │   └── order-dashboard.md    # 주문 대시보드 유저 저니
-│   └── immunity/                 # 면역 시스템 측정
-│       └── repeated-unwrap-bug.md
+│   ├── immunity/                 # 면역 시스템 측정
+│   │   └── repeated-unwrap-bug.md
+│   ├── depth/                    # v1.0: adaptive depth 판정 측정
+│   │   ├── ambiguous-brief-notes.md
+│   │   └── ambiguous-brief-tracker.md
+│   └── canvas/                   # v1.0: Living CANVAS.md 재개 로직 측정
+│       ├── mid-build-restart.md
+│       └── rewind-anchor.md      # 커밋 앵커 기반 되감기 측정
 ├── ground-truth/
 │   ├── interview-ecommerce.json
 │   ├── interview-trading.json
 │   ├── boundary-api-shape.json
 │   ├── boundary-route-prefix.json
 │   ├── live-order-dashboard.json
-│   └── immunity-unwrap.json
+│   ├── immunity-unwrap.json
+│   ├── depth-ambiguous-notes.json
+│   ├── depth-ambiguous-tracker.json
+│   ├── canvas-restart.json
+│   └── rewind-anchor.json
 ├── baselines/                    # 저장된 베이스라인 결과
 └── results/                      # 벤치마크 실행 결과
 ```
