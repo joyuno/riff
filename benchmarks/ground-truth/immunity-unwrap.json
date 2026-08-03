@@ -1,6 +1,6 @@
 {
   "fixtureId": "immunity-unwrap",
-  "fixturePath": "fixtures/immunity/repeated-unwrap-bug.md",
+  "fixturePath": "fixtures/immunity/immunity-unwrap.md",
   "domain": "analysis",
   "isCleanBaseline": false,
   "findings": [

@@ -69,6 +69,9 @@ FRAME 복잡 프로파일로 시작(`references/frame.md`) → CANVAS 생성 →
 
 - **에스컬레이션**: PROVE 2회 실패 → 실패 유형 진단(기계적→재시도 / 설계→SHAPE 소급). 모호 발견 → FRAME 재진입. 3회 연속 실패 → 되감기(`references/rewind-protocol.md`).
 - **원웨이도어**: push·publish·파괴적 마이그레이션·배포 전 사용자 확인 (depth 무관).
+- **외부 전송 가드**: commit·push·PR/issue 본문·외부 리뷰 전달 직전에 실제 전송 바이트와
+  staged diff를 `references/prove/tier2-build.md`의 시크릿 패턴으로 검사. 키·토큰·개인정보
+  의심값이 있으면 전송을 중단하고 제거 또는 사용자 확인.
 - **컨텍스트 압박**: 스테이지 경계마다 확인 — 임계 초과 시 태스크 마무리·캔버스 갱신 후 세션 분리 권고.
 
 ## 모델 라우팅

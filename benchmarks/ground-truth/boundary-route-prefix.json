@@ -1,6 +1,6 @@
 {
   "fixtureId": "boundary-route-prefix",
-  "fixturePath": "fixtures/boundary/route-prefix-missing.md",
+  "fixturePath": "fixtures/boundary/boundary-route-prefix.md",
   "domain": "code",
   "isCleanBaseline": false,
   "findings": [

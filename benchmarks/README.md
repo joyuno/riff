@@ -217,7 +217,7 @@ DEPTH_COMMAND='your-agent-command' ./run-depth-reproducibility.sh --repetitions 
 `--compare` 모드는 동일 fixture를 두 가지 모드로 실행하고 head-to-head 비교를 생성합니다.
 
 ```
-fixture: vague-ecommerce
+fixture: interview-ecommerce
   with-riff:    composite=82.3%  tp=90%  fn=10%
   without-riff: composite=41.5%  tp=35%  fn=65%
   delta:         +40.8%  ← Riff 효과
@@ -249,15 +249,15 @@ benchmarks/
 │   └── reporter.py               # 마크다운 보고서 생성기
 ├── fixtures/
 │   ├── interview/                # 인터뷰 품질 측정
-│   │   ├── vague-ecommerce.md    # 모호한 쇼핑몰 요청
-│   │   └── vague-trading.md      # 모호한 퀀트 요청
+│   │   ├── interview-ecommerce.md # 모호한 쇼핑몰 요청
+│   │   └── interview-trading.md   # 모호한 퀀트 요청
 │   ├── boundary/                 # 경계면 QA 측정
-│   │   ├── api-shape-mismatch.md # API↔훅 shape 불일치
-│   │   └── route-prefix-missing.md
+│   │   ├── boundary-api-shape.md # API↔훅 shape 불일치
+│   │   └── boundary-route-prefix.md
 │   ├── live-app/                 # Live QA 측정
-│   │   └── order-dashboard.md    # 주문 대시보드 유저 저니
+│   │   └── live-order-dashboard.md # 주문 대시보드 유저 저니
 │   ├── immunity/                 # 면역 시스템 측정
-│   │   └── repeated-unwrap-bug.md
+│   │   └── immunity-unwrap.md
 │   ├── depth/                    # v1.0: adaptive depth 판정 측정
 │   │   ├── ambiguous-brief-notes.md
 │   │   └── ambiguous-brief-tracker.md

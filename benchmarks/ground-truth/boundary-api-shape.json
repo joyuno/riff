@@ -1,6 +1,6 @@
 {
   "fixtureId": "boundary-api-shape",
-  "fixturePath": "fixtures/boundary/api-shape-mismatch.md",
+  "fixturePath": "fixtures/boundary/boundary-api-shape.md",
   "domain": "code",
   "isCleanBaseline": false,
   "findings": [

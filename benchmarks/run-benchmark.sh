@@ -188,7 +188,7 @@ collect_fixtures() {
       fi
       # ground-truth 파일이 있는 경우에만 포함
       local gt_file
-      gt_file="$(find_ground_truth "${dim}" "${basename}")"
+      gt_file="$(find_ground_truth "${basename}")"
       if [[ -n "${gt_file}" ]]; then
         local ground_truth_id
         ground_truth_id="$(basename "${gt_file}" .json)"
@@ -199,26 +199,15 @@ collect_fixtures() {
     done < <(find "${dim_dir}" -name "*.md" -print0 | sort -z)
   done
 
-  printf '%s\n' "${fixtures[@]}"
+  if [[ ${#fixtures[@]} -gt 0 ]]; then
+    printf '%s\n' "${fixtures[@]}"
+  fi
 }
 
 find_ground_truth() {
-  local dimension="$1"
-  local fixture_id="$2"
-  local ground_truth_id=""
-
-  case "${dimension}:${fixture_id}" in
-    interview:vague-ecommerce)       ground_truth_id="interview-ecommerce" ;;
-    interview:vague-trading)         ground_truth_id="interview-trading" ;;
-    boundary:api-shape-mismatch)     ground_truth_id="boundary-api-shape" ;;
-    boundary:route-prefix-missing)   ground_truth_id="boundary-route-prefix" ;;
-    live-app:order-dashboard)        ground_truth_id="live-order-dashboard" ;;
-    immunity:repeated-unwrap-bug)    ground_truth_id="immunity-unwrap" ;;
-    *)                               ground_truth_id="${fixture_id}" ;;
-  esac
-
+  local fixture_id="$1"
   local candidates=(
-    "${GROUND_TRUTH_DIR}/${ground_truth_id}.json"
+    "${GROUND_TRUTH_DIR}/${fixture_id}.json"
   )
   for c in "${candidates[@]}"; do
     [[ -f "${c}" ]] && echo "${c}" && return

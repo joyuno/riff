@@ -14,4 +14,5 @@ jq -e '.plugins[0] | .name == "riff" and .source.source == "local" and .source.p
 test -f "$ROOT/skills/riff/SKILL.md"
 grep -q 'Codex 호스트에서는 Codex 자체 기능' "$ROOT/skills/riff/SKILL.md"
 grep -q 'references/companions.md.*읽지 않는다' "$ROOT/skills/riff/SKILL.md"
+grep -q '외부 전송 가드' "$ROOT/skills/riff/SKILL.md"
 echo "PASS: Claude and Codex plugin package metadata"
