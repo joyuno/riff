@@ -21,6 +21,38 @@
 
 ---
 
+### Task 0: Restore the portable benchmark baseline
+
+**Files:**
+- Create: `benchmarks/tests/test-run-benchmark-bash32.sh`
+- Modify: `benchmarks/run-benchmark.sh:437-441`
+
+**Interfaces:**
+- `./benchmarks/run-benchmark.sh --dry-run` must run on macOS Bash 3.2 without Bash 4-only builtins.
+
+- [ ] **Step 1: Add a failing regression test**
+
+Invoke the runner through the system `bash`, assert exit 0, six original fixtures, and the completion marker; reject `mapfile: command not found` and `unbound variable`.
+
+- [ ] **Step 2: Verify RED**
+
+Run: `bash benchmarks/tests/test-run-benchmark-bash32.sh`
+Expected: FAIL at `mapfile` on Bash 3.2.
+
+- [ ] **Step 3: Replace `mapfile` with a portable read loop**
+
+Populate the local array using `while IFS= read -r entry; do fixture_list+=("$entry"); done` and process substitution. Map the six historical fixture basenames to their ground-truth filenames explicitly so collection is not empty.
+
+- [ ] **Step 4: Verify GREEN and commit**
+
+Run: `bash benchmarks/tests/test-run-benchmark-bash32.sh && bash -n benchmarks/run-benchmark.sh`
+Expected: PASS and exit 0.
+
+```bash
+git add benchmarks/run-benchmark.sh benchmarks/tests/test-run-benchmark-bash32.sh docs/superpowers/plans/2026-08-03-riff-v1-release-completion.md
+git commit -m "fix(bench): Bash 3.2 dry-run 호환 복구"
+```
+
 ### Task 1: v1-only progress hook
 
 **Files:**

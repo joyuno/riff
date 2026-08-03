@@ -188,9 +188,11 @@ collect_fixtures() {
       fi
       # ground-truth 파일이 있는 경우에만 포함
       local gt_file
-      gt_file="$(find_ground_truth "${basename}")"
+      gt_file="$(find_ground_truth "${dim}" "${basename}")"
       if [[ -n "${gt_file}" ]]; then
-        fixtures+=("${dim}:${basename}:${file}")
+        local ground_truth_id
+        ground_truth_id="$(basename "${gt_file}" .json)"
+        fixtures+=("${dim}:${ground_truth_id}:${file}")
       else
         warn "Ground truth 없음, 스킵: ${basename}"
       fi
@@ -201,10 +203,22 @@ collect_fixtures() {
 }
 
 find_ground_truth() {
-  local fixture_id="$1"
-  # ground-truth/{fixture_id}.json 또는 ground-truth/{dimension}-{name}.json
+  local dimension="$1"
+  local fixture_id="$2"
+  local ground_truth_id=""
+
+  case "${dimension}:${fixture_id}" in
+    interview:vague-ecommerce)       ground_truth_id="interview-ecommerce" ;;
+    interview:vague-trading)         ground_truth_id="interview-trading" ;;
+    boundary:api-shape-mismatch)     ground_truth_id="boundary-api-shape" ;;
+    boundary:route-prefix-missing)   ground_truth_id="boundary-route-prefix" ;;
+    live-app:order-dashboard)        ground_truth_id="live-order-dashboard" ;;
+    immunity:repeated-unwrap-bug)    ground_truth_id="immunity-unwrap" ;;
+    *)                               ground_truth_id="${fixture_id}" ;;
+  esac
+
   local candidates=(
-    "${GROUND_TRUTH_DIR}/${fixture_id}.json"
+    "${GROUND_TRUTH_DIR}/${ground_truth_id}.json"
   )
   for c in "${candidates[@]}"; do
     [[ -f "${c}" ]] && echo "${c}" && return
@@ -435,8 +449,11 @@ run_mode() {
   header "Fixture 실행: ${mode}"
 
   # Fixture 목록 수집
-  local fixture_list
-  mapfile -t fixture_list < <(collect_fixtures "${DIMENSION}" "${FIXTURE_FILTER}")
+  local fixture_list=()
+  local fixture_entry
+  while IFS= read -r fixture_entry; do
+    [[ -n "${fixture_entry}" ]] && fixture_list+=("${fixture_entry}")
+  done < <(collect_fixtures "${DIMENSION}" "${FIXTURE_FILTER}")
 
   if [[ ${#fixture_list[@]} -eq 0 ]]; then
     error "실행할 fixture가 없습니다."
