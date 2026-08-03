@@ -1,0 +1,28 @@
+{
+  "name": "riff",
+  "version": "1.0.0",
+  "description": "Question-driven product development with adaptive depth and a Living CANVAS.md.",
+  "author": {
+    "name": "joyuno",
+    "url": "https://github.com/joyuno"
+  },
+  "homepage": "https://github.com/joyuno/riff",
+  "repository": "https://github.com/joyuno/riff",
+  "license": "MIT",
+  "keywords": ["riff", "product-development", "canvas", "adaptive-depth", "qa"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Riff",
+    "shortDescription": "Right questions, right products.",
+    "longDescription": "FRAME, SHAPE, BUILD, PROVE, and LEARN with adaptive depth and a Living CANVAS.md.",
+    "developerName": "joyuno",
+    "category": "Developer Tools",
+    "capabilities": ["Interactive", "Write"],
+    "websiteURL": "https://github.com/joyuno/riff",
+    "defaultPrompt": [
+      "Use Riff to shape and build my product idea.",
+      "Resume this project from its Living CANVAS.",
+      "Run a Riff proof cycle on the current implementation."
+    ]
+  }
+}

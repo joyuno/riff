@@ -1,0 +1,20 @@
+{
+  "name": "joyuno-riff-local",
+  "interface": {
+    "displayName": "Riff Local"
+  },
+  "plugins": [
+    {
+      "name": "riff",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

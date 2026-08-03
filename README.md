@@ -26,7 +26,7 @@
 
 **질문이 캔버스를 채운다.** Riff는 FRAME → SHAPE → BUILD → PROVE → LEARN 사이클을 빠르게 반복하며, 매 사이클마다 작동하는 결과물과 살아있는 `CANVAS.md`를 남기는 Question-Driven 개발 루프입니다. 마일스톤에서는 DROP(랜딩), 정체·되감기 후에는 TUNE(조율) 이벤트가 사이클 밖에서 개입합니다.
 
-**한국어** | [English (coming soon)]()
+**한국어** | [English](README.en.md)
 
 코드를 잘 짜는 건 AI가 합니다. 하지만 **"무엇을 만들어야 하는가"는 여전히 사람의 머릿속에 있습니다.**
 
