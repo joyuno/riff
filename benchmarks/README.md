@@ -19,8 +19,8 @@ OMC(oh-my-claudecode)의 harsh-critic 벤치마크 방식을 Riff 도메인에 �
 ### 신규 시나리오 (v1.0 — depth·canvas)
 
 Riff v1.0의 adaptive depth 판정과 Living CANVAS.md 재개 로직을 검증하는 시나리오입니다.
-`must_have`/`must_not` 체크리스트 형식의 ground truth를 사용하며, 아직 `scoring/scorer.py`의
-키워드 매칭 자동 채점 대상이 아닙니다 — 현재는 수동/정성 채점, 자동화는 후속 릴리스 범위입니다.
+depth fixture는 `scoring/depth_reproducibility.py`가 `must_have`/`must_not`과 반복
+프로파일 일관성을 자동 채점합니다. canvas fixture는 계속 정성 검토 대상입니다.
 
 | 시나리오 | Fixture | Ground Truth | 판정 기준 |
 |---|---|---|---|
@@ -117,6 +117,24 @@ RIFF_COMMAND='your-agent-command --with-riff' \
 두 명령은 동일한 medium fixture를 stdin으로 받습니다. 공급자와 모델은 명령을
 주입하는 호출자가 선택하며 runner는 모델 플래그를 추가하지 않습니다. 결과는
 `results/speed-tax-<timestamp>.json`에 기록되고 예산 초과 시 종료 코드 1을 반환합니다.
+
+### depth 재현성
+
+저장된 출력 3회분을 채점:
+
+```bash
+./run-depth-reproducibility.sh --outputs-dir ./saved-depth-outputs --repetitions 3
+```
+
+실제 에이전트 명령을 fixture마다 3회 실행:
+
+```bash
+DEPTH_COMMAND='your-agent-command' ./run-depth-reproducibility.sh --repetitions 3
+```
+
+저장 출력 파일명은 `<scenario>-<run>.txt` 형식입니다. 예를 들어
+`depth-ambiguous-notes-1.txt`부터 `-3.txt`까지 둡니다. 모든 실행이 ground truth를
+통과하고 세 번의 프로파일 판정이 같아야 전체 PASS입니다.
 
 ---
 

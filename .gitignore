@@ -2,3 +2,7 @@
 _workspace/
 session.md
 skills/.omc/
+__pycache__/
+*.pyc
+benchmarks/results/*
+!benchmarks/results/.gitkeep
