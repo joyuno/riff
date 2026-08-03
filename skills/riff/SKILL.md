@@ -14,6 +14,11 @@ description: "신규 프로젝트·앱·MVP를 처음부터 만드는 AI-Native 
 
 ## Bootstrap (첫 호출 1회)
 
+**호스트 가드:** Codex 호스트에서는 Codex 자체 기능과 설치된 플러그인을 그대로
+사용하고 `references/companions.md`를 읽지 않는다. Claude 전용 플러그인 점검이나
+`~/.codex/config.toml` 수정도 시도하지 않는다. 필요한 기능이 실제로 없을 때만 해당
+스테이지의 인라인 폴백을 사용한다.
+
 `references/companions.md` — ralph-loop·codex·ecc plan-canvas 점검, Install/Skip/Skip all.
 가드: `_workspace/.riff-bootstrap-done` 또는 `.riff-bootstrap-skip-all` 존재 시 스킵.
 

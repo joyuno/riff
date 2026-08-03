@@ -12,4 +12,6 @@ jq -e --slurpfile claude "$claude_manifest" '.name == $claude[0].name and .versi
 jq -e '.name == "joyuno-riff-local" and (.plugins | length) == 1' "$marketplace" >/dev/null
 jq -e '.plugins[0] | .name == "riff" and .source.source == "local" and .source.path == "./" and .policy.installation == "AVAILABLE" and .policy.authentication == "ON_INSTALL" and .category == "Developer Tools"' "$marketplace" >/dev/null
 test -f "$ROOT/skills/riff/SKILL.md"
+grep -q 'Codex 호스트에서는 Codex 자체 기능' "$ROOT/skills/riff/SKILL.md"
+grep -q 'references/companions.md.*읽지 않는다' "$ROOT/skills/riff/SKILL.md"
 echo "PASS: Claude and Codex plugin package metadata"

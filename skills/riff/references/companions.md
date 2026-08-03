@@ -1,5 +1,9 @@
 # Companions — 부트스트랩·폴백
 
+> 이 부트스트랩은 Claude Code 호스트 전용이다. Codex 호스트에서는 이 문서를 읽거나
+> Claude 플러그인·Codex CLI·Codex 설정을 재점검하지 않고 각 기능의 인라인 폴백을
+> 바로 사용한다.
+
 이 문서는 riff의 세 가지 선택적 컴패니언(`ralph-loop`, `codex`, `ecc-plan-canvas`)의 부트스트랩 설치와, 컴패니언 부재 시 네이티브 폴백을 정의한다. 모든 컴패니언은 있으면 강화, 없어도 riff는 전 기능 동작한다.
 
 ## Bootstrap (첫 호출 시 1회)
