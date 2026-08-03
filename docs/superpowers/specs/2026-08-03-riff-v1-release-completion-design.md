@@ -11,7 +11,7 @@ depth 재현성 채점, 영문 문서, Codex 로컬 플러그인 설치와 실�
 
 ## 범위와 순서
 
-1. `riff-progress.sh`를 v1.0 `state.json` 전용으로 전환한다.
+1. lifecycle hook을 선택적 SessionStart CANVAS 복원 하나로 단순화한다.
 2. medium 사이클 speed-tax를 반복 측정하고 15% 예산을 판정한다.
 3. depth 모호 브리프의 반복 실행 일관성을 자동 채점한다.
 4. `README.en.md`를 추가하고 한국어 README와 상호 연결한다.
@@ -22,21 +22,19 @@ depth 재현성 채점, 영문 문서, Codex 로컬 플러그인 설치와 실�
 설치 후 첫 실사용 시나리오로 해당 프로젝트를 FRAME부터 시작하며, 그 과정에서
 발견한 riff 자체의 결함은 이 릴리스에 반영한다.
 
-## 1. 진행 훅 v1 스키마 전환
+## 1. Hook 최소화
 
-`hooks/riff-progress.sh`는 `.riff/state.json`만 상태 SSOT로 사용한다.
+플랫폼의 세션 메모리와 중복되는 진행 추적을 제거한다.
 
-- `cycle`과 `last_anchor`를 읽고 SubagentStop 입력의 에이전트명·토큰·시간과
-  함께 `additionalContext`로 반환한다.
-- 핵심 상태 파일에는 에이전트 이력을 누적하지 않는다. `{cycle,last_anchor}`
-  SSOT가 로그 저장소로 비대해지는 것을 막는다.
-- `.riff/`만 있고 상태 파일이 없으면 파일을 임의 생성하지 않고 비활성 응답을 한다.
-- 잘못된 JSON, 필수 필드 누락, jq 부재는 작업을 막지 않고 경고 또는
-  `{ "continue": true }`로 종료한다.
-- `riff-log.json`, journey/QA 수렴 지표, Riff 용어 기반 legacy 로직은 제거한다.
+- `riff-progress.sh`와 Riff의 `SubagentStop` 등록을 제거한다.
+- `session-start-canvas.sh`만 선택적으로 유지한다.
+- 이 hook은 Claude Code 세션 시작 또는 재개 시 한 번만 실행한다.
+- CANVAS가 있을 때 STATUS 최대 12줄만 읽으며 파일을 생성·수정하지 않는다.
+- Codex 플러그인에서는 hook을 자동 등록하지 않고 자체 세션 컨텍스트를 사용한다.
+- 설치기는 과거 Riff progress 등록을 제거하되 다른 hook은 보존한다.
 
-셸 기반 회귀 테스트는 v1 정상 상태, 손상 상태, 필드 누락, 비활성 프로젝트를
-각각 임시 디렉터리에서 실행한다.
+셸 회귀 테스트는 설치 중 기존 설정 보존, progress 등록 제거, SessionStart 중복 방지를
+검증한다.
 
 ## 2. speed-tax 측정
 
@@ -115,7 +113,7 @@ GitHub Release를 생성한다. 기존 태그나 릴리스가 발견되면 덮�
 
 ## 비목표
 
-- 기존 v0.3.1 프로젝트와 `riff-log.json` 호환 또는 자동 마이그레이션
+- 기존 v0.3.1 진행률·수렴 hook 호환 또는 `riff-log.json` 자동 마이그레이션
 - `state.json`에 장기 에이전트 통계 저장
 - 특정 Claude/OpenAI 모델 ID를 벤치마크 코드에 고정
 - 권한이 확인되지 않은 영상 다운로드 또는 재업로드

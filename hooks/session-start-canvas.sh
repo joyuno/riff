@@ -13,7 +13,7 @@
 
 set -euo pipefail
 
-# ── 프로젝트 루트 감지 (_workspace/CANVAS.md 가 있는 곳, riff-progress.sh 와 동일 패턴) ──
+# ── 프로젝트 루트 감지 (_workspace/CANVAS.md 가 있는 곳) ────────────────────────
 CANVAS=""
 CHECK_DIR="$(pwd)"
 while [ "$CHECK_DIR" != "/" ]; do

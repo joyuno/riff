@@ -192,7 +192,7 @@ riff/
 │           ├── convergence.md               #   수렴 지표
 │           └── ui-stack-guide.md            #   웹앱 UI 스택 확정 가이드
 │
-├── hooks/                                   # SessionStart(CANVAS 로드) + SubagentStop(진행률) 훅
+├── hooks/                                   # 선택적 SessionStart(CANVAS STATUS 복원) 훅 1개
 ├── benchmarks/                              # 평가 픽스처 + ground-truth
 ├── LICENSE
 └── README.md

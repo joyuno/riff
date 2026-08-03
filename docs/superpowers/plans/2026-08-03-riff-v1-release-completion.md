@@ -53,50 +53,53 @@ git add benchmarks/run-benchmark.sh benchmarks/tests/test-run-benchmark-bash32.s
 git commit -m "fix(bench): Bash 3.2 dry-run 호환 복구"
 ```
 
-### Task 1: v1-only progress hook
+### Task 1: Minimal optional SessionStart hook
 
 **Files:**
-- Create: `hooks/tests/test-riff-progress.sh`
-- Modify: `hooks/riff-progress.sh`
+- Create: `hooks/tests/test-install.sh`
+- Delete: `hooks/riff-progress.sh`
+- Delete: `hooks/tests/test-riff-progress.sh`
+- Modify: `hooks/install.sh`
 - Modify: `hooks/README.md`
+- Modify: `README.md`
 
 **Interfaces:**
-- Consumes: SubagentStop JSON on stdin and nearest parent `.riff/state.json` containing integer `cycle` and non-empty string `last_anchor`.
-- Produces: one JSON object with `continue: true` and, for valid state, an `additionalContext` string containing `Cycle N`, anchor, agent, tokens, and duration.
+- Installs only `session-start-canvas.sh` under Claude Code `SessionStart`.
+- Removes obsolete Riff `riff-progress.sh` registrations while preserving unrelated hooks and settings.
 
 - [ ] **Step 1: Write failing shell tests**
 
-Create a temp-project harness that invokes the hook from a nested directory. Cover valid v1 state, invalid JSON, missing required fields, missing state, and absence of `.riff/`. The valid assertion must be equivalent to:
+Seed a temporary settings file with an old Riff progress hook, an unrelated SubagentStop hook, and an unrelated SessionStart hook. Run the installer twice and assert:
 
 ```bash
-output="$(cd "$project/src" && printf '%s' '{"agent_name":"builder","total_tokens":120,"duration_ms":45}' | bash "$HOOK")"
-jq -e '.continue == true and (.additionalContext | contains("Cycle 2")) and (.additionalContext | contains("abc123"))' <<<"$output"
-test ! -e "$project/.riff/riff-log.json"
+jq -e '[.hooks.SubagentStop[] | select(.command | contains("riff-progress.sh"))] | length == 0' "$settings"
+jq -e '[.hooks.SubagentStop[] | select(.command == "bash /other/subagent-hook.sh")] | length == 1' "$settings"
+jq -e '[.hooks.SessionStart[] | select(.command | contains("session-start-canvas.sh"))] | length == 1' "$settings"
 ```
 
 - [ ] **Step 2: Run the tests and verify RED**
 
-Run: `bash hooks/tests/test-riff-progress.sh`  
-Expected: FAIL because the current hook creates/reads `riff-log.json` instead of reporting v1 state.
+Run: `bash hooks/tests/test-install.sh`
+Expected: FAIL because the existing installer retains and installs the progress hook.
 
-- [ ] **Step 3: Replace legacy behavior with the minimal v1 reader**
+- [ ] **Step 3: Reduce installer and hook set**
 
-Keep upward `.riff/` discovery and safe JSON encoding. Validate `.cycle` as a non-negative integer and `.last_anchor` as a non-empty string. Never write a state or log file. Remove convergence calculations and `bc` usage.
+Delete the progress hook. Make the installer remove only Riff progress registrations, preserve unrelated entries, normalize and deduplicate the Riff SessionStart command, and require no per-command hook.
 
 - [ ] **Step 4: Run the hook tests and syntax check**
 
-Run: `bash hooks/tests/test-riff-progress.sh && bash -n hooks/riff-progress.sh`  
+Run: `bash hooks/tests/test-install.sh && bash -n hooks/*.sh`
 Expected: all cases PASS and syntax check exits 0.
 
 - [ ] **Step 5: Rewrite the hooks documentation for v1**
 
-Document `.riff/state.json`, read-only behavior, valid output, malformed-state fallback, and removal of `riff-log.json`/journey/QA convergence metrics.
+Document that SessionStart runs only at session start/resume, is optional, reads CANVAS STATUS without mutation, is not wired into Codex, and that no per-command or SubagentStop Riff hook remains.
 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add hooks/riff-progress.sh hooks/tests/test-riff-progress.sh hooks/README.md
-git commit -m "feat(hooks): 진행 훅을 v1 상태 스키마로 전환"
+git add hooks/ README.md docs/superpowers/specs/2026-08-03-riff-v1-release-completion-design.md docs/superpowers/plans/2026-08-03-riff-v1-release-completion.md
+git commit -m "refactor(hooks): SessionStart 안전망만 유지"
 ```
 
 ### Task 2: deterministic speed-tax gate
@@ -340,7 +343,7 @@ Include the FRAME→SHAPE→BUILD→PROVE→LEARN redesign, Living CANVAS, adapt
 - [ ] **Step 2: Run the complete verification suite fresh**
 
 ```bash
-bash hooks/tests/test-riff-progress.sh
+bash hooks/tests/test-install.sh
 python3 -m unittest discover -s benchmarks/tests -p 'test*.py' -v
 bash benchmarks/tests/test-speed-tax-runner.sh
 bash benchmarks/tests/test-depth-runner.sh
@@ -354,7 +357,7 @@ Expected: every command exits 0 with no failing tests.
 
 - [ ] **Step 3: Audit release state**
 
-Confirm manifests are exactly `1.0.0`, no tag or release exists, remote is the intended `joyuno/riff`, and staged/untracked files exclude `.serena/` and `HANDOFF.md`. Confirm the only remaining mode change on `hooks/riff-progress.sh` is intentional executable status.
+Confirm manifests are exactly `1.0.0`, no tag or release exists, remote is the intended `joyuno/riff`, and staged/untracked files exclude `.serena/` and `HANDOFF.md`. Confirm only `session-start-canvas.sh` remains as a Riff lifecycle hook.
 
 - [ ] **Step 4: Commit release notes**
 
