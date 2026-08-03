@@ -1,45 +1,10 @@
 # Riff Hooks
 
-Riff 플러그인의 Claude Code 훅 모음입니다.
-서브에이전트 완료 시 진행률을 자동 추적하고 수렴 지표를 갱신하며,
-세션 시작 시 CANVAS.md의 STATUS를 컨텍스트로 주입합니다.
+Riff v1.0의 Claude Code lifecycle hook입니다. 진행 훅은 `.riff/state.json`의
+현재 Cycle을 읽고, 세션 시작 훅은 Living `CANVAS.md`의 STATUS를 복원합니다.
+두 훅 모두 프로젝트 상태를 막지 않는 graceful fallback을 사용합니다.
 
----
-
-## 목차
-
-1. [riff-progress 훅 개요](#1-riff-progress-훅-개요)
-2. [설치 방법](#2-설치-방법)
-3. [.riff/ 디렉토리 구조](#3-riff-디렉토리-구조)
-4. [riff-log.json 스키마](#4-riff-logjson-스키마)
-5. [수렴 지표 설명](#5-수렴-지표-설명)
-6. [트러블슈팅](#6-트러블슈팅)
-7. [향후 추가 예정 훅](#7-향후-추가-예정-훅)
-8. [session-start-canvas 훅 개요](#8-session-start-canvas-훅-개요)
-
----
-
-## 1. riff-progress 훅 개요
-
-> 참고: 이 훅은 v0.3.1의 `.riff/riff-log.json` 스키마를 읽는다. v1.0 프로젝트(`.riff/state.json` 체계)에서는 데이터가 없으면 조용히 건너뛰며, v1.0 스키마 연동은 후속 릴리스 범위.
-
-**이벤트**: `SubagentStop` — 서브에이전트가 완료될 때마다 트리거됩니다.
-
-**동작 순서**:
-
-1. `SubagentStop` 이벤트 발생 시 Claude Code가 stdin으로 JSON 전달
-2. 훅이 `agent_name`, `total_tokens`, `duration_ms` 추출
-3. `.riff/riff-log.json`의 `agents` 배열에 완료 기록 추가
-4. 수렴 지표(`journeys_done`, `qa_pass_rate`, `bugs_last_3`) 기반으로 다음 Riff 우선순위 제안 생성
-5. `additionalContext` 필드로 진행 상황을 Claude에게 주입
-
-**수렴 조건 충족 시**: "MVP 완성 여부를 사용자에게 확인하세요" 메시지 출력.
-
----
-
-## 2. 설치 방법
-
-### 자동 설치 (권장)
+## 설치
 
 ```bash
 bash /path/to/riff/hooks/install.sh
@@ -47,14 +12,13 @@ bash /path/to/riff/hooks/install.sh
 
 옵션:
 
-| 플래그 | 설명 |
-|--------|------|
-| `--dry-run` | 실제 변경 없이 예상 결과만 출력 |
-| `--help` | 도움말 출력 |
+| 옵션 | 설명 |
+|---|---|
+| `--dry-run` | 설정을 쓰지 않고 변경 예정 내용만 출력 |
+| `--help` | 사용법 출력 |
 
-### 수동 설치
-
-`~/.claude/settings.json`을 열어 아래 내용을 추가합니다.
+수동 등록 시 `~/.claude/settings.json`의 기존 `hooks`를 보존하면서 다음 항목을
+추가합니다.
 
 ```json
 {
@@ -75,102 +39,90 @@ bash /path/to/riff/hooks/install.sh
 }
 ```
 
-`hooks` 섹션이 이미 있다면 각 이벤트(`SubagentStop`, `SessionStart`) 배열에 항목을 추가하면 됩니다.
-설정 후 Claude Code를 재시작해야 훅이 활성화됩니다.
+## `.riff/state.json`
 
-### 프로젝트별 활성화
-
-훅은 `.riff/` 디렉토리가 존재하는 프로젝트에서만 동작합니다.
-Riff를 사용할 프로젝트 루트에서 다음 명령을 실행하세요.
-
-```bash
-mkdir -p .riff
-```
-
----
-
-## 3. `.riff/` 디렉토리 구조
-
-```
-<프로젝트 루트>/
-└── .riff/
-    └── riff-log.json      # 에이전트 완료 기록 및 수렴 지표
-```
-
-`.riff/` 디렉토리가 없는 프로젝트에서는 훅이 자동으로 비활성화됩니다(`continue: true` 반환 후 종료).
-
----
-
-## 4. `riff-log.json` 스키마
+진행 훅이 읽는 v1 상태 SSOT입니다.
 
 ```json
 {
-  "schema_version": "1.0",
-  "riffs": [],
-  "agents": [
-    {
-      "name": "executor",
-      "timestamp": "2026-04-11T12:00:00Z",
-      "tokens": 3200,
-      "duration_ms": 45000
-    }
-  ],
-  "convergence": {
-    "journeys_done": 2,
-    "journeys_total": 5,
-    "qa_pass_rate": 0.75,
-    "bugs_last_3": 1
-  }
+  "cycle": 2,
+  "last_anchor": "abc123def456"
 }
 ```
 
-| 필드 | 타입 | 설명 |
-|------|------|------|
-| `schema_version` | string | 스키마 버전 |
-| `riffs` | array | Riff 단위 실행 기록 (향후 사용) |
-| `agents` | array | 완료된 서브에이전트 목록 |
-| `agents[].name` | string | 에이전트 이름 |
-| `agents[].timestamp` | string | 완료 시각 (ISO 8601 UTC) |
-| `agents[].tokens` | number | 해당 에이전트가 사용한 토큰 수 |
-| `agents[].duration_ms` | number | 실행 시간 (밀리초) |
-| `convergence` | object | 수렴 지표 (외부에서 업데이트) |
+| 필드 | 형식 | 조건 |
+|---|---|---|
+| `cycle` | number | 0 이상의 정수 |
+| `last_anchor` | string | 비어 있지 않은 사이클 커밋 SHA |
 
-`convergence` 필드는 Riff 오케스트레이터가 직접 갱신합니다.
-훅은 이 값을 읽어 우선순위 제안 및 수렴 판별에만 사용합니다.
+`riff-progress.sh`는 이 파일을 **읽기만** 합니다. 에이전트 기록을 누적하거나
+상태 파일을 생성·수정·복구하지 않습니다. v0.3.1의 `riff-log.json`, journey/QA
+수렴 지표, Riff 번호 기반 로직은 v1.0에서 지원하지 않습니다.
 
----
+## `riff-progress.sh`
 
-## 5. 수렴 지표 설명
+**이벤트:** `SubagentStop`
 
-| 지표 | 필드명 | 설명 | 수렴 조건 |
-|------|--------|------|-----------|
-| 유저 저니 완료 수 | `journeys_done` | 완료된 유저 시나리오 수 | `journeys_done == journeys_total` |
-| 전체 유저 저니 수 | `journeys_total` | 목표 유저 시나리오 수 | — |
-| QA 통과율 | `qa_pass_rate` | 0.0 ~ 1.0 (1.0 = 100%) | `>= 0.9` |
-| 최근 3 Riff 버그 수 | `bugs_last_3` | 최근 3회 Riff에서 발생한 버그 수 | 제안 트리거: `>= 3` |
+1. 현재 디렉터리부터 상위로 `.riff/`를 찾습니다.
+2. `state.json`의 `cycle`과 `last_anchor`를 검증합니다.
+3. hook 입력에서 `agent_name`, `total_tokens`, `duration_ms`를 읽습니다.
+4. 현재 Cycle과 마지막 앵커를 `additionalContext`로 반환합니다.
 
-**수렴 조건**: `journeys_done == journeys_total` AND `qa_pass_rate >= 0.9`
-두 조건이 모두 충족되면 훅이 "MVP 완성 여부 확인" 메시지를 출력합니다.
+정상 출력 예:
 
-**우선순위 자동 제안 규칙**:
-
-- `qa_pass_rate < 0.8` → 테스트 보강 우선 제안
-- `bugs_last_3 >= 3` → 버그 수정 우선 제안
-- 미완료 저니 존재 → 저니 완료 우선 제안
-
----
-
-## 6. 트러블슈팅
-
-### jq 가 설치되지 않은 경우
-
-훅이 graceful하게 실패하며 아래 메시지를 출력합니다.
-
-```
-[Riff Progress] 경고: jq가 설치되지 않아 진행률 추적을 건너뜁니다.
+```json
+{
+  "continue": true,
+  "additionalContext": "[Riff Progress] builder 완료 (120토큰, 45ms). 현재 Cycle 2, 마지막 앵커 abc123. CANVAS STATUS와 실제 작업 상태를 맞춘 뒤 다음 작업을 진행하세요."
+}
 ```
 
-설치 방법:
+다음 경우에도 항상 `continue: true`로 종료합니다.
+
+- `.riff/` 또는 `state.json`이 없음: 추가 컨텍스트 없이 비활성
+- JSON 손상 또는 필수 필드 오류: 경고 컨텍스트만 반환
+- `jq`가 없음: 설치 경고 후 상태 확인 생략
+- hook 입력 필드가 잘못됨: 토큰·시간은 0, 에이전트명은 `unknown`
+
+## `session-start-canvas.sh`
+
+**이벤트:** `SessionStart`
+
+현재 위치에서 상위로 `_workspace/CANVAS.md`를 찾고 `## STATUS`부터 다음 H2
+직전까지 최대 12줄을 `additionalContext`로 주입합니다. CANVAS가 없거나 STATUS가
+비어 있으면 조용히 종료합니다. 이 훅도 파일을 수정하지 않습니다.
+
+세션 재시작 후에는 주입된 STATUS와 실제 working tree·태스크 상태가 일치하는지
+확인하고, 어긋나면 `skills/riff/references/prove/canvas-lint.md`의 규칙으로 먼저
+재조정합니다.
+
+## 테스트
+
+```bash
+bash hooks/tests/test-riff-progress.sh
+bash -n hooks/*.sh
+```
+
+## 트러블슈팅
+
+### 훅이 실행되지 않음
+
+1. `~/.claude/settings.json`에 이벤트가 등록됐는지 확인합니다.
+2. 스크립트 실행 권한을 확인합니다: `chmod +x hooks/*.sh`.
+3. 설정 변경 후 Claude Code를 재시작합니다.
+4. 수동 등록 시 절대 경로를 사용했는지 확인합니다.
+
+### `.riff/`를 찾지 못함
+
+훅은 hook 프로세스의 `pwd`에서 상위 방향으로 탐색합니다. 세션 작업 디렉터리가
+프로젝트 루트 또는 그 하위인지 확인합니다.
+
+### `state.json` 경고
+
+파일을 자동 수정하지 않습니다. JSON 문법과 `cycle`, `last_anchor`를 확인한 뒤
+CANVAS와 최근 `cycle-N:` 커밋 앵커를 기준으로 수동 복구합니다.
+
+### `jq`가 없음
 
 ```bash
 # macOS
@@ -178,54 +130,4 @@ brew install jq
 
 # Ubuntu / Debian
 sudo apt install jq
-
-# Alpine Linux
-apk add jq
 ```
-
-### 훅이 실행되지 않는 경우
-
-1. `~/.claude/settings.json`에 `SubagentStop` 훅이 등록되어 있는지 확인
-2. 스크립트에 실행 권한이 있는지 확인: `chmod +x riff-progress.sh`
-3. Claude Code 재시작 여부 확인
-4. 절대 경로를 사용했는지 확인 (상대 경로 불가)
-
-### 훅이 등록되어 있으나 `.riff/` 감지 실패
-
-훅은 현재 작업 디렉토리(`pwd`)에서 상위 방향으로 `.riff/`를 탐색합니다.
-Claude Code 세션의 작업 디렉토리가 프로젝트 루트 하위인지 확인하세요.
-
-### `riff-log.json` 이 손상된 경우
-
-훅이 자동으로 손상된 파일을 `.riff/riff-log.json.bak.<timestamp>` 로 백업하고 재초기화합니다.
-
-### 권한 오류 (Permission denied)
-
-```bash
-chmod +x /path/to/riff/hooks/riff-progress.sh
-chmod +x /path/to/riff/hooks/install.sh
-```
-
----
-
-## 7. 향후 추가 예정 훅
-
-`SessionStart` 시점의 Riff 상태 로드는 `session-start-canvas` 훅으로 구현 완료되었습니다 → [8. session-start-canvas 훅 개요](#8-session-start-canvas-훅-개요) 참고.
-
-| 훅 이름 | 이벤트 | 역할 |
-|---------|--------|------|
-| `riff-learn` | `SubagentStop` | 완료된 에이전트의 아웃풋에서 패턴 학습, `.riff/learnings.json` 갱신 |
-| `riff-antibody-inject` | `PreToolUse` | 과거 실패 패턴을 기반으로 위험 도구 호출 전 경고 주입 |
-
-각 훅은 이 디렉토리에 추가되며 `install.sh`가 자동으로 일괄 등록을 지원할 예정입니다.
-
----
-
-## 8. session-start-canvas 훅 개요
-
-**이벤트**: `SessionStart` — Claude Code 세션이 시작될 때마다 트리거됩니다.
-
-**동작**: 프로젝트 루트의 `_workspace/CANVAS.md`가 존재하면 `## STATUS` 섹션(최대 12줄)을 읽어
-`additionalContext`로 주입합니다. CANVAS.md가 없거나 STATUS 섹션이 비어 있으면 조용히 종료(`exit 0`, 출력 없음)합니다.
-세션 재개 시 캔버스의 "다음 액션"부터 바로 이어갈 수 있도록 컨텍스트를 미리 채워주는 역할입니다.
-jq가 없으면 안전한 JSON 이스케이프를 보장할 수 없어 컨텍스트 주입을 건너뜁니다.
