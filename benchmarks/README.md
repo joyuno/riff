@@ -29,7 +29,9 @@ Riff v1.0의 adaptive depth 판정과 Living CANVAS.md 재개 로직을 검증�
 | canvas-mid-build-restart | `fixtures/canvas/mid-build-restart.md` | `ground-truth/canvas-restart.json` | BUILD 도중 dirty exit 후 재시작 정확도(canvas-lint 선실행 + 미완료 태스크부터 재개) 측정 |
 | rewind-anchor | `fixtures/canvas/rewind-anchor.md` | `ground-truth/rewind-anchor.json` | PROVE 3회 연속 실패 시 커밋 앵커 기반 되감기가 증거 백업 선행·CANVAS 갱신·항체/`.riff/` 보존을 지키는지 측정 |
 
-**speed-tax**(계획됨): medium 프로파일 사이클의 오버헤드 wall-clock 측정(목표 ≤15%) — 측정 스크립트는 후속 릴리스 범위.
+**speed-tax**: medium 프로파일 사이클의 baseline 대비 wall-clock 중앙값 오버헤드를
+측정하며 기본 예산은 ≤15%입니다. `run-speed-tax.sh`에서 실제 명령 또는 저장된
+timing 값을 사용합니다.
 
 ### 핵심 설계 원칙
 
@@ -92,6 +94,29 @@ cat results/results.json
 # 베이스라인 비교
 ./run-benchmark.sh --compare
 ```
+
+### speed-tax 측정
+
+모델 호출 없이 판정 로직만 재현:
+
+```bash
+./run-speed-tax.sh \
+  --baseline-ms 1000,1050,1100 \
+  --riff-ms 1100,1150,1200 \
+  --budget-percent 15
+```
+
+실제 명령을 각각 기본 3회 실행:
+
+```bash
+BASELINE_COMMAND='your-agent-command --baseline' \
+RIFF_COMMAND='your-agent-command --with-riff' \
+./run-speed-tax.sh --repetitions 3
+```
+
+두 명령은 동일한 medium fixture를 stdin으로 받습니다. 공급자와 모델은 명령을
+주입하는 호출자가 선택하며 runner는 모델 플래그를 추가하지 않습니다. 결과는
+`results/speed-tax-<timestamp>.json`에 기록되고 예산 초과 시 종료 코드 1을 반환합니다.
 
 ---
 
