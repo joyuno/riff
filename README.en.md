@@ -1,21 +1,32 @@
-# Riff
+<p align="center">
+  <img src="https://img.shields.io/badge/RIFF-Right_Questions,_Right_Products-7B2FF7?style=for-the-badge" alt="Riff">
+</p>
+
+<p align="center">
+  <a href="https://github.com/joyuno/riff/releases/tag/v1.0.0"><img src="https://img.shields.io/badge/version-1.0.0-brightgreen" alt="v1.0.0"></a>
+  <img src="https://img.shields.io/badge/Claude_Code-supported-purple" alt="Claude Code">
+  <img src="https://img.shields.io/badge/Codex-supported-black" alt="Codex">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT"></a>
+</p>
+
+<p align="center"><strong>Questions fill the canvas.</strong><br>Right questions, right products.</p>
 
 [한국어](README.md) | **English**
 
-> **Right questions, right products.**
+# Riff
 
-Riff is a question-driven product-development skill for Claude Code and Codex. It turns an
-ambiguous product brief into a maintained `CANVAS.md`, then moves through a repeating cycle:
+Riff is a development workflow that turns an ambiguous app, MVP, or automation idea into
+clear decisions and working software. It runs in Claude Code and Codex and keeps the current
+state in one Living `CANVAS.md`.
 
 ```text
 FRAME → SHAPE → BUILD → PROVE → LEARN
 ```
 
-Event stages sit outside the hot path: **DROP** lands a jam safely, while **TUNE** reduces
-accumulated complexity. Riff v1.0 uses adaptive depth, explicit proof gates, cycle commit anchors,
-and progressive disclosure from one skill into focused references.
+Even when a conversation grows long or a session restarts, CANVAS shows where the project is and
+what should happen next.
 
-## Quick start
+## 3-minute Quick Start
 
 ### Claude Code
 
@@ -24,165 +35,159 @@ and progressive disclosure from one skill into focused references.
 /plugin install riff@joyuno-riff
 ```
 
-Optional CANVAS restoration hook:
+Then start a new conversation:
 
-```bash
-bash hooks/install.sh
+```text
+Use Riff to turn this idea into a product.
 ```
 
-The hook runs once when a Claude Code session starts or resumes. Riff has no per-command hook.
+### Codex
 
-### Codex local development
+Register this repository as a local marketplace and install the plugin:
 
 ```bash
 codex plugin marketplace add .
 codex plugin add riff@joyuno-riff-local
 ```
 
-Start a new Codex thread after installation so the installed skill is loaded. The Codex package
-does not install the Claude-specific SessionStart hook.
-
-Try:
+Open a new Codex thread after installation. For example:
 
 ```text
-Use Riff to shape and build this product idea.
-Resume this project from its Living CANVAS.
-Run a Riff proof cycle on the current implementation.
+Start a new project with Riff. The idea is video-editing automation.
 ```
 
-## Why Riff?
+### Optional Claude Code hook
 
-Coding agents can produce code quickly, but speed amplifies a weak problem definition. Riff makes
-the agent expose assumptions, define observable success, and preserve decisions before committing
-to implementation. The project remains restartable from one document instead of relying only on
-chat history.
+```bash
+bash hooks/install.sh
+```
 
-## Living CANVAS.md
+This installs only `session-start-canvas.sh`. It restores CANVAS STATUS once when a Claude Code
+session starts or resumes; it **does not run for every command or file edit**. Codex does not
+automatically install this Claude-specific hook.
 
-`_workspace/CANVAS.md` is the single source of truth:
+Details: [hooks/README.md](hooks/README.md)
+
+## How it works
+
+| Stage | What happens | What remains |
+|---|---|---|
+| **FRAME** | Clarify users, problem, constraints, and success | Assumptions and acceptance |
+| **SHAPE** | Compare viable directions and trade-offs | Selected approach and decision log |
+| **BUILD** | Implement in small, explicit tasks | Working software |
+| **PROVE** | Run tests, behavior checks, and diff review | Pass/fail evidence |
+| **LEARN** | Record lessons and recurrence guards | Next Cycle and commit anchor |
+
+Riff repeats short Cycles instead of trying to be perfect in one pass. When evidence fails, it
+returns to FRAME or SHAPE to correct the underlying assumption instead of blindly retrying.
+
+### Living CANVAS.md
+
+Every Riff project resumes from `_workspace/CANVAS.md`:
 
 ```text
-STATUS       current Cycle, stage, progress, active assumptions, next action
-[1] FRAME    problem, users, constraints, success criteria
-[2] SHAPE    explored directions and selected approach
+STATUS       current Cycle, stage, active assumptions, next action
+[1] FRAME    problem and success criteria
+[2] SHAPE    selected direction and decisions
 [3] BUILD    task board and contract status
-[4] PROVE    verification evidence and diff review
-[5] LEARN    decisions, antibodies, and the next-cycle brief
+[4] PROVE    verification results and evidence
+[5] LEARN    lessons and next Cycle
 ```
 
-Large details go into `_workspace/detail/`; contracts go into `_workspace/contracts/`. CANVAS
-remains compact, current, and single-writer.
+Long research and contracts live under `_workspace/detail/` and `_workspace/contracts/`, keeping
+CANVAS compact and current.
 
-## Adaptive depth
+## When should you use it?
 
-Riff evaluates eight signals: brief clarity, integration uncertainty, reversibility, security,
-data migration, UX ambiguity, failure cost, and cross-domain impact.
+**Good fits**
 
-| Signals | Profile | Typical path |
-|---|---|---|
-| 0–3 | Simple | Declare assumptions, skip safely, PROVE-lite |
-| 4–5 | Medium | Two FRAME questions, Tier 0–2 proof, one diff review |
-| 6–8 | Complex | Full FRAME, jam when useful, Tier 0–3 proof |
+- A new web app, mobile app, or MVP
+- Business automation or an AI pipeline
+- A new product with unclear requirements
+- A project connecting several external APIs and data flows
+- Work that needs repeated implementation, proof, and learning
 
-Words such as “quick” or “simple” never lower depth by themselves. If a skipped concern later
-fails, Riff escalates and retroactively performs the omitted stage.
+**Usually unnecessary**
 
-## The cycle
+- Typo fixes
+- Small bugs with a known cause
+- A tightly scoped single-function change
+- Explanation-only or code-review requests
 
-### FRAME
+For small tasks, the normal Claude Code or Codex workflow is faster.
 
-Clarify the job, users, constraints, risks, and measurable acceptance criteria. A skipped FRAME
-requires an explicit assumption declaration in STATUS.
+## Core capabilities
 
-### SHAPE
+### Adaptive depth
 
-Compare viable directions. A **Jam** uses isolated worktrees only when alternatives genuinely
-benefit from parallel exploration. Results collapse into one recommendation plus supporting detail.
+Eight signals—including clarity, external dependencies, security, reversibility, and failure
+cost—select a simple, medium, or complex profile. Words such as “quick” never lower proof depth
+on their own.
 
-### BUILD
+### Evidence-driven PROVE
 
-Execute a graded task board. Work stays inline by default; spawning is reserved for jams, two or
-more independent tasks, or context pressure. Parallel work requires explicit contracts.
+Riff selects static checks, tests, acceptance verification, secret scanning, diff review, and live
+QA according to depth. Completion comes from executed evidence, not a model saying it is done.
 
-### PROVE
+### Cycle commit anchors
 
-Run the proof tier selected by depth:
+Each verified Cycle creates a `cycle-N:` commit. If repeated failures require a rewind, Riff first
+preserves the evidence and then returns to a known anchor.
 
-- Tier 0: canvas lint and mechanical consistency
-- Tier 1: syntax, static checks, and focused tests
-- Tier 2: behavior, acceptance, secret scan, and diff review
-- Tier 3: live application and browser-based QA when applicable
+### DROP and TUNE
 
-Each cycle gets one Critical/Minor diff review. A Critical result blocks LEARN.
+- **DROP:** land an experiment through merge, keep, or discard
+- **TUNE:** prune accumulated decisions, rules, and context after several Cycles
 
-### LEARN
+They are event stages, not mandatory ceremony in every Cycle.
 
-Deduplicate lessons, verify bug antibodies red-to-green, update CANVAS, obtain an
-approve/request-changes verdict, and create a `cycle-N:` commit anchor. `.riff/state.json` stores
-the current cycle and last anchor.
+### Optional companions
 
-## Event stages
-
-- **DROP:** choose merge, PR, keep, or discard; clean worktrees; run security checks and canaries.
-- **TUNE:** review every three to five cycles, after rewinds, or after no-progress signals; prune
-  stale decisions and consolidate antibodies.
-
-## Companions and fallbacks
-
-Riff can use `ralph-loop`, Codex cross-checks, or ECC plan-canvas, but none is required. Every
-companion has a built-in fallback: manual retry, inline review, or a terminal verdict prompt.
-
-## Hooks
-
-Riff ships one optional Claude Code hook:
-
-| File | Event | Purpose |
-|---|---|---|
-| `hooks/session-start-canvas.sh` | SessionStart | Inject at most 12 STATUS lines when CANVAS exists |
-
-It does not run for every command, does not modify CANVAS, and is not automatically wired into
-Codex. See [hooks/README.md](hooks/README.md).
+Riff works without external companions. When available they strengthen adversarial review or retry
+loops; otherwise the workflow uses inline fallbacks. Inside Codex, Riff does not re-run
+Claude-specific companion installation.
 
 ## Benchmarks
 
 ```bash
 cd benchmarks
 
-# Existing quality fixtures, no model call
+# Check the existing pipeline without API calls
 ./run-benchmark.sh --dry-run
 
-# Deterministic speed-tax calculation
+# Evaluate wall-clock overhead against the default 15% budget
 ./run-speed-tax.sh --baseline-ms 1000,1050,1100 --riff-ms 1100,1150,1200
 
-# Repeated depth decisions from stored outputs
+# Score repeated depth decisions from stored outputs
 ./run-depth-reproducibility.sh --outputs-dir ./saved-depth-outputs --repetitions 3
 ```
 
-The speed budget is a median wall-clock overhead of at most 15%. Depth reproducibility requires
-every run to satisfy the ground truth and all repeated runs to choose the same profile. See
-[benchmarks/README.md](benchmarks/README.md).
+See [benchmarks/README.md](benchmarks/README.md) for live command integration and result formats.
 
-## Project structure
+## Repository structure
 
 ```text
 riff/
-├── .claude-plugin/              Claude marketplace metadata
+├── .claude-plugin/              Claude Code plugin metadata
 ├── .codex-plugin/plugin.json    Codex plugin manifest
 ├── .agents/plugins/             local Codex marketplace
 ├── skills/riff/
 │   ├── SKILL.md                 workflow entry point
-│   └── references/              FRAME through LEARN, events, proof, contracts
-├── hooks/                       optional SessionStart hook and installer
+│   └── references/              stage-specific rules
+├── hooks/                       optional SessionStart hook
 ├── benchmarks/                  fixtures, scorers, and runners
 └── README.md / README.en.md
 ```
 
+Read [`skills/riff/SKILL.md`](skills/riff/SKILL.md) and
+[`skills/riff/references/`](skills/riff/references/) for implementation details.
+
 ## Requirements
 
 - Claude Code or Codex
-- Python 3.9+ and jq for benchmark tooling
-- Playwright MCP only when Tier 3 live QA requires it
+- Python 3.9+ and jq for benchmarks
+- Whatever build, test, or browser tools the target project actually uses
 
 ## License
 
-MIT
+[MIT](LICENSE)

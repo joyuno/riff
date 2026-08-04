@@ -1,246 +1,193 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/⚡_RIFF-Right_Questions,_Right_Products-blueviolet?style=for-the-badge&labelColor=1a1a2e&color=7B2FF7&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0yMiAxMmgtNGwtMyA5TDkgM2wtMyA5SDIiLz48L3N2Zz4=" />
-    <img alt="Riff Banner" src="https://img.shields.io/badge/⚡_RIFF-Right_Questions,_Right_Products-blueviolet?style=for-the-badge&labelColor=1a1a2e&color=7B2FF7&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPjxwYXRoIGQ9Ik0yMiAxMmgtNGwtMyA5TDkgM2wtMyA5SDIiLz48L3N2Zz4=" />
-  </picture>
+  <img src="https://img.shields.io/badge/RIFF-Right_Questions,_Right_Products-7B2FF7?style=for-the-badge" alt="Riff">
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-1.0.0-brightgreen.svg" alt="Version">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"></a>
-  <img src="https://img.shields.io/badge/Claude_Code-Plugin-purple.svg" alt="Claude Code Plugin">
-  <img src="https://img.shields.io/badge/Canvas-Single_SSOT-orange.svg" alt="Single SSOT Canvas">
-  <img src="https://img.shields.io/badge/Contracts-8_Types-blue.svg" alt="8 Contract Types">
-  <img src="https://img.shields.io/badge/QA-Tier_0~3_+_Playwright-red.svg" alt="Tier 0-3 QA">
-  <a href="https://github.com/joyuno/riff/stargazers"><img src="https://img.shields.io/github/stars/joyuno/riff?style=social" alt="GitHub Stars"></a>
+  <a href="https://github.com/joyuno/riff/releases/tag/v1.0.0"><img src="https://img.shields.io/badge/version-1.0.0-brightgreen" alt="v1.0.0"></a>
+  <img src="https://img.shields.io/badge/Claude_Code-supported-purple" alt="Claude Code">
+  <img src="https://img.shields.io/badge/Codex-supported-black" alt="Codex">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT"></a>
 </p>
 
-<p align="center">
-  <b>올바른 질문이 올바른 제품을 만든다.</b><br>
-  <sub>Right questions, right products.</sub>
-</p>
-
----
-
-# Riff
-
-**질문이 캔버스를 채운다.** Riff는 FRAME → SHAPE → BUILD → PROVE → LEARN 사이클을 빠르게 반복하며, 매 사이클마다 작동하는 결과물과 살아있는 `CANVAS.md`를 남기는 Question-Driven 개발 루프입니다. 마일스톤에서는 DROP(랜딩), 정체·되감기 후에는 TUNE(조율) 이벤트가 사이클 밖에서 개입합니다.
+<p align="center"><strong>질문이 캔버스를 채운다.</strong><br>Right questions, right products.</p>
 
 **한국어** | [English](README.en.md)
 
-코드를 잘 짜는 건 AI가 합니다. 하지만 **"무엇을 만들어야 하는가"는 여전히 사람의 머릿속에 있습니다.**
+# Riff
 
-## Why Riff?
+Riff는 모호한 앱·MVP·자동화 아이디어를 질문으로 구체화하고, 실제로 작동하는
+결과물까지 반복해서 만드는 개발 workflow입니다. Claude Code와 Codex에서 사용할 수
+있으며, 모든 결정과 진행 상태를 Living `CANVAS.md` 한 장에 남깁니다.
 
-AI가 아무리 뛰어나도, **질문이 잘못되면 결과도 잘못됩니다.**
-
-```
-질문 없이:  "쇼핑몰 만들어줘"
-            → AI가 알아서 만듦 → 내가 원하던 게 아님 → 처음부터 다시
-
-질문과 함께: "누가 쓰나? 핵심 문제가 뭔가? 성공 기준은?"
-            → 내가 진짜 원하는 게 명확해짐 → AI가 정확히 만듦 → 완성
+```text
+FRAME → SHAPE → BUILD → PROVE → LEARN
 ```
 
-> 문제는 AI의 능력이 아닙니다. **당신의 머릿속에 있는 것을 꺼내는 과정**이 빠져 있었을 뿐입니다.
+대화 기록이 길어지거나 세션을 다시 시작해도 CANVAS를 읽으면 현재 상태와 다음 행동을
+바로 알 수 있습니다.
 
-세션이 끊겨도 `CANVAS.md`만 읽으면 재시작됩니다:
-```
-STATUS       → 현재 Cycle · 진행도 · 다음 액션 한눈에
-[1]~[5]      → 문제·결정·계약·검증·항체가 지도로 압축, 전문은 detail/·contracts/에
-```
+## 3분 Quick Start
 
-## 사이클
+### Claude Code
 
-```mermaid
-flowchart LR
-  F[FRAME] --> S[SHAPE] --> B[BUILD] --> P[PROVE] --> L[LEARN]
-  L -->|다음 사이클| F
-  L -.->|3~5사이클·rewind 후| T[TUNE]
-  L -->|마일스톤| D[DROP]
-```
-
-## Quick Start
-
-```shell
+```text
 /plugin marketplace add joyuno/riff
 /plugin install riff@joyuno-riff
 ```
 
-Claude Code에서 바로 사용:
+설치 후 새 대화에서:
 
+```text
+riff를 사용해서 이 아이디어를 제품으로 만들어줘.
 ```
-"프로젝트 시작해줘"
-"쇼핑몰 MVP 만들어줘"
-"riff로 시작"
-"앱 만들어줘"
+
+### Codex
+
+저장소를 로컬 marketplace로 등록하고 설치합니다.
+
+```bash
+codex plugin marketplace add .
+codex plugin add riff@joyuno-riff-local
 ```
+
+설치 후에는 새 Codex thread를 열어주세요. 예:
+
+```text
+Riff로 새 프로젝트를 시작해. 아이디어는 영상 편집 자동화야.
+```
+
+### 선택적 Claude Code hook
+
+```bash
+bash hooks/install.sh
+```
+
+설치되는 것은 `session-start-canvas.sh` 하나입니다. Claude Code 세션을 시작하거나
+재개할 때 CANVAS의 STATUS를 한 번 복원하며, **명령이나 파일 수정마다 실행되지
+않습니다.** Codex에는 이 Claude 전용 hook을 자동 등록하지 않습니다.
+
+자세한 내용: [hooks/README.md](hooks/README.md)
+
+## 어떻게 작동하나요?
+
+| 단계 | 하는 일 | 남는 결과 |
+|---|---|---|
+| **FRAME** | 사용자·문제·제약·성공 기준을 질문으로 확정 | 가정과 acceptance |
+| **SHAPE** | 가능한 방향과 트레이드오프를 비교 | 선택한 접근과 결정 로그 |
+| **BUILD** | 작은 작업 단위로 구현 | 실행 가능한 결과물 |
+| **PROVE** | 테스트·행동 검증·diff review | 통과/실패 증거 |
+| **LEARN** | 교훈과 재발 방지 규칙을 기록 | 다음 Cycle과 commit anchor |
+
+한 번에 완벽하게 만드는 대신 짧은 Cycle을 반복합니다. 실패하면 무작정 재시도하지
+않고 FRAME 또는 SHAPE로 돌아가 잘못된 가정부터 수정합니다.
+
+### Living CANVAS.md
+
+Riff 프로젝트의 재시작 지점은 `_workspace/CANVAS.md`입니다.
+
+```text
+STATUS       현재 Cycle·단계·활성 가정·다음 행동
+[1] FRAME    문제와 성공 기준
+[2] SHAPE    선택한 방향과 결정
+[3] BUILD    작업 보드와 계약 상태
+[4] PROVE    검증 결과와 증거
+[5] LEARN    교훈과 다음 Cycle
+```
+
+긴 조사와 계약은 `_workspace/detail/`, `_workspace/contracts/`로 분리해 CANVAS는
+항상 짧고 최신 상태로 유지합니다.
+
+## 언제 사용하나요?
+
+**잘 맞는 작업**
+
+- 새 웹앱·모바일 앱·MVP
+- 업무 자동화와 AI pipeline
+- 요구사항이 아직 모호한 신규 제품
+- 여러 외부 API와 데이터 흐름을 연결하는 프로젝트
+- 구현뿐 아니라 검증과 학습까지 반복해야 하는 작업
+
+**굳이 사용하지 않아도 되는 작업**
+
+- 오타 수정
+- 원인이 명확한 작은 버그
+- 범위가 확정된 단일 함수 변경
+- 설명이나 코드 리뷰만 필요한 요청
+
+이런 작은 작업에서는 일반적인 Claude Code/Codex workflow가 더 빠릅니다.
 
 ## 핵심 기능
 
-### 1. Living Canvas — `_workspace/CANVAS.md`
+### Adaptive depth
 
-```
-현재 사이클만 상세히. 스테이지 종료 시 해당 섹션 갱신. 섹션 상한 초과 시
-오래된 내용은 detail/로 내리고 링크만 남긴다. 완료 사이클은 1줄 요약으로 접는다.
-아키텍처·플로우·상태머신은 mermaid 블록으로 그린다.
-이 문서의 쓰기는 메인 루프 단독(single-writer) — 서브에이전트는 detail/·contracts/·태스크 보드에만 기록.
-```
+요구 명확성·외부 의존·보안·실패 비용 등 8개 신호로 작업을 단순/보통/복잡으로
+분류합니다. “빠르게”, “간단히” 같은 표현만으로 검증 단계를 줄이지 않습니다.
 
-> 캔버스는 지도, `detail/`·`contracts/`는 영토 — 세부는 필요할 때만 펼쳐본다.
+### 증거가 남는 PROVE
 
-### 2. Adaptive Depth — 8신호로 깊이 자동 조정
+작업 깊이에 맞춰 정적 검사, 테스트, acceptance, secret scan, diff review, live QA를
+선택합니다. 모델의 “완료했습니다”가 아니라 실행 결과로 완료를 판단합니다.
 
-사이클 시작 시 8가지 신호를 가중치 없이 개수만 셉니다 — 같은 패턴이 이전에 검증됐는지, 요구사항이 명시적인지, 유사 도메인의 표준 패턴이 있는지, 성공 기준을 측정할 수 있는지, 요구가 모호하지 않은지, 같은 영역에서 되감은 적이 없는지, 외부 의존이 낮은지, 트레이드오프 분석이 끝났는지를 봅니다.
+### Cycle commit anchor
 
-| 체크 수 | 프로파일 | 동작 |
-|---|---|---|
-| 6+/8 | 단순 | 가정 선언(FRAME 스킵) → SHAPE 스킵 → PROVE-lite(Tier 0+2) |
-| 4~5/8 | 보통 | FRAME 2문항 → PROVE Tier 0~2 + 인라인 diff-review |
-| <4/8 | 복잡 | 풀 스테이지 + 잼 + Tier 0~3 + 독립 diff-review |
+각 Cycle의 검증된 상태를 `cycle-N:` commit으로 남깁니다. 실패가 누적되면 변경 증거를
+보존한 뒤 이전 anchor로 안전하게 되돌아갈 수 있습니다.
 
-사용자가 "가볍게" / "꼼꼼하게"로 강제 오버라이드할 수 있습니다.
+### DROP과 TUNE
 
-### 3. 모델 라우팅 — 등급별 스폰
+- **DROP:** 실험 결과를 merge/keep/discard하고 안전하게 착륙
+- **TUNE:** 여러 Cycle 뒤 쌓인 결정·규칙·컨텍스트를 정리
 
-| 등급 | 모델 | 용도 |
-|---|---|---|
-| core | `opus` | BUILD 병렬 핵심 태스크, SHAPE 잼 |
-| support | `sonnet` | BUILD 병렬 지원 태스크, PROVE Tier 3 · diff-review |
-| trivial | `haiku` | BUILD 병렬 사소한 태스크 |
+둘 다 매 Cycle의 필수 절차가 아니라 필요할 때만 실행됩니다.
 
-스폰은 잼 · 병렬 태스크 ≥2 · 컨텍스트 압박일 때만 정당화됩니다 — 그 외 순차 작업은 메인 루프 인라인 실행이 기본입니다.
+### 선택적 companion
 
-### 4. 잼 · 이벤트 스테이지
+Riff는 외부 companion이 없어도 동작합니다. 사용할 수 있으면 대립 검토나 반복 검증을
+강화하고, 없으면 인라인 fallback으로 계속 진행합니다. Codex 안에서는 Claude 전용
+companion 설치를 다시 묻지 않습니다.
 
-**잼(Jam)**: SHAPE에서 트레이드오프가 불명확하면 대안마다 격리 worktree에서 에이전트가 동시에 PoC를 시도합니다. 결정은 CANVAS [2]에 1행 + detail/ 링크로 남습니다.
+## 벤치마크
 
-**DROP**(랜딩): 잼 병합 · 성공 기준 달성 · 사용자 요청 시 발동. 랜딩 메뉴(merge/PR/keep/discard), worktree 정리, 보안 딥스캔, 카나리 체크를 수행합니다.
+```bash
+cd benchmarks
 
-**TUNE**(조율): 3~5사이클마다 · 되감기 직후 · 진행 정체 시 발동. 코드-캔버스 재대조(스톡테이크), 데드코드 제거(가드닝), 항체(한 번 겪은 버그를 재발 방지 체크로 저장하는 메모리) 정리를 수행합니다.
+# API 호출 없이 기존 pipeline 점검
+./run-benchmark.sh --dry-run
 
-## Companions
+# Riff 적용 전후 wall-clock 오버헤드 판정 (기본 예산 15%)
+./run-speed-tax.sh --baseline-ms 1000,1050,1100 --riff-ms 1100,1150,1200
 
-Riff는 단독으로 전 기능 동작하지만, 다음 컴패니언이 있으면 자동으로 강화됩니다.
-
-| 컴패니언 | 설치 | 효과 |
-|---|---|---|
-| [`ralph-loop`](https://github.com/anthropics/claude-code-plugins) | `/plugin install ralph-loop@anthropic` | PROVE 실패 시 통과까지 자동 수정 루프 |
-| [`codex`](https://github.com/openai/codex-plugin-cc) | `/plugin marketplace add openai/codex-plugin-cc` + `/plugin install codex@openai-codex` | SHAPE 대립 검토, diff-review cross-check |
-| `ecc-plan-canvas` | `npm install -g ecc-universal` | verdict 게이트 브라우저 리뷰(요소 앵커 주석 + 판정) |
-
-컴패니언이 없어도 전 기능이 동작합니다 — 네이티브 폴백이 그 자리를 대신합니다. ralph-loop가 없으면 자체 재시도 후 에스컬레이션으로, codex가 없으면 잼에 반대 관점 에이전트를 추가하는 방식으로, plan-canvas가 없으면 터미널 구조화 질문(approve/request-changes)으로 대체됩니다. 첫 호출 시 누락된 컴패니언을 한 번 물어 자동 설치합니다(Install / Skip / Skip all).
-
-## Use Cases — Try These Prompts
-
-Riff 설치 후 Claude Code에서 바로 사용:
-
-**E-Commerce MVP**
-```
-쿠팡 스타일의 주문 관리 대시보드를 만들어줘.
-판매자가 주문 확인, 배송 처리, 환불 관리를 할 수 있어야 해.
+# 저장된 결과로 depth 반복 일관성 채점
+./run-depth-reproducibility.sh --outputs-dir ./saved-depth-outputs --repetitions 3
 ```
 
-**Smart Store Automation**
-```
-네이버 스마트스토어 상품 등록을 자동화하는 도구를 만들어줘.
-엑셀에서 상품 정보를 읽어서 API로 등록하고 가격을 자동 조정하는 시스템.
-```
+실제 모델 명령 연결과 결과 형식은 [benchmarks/README.md](benchmarks/README.md)를
+참고하세요.
 
-**Video Content Pipeline**
-```
-유튜브 숏폼 자동 생성 파이프라인을 만들어줘.
-트렌드 주제 수집 → 대본 생성 → TTS → 자막 → 업로드까지.
-```
+## 저장소 구조
 
-**Quant Trading Bot**
-```
-바이낸스에서 BTC/USDT 모멘텀 전략으로 자동매매하는 봇을 만들어줘.
-백테스트 → 시뮬레이션 → 실거래 순서로 진행하고 리스크 관리 포함.
-```
-
-**AI Agent System**
-```
-RAG 기반 고객 상담 챗봇을 만들어줘.
-회사 문서를 벡터 DB에 넣고, 질문에 답변하되 할루시네이션 방지 가드레일 포함.
-```
-
-## Plugin Structure
-
-```
+```text
 riff/
-├── .claude-plugin/
-│   ├── plugin.json
-│   └── marketplace.json
-│
-├── skills/
-│   └── riff/                                # 단일 스킬 — SSOT 오케스트레이션
-│       ├── SKILL.md                         #   FRAME→SHAPE→BUILD→PROVE→LEARN + 이벤트 스테이지
-│       └── references/
-│           ├── canvas-schema.md             #   CANVAS.md 템플릿 + 운영 규칙
-│           ├── model-routing.md             #   등급별 모델 라우팅
-│           ├── companions.md                #   컴패니언 부트스트랩 + 폴백 매트릭스
-│           ├── frame.md, frame/              #   FRAME — 5-Layer 인터뷰, 도메인, 전문가
-│           ├── shape-jam.md                 #   SHAPE — 잼(worktree 병렬 탐색) 프로토콜
-│           ├── build.md                     #   BUILD — 태스크 보드 + 계약 연동
-│           ├── contracts/                   #   8종 계약 템플릿 + lint + 실수 카탈로그
-│           ├── prove/                       #   PROVE — Tier 0~3 + canvas-lint + diff-review
-│           ├── learn.md, learn/              #   LEARN — 항체 + 프로파일 스키마
-│           ├── drop.md                      #   DROP 이벤트 스테이지
-│           ├── tune.md                      #   TUNE 이벤트 스테이지
-│           ├── rewind-protocol.md           #   3연속 실패 시 되감기
-│           ├── convergence.md               #   수렴 지표
-│           └── ui-stack-guide.md            #   웹앱 UI 스택 확정 가이드
-│
-├── hooks/                                   # 선택적 SessionStart(CANVAS STATUS 복원) 훅 1개
-├── benchmarks/                              # 평가 픽스처 + ground-truth
-├── LICENSE
-└── README.md
+├── .claude-plugin/              Claude Code plugin metadata
+├── .codex-plugin/plugin.json    Codex plugin manifest
+├── .agents/plugins/             local Codex marketplace
+├── skills/riff/
+│   ├── SKILL.md                 workflow 진입점
+│   └── references/              단계별 상세 규칙
+├── hooks/                       선택적 SessionStart hook
+├── benchmarks/                  fixture·scorer·runner
+└── README.md / README.en.md
 ```
 
-### 프로젝트 런타임 디렉토리
+세부 동작은 [`skills/riff/SKILL.md`](skills/riff/SKILL.md)와
+[`skills/riff/references/`](skills/riff/references/)에서 확인할 수 있습니다.
 
-Riff가 동작할 때 사용자 프로젝트에 만들어지는 디렉토리:
+## 요구사항
 
-```
-프로젝트루트/
-├── _workspace/                  # git 추적 — 캔버스 + 계약 + 상세
-│   ├── CANVAS.md                #   유일 SSOT
-│   ├── contracts/                #   8종 계약서 (병렬 빌드 시에만 생성)
-│   └── detail/                   #   인터뷰 전문·잼 결과·검증 상세·domains/
-│
-└── .riff/                       # 학습 메모리 + 세션 상태
-    ├── memory/
-    │   ├── antibodies/           #   git 추적 (팀 공유)
-    │   └── profile.md            #   git 미추적 (.gitignore)
-    └── state.json                #   세션 상태 (.gitignore)
-```
+- Claude Code 또는 Codex
+- benchmark 실행 시 Python 3.9+와 jq
+- 프로젝트가 실제로 사용하는 build/test/browser 도구
 
-## Comparison
+## 라이선스
 
-|  | Harness | OMC | **Riff** |
-|---|---------|-----|-----------|
-| **본질** | 팀을 만든다 | 팀을 굴린다 | **질문이 캔버스를 채운다** |
-| **관점** | 인간 팀 모방 | 인간 워크플로우 | **Question-Driven** |
-| **시간 단위** | Phase (시간~일) | Task (분~시간) | **Cycle (분)** |
-| **설계** | 사전 전체 설계 | 계획→실행 | **점진적 발견** |
-| **QA 시점** | 완성 후 | 완성 후 | **매 사이클 + 커밋 앵커** |
-| **실패 비용** | 높음 | 중간 | **없음 (되감기)** |
-| **학습** | 수동 피드백 | 메모리 수동 | **자동 — 버그 재발 방지(항체)·관례 축적(도메인 brief)** |
-| **조합** | — | — | **Harness/OMC와 함께 사용 가능** |
-
-> Harness = [revfactory/harness](https://github.com/revfactory/harness) (팀 아키텍처 생성기) · OMC = [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) (멀티 에이전트 오케스트레이션)
-
-## Inspired By
-
-- [revfactory/harness](https://github.com/revfactory/harness) — Agent Team & Skill Architect. Riff의 Progressive Disclosure 패턴과 에이전트 팀 설계는 Harness에서 영감을 받았습니다.
-- [affaan-m/ECC](https://github.com/affaan-m/ECC) — plan-canvas 컴패니언의 verdict 게이트(요소 앵커 주석 + approve/request-changes)는 ECC에서 영감을 받았습니다.
-
-## Requirements
-
-- Claude Code CLI
-- Playwright MCP (Tier 3 Live QA 사용 시)
-
-## License
-
-MIT
+[MIT](LICENSE)
