@@ -8,7 +8,7 @@
 
 ### 입력 변수
 - `scale`: Q5 답변 (A=소형/B=중형/C=대형)
-- `timeline`: Q7 답변 (A=2주/B=1-2개월/C=3개월+)
+- `timeline`: Q1 계기 꼬리 답변 (A=2주/B=1-2개월/C=3개월+)
 - `tags`: Q1에서 추출된 태그 목록
 
 ### 매핑 테이블
@@ -40,7 +40,7 @@
 ### 입력 변수
 - `data_type`: Q6 기능 목록에서 추론 (관계형 데이터 vs 문서 vs 시계열 등)
 - `scale`: Q5 답변
-- `tech_stack`: Q8 답변
+- `tech_stack`: Q8 꼬리(기존 도구) 답변
 
 ### 매핑 테이블
 
@@ -65,9 +65,9 @@
 ## 3. 배포/인프라 매핑
 
 ### 입력 변수
-- `tech_stack`: Q8 답변
+- `tech_stack`: Q8 꼬리(기존 도구) 답변
 - `scale`: Q5 답변
-- `timeline`: Q7 답변
+- `timeline`: Q1 계기 꼬리 답변
 - `tags`: Q1 태그
 
 ### 매핑 테이블
@@ -95,7 +95,7 @@
 Riff 에이전트 팀의 수와 구성을 결정합니다.
 
 ### 입력 변수
-- `timeline`: Q7 답변
+- `timeline`: Q1 계기 꼬리 답변
 - `scale`: Q5 답변
 - `tags`: Q1 태그
 - `feature_count`: Q6의 "반드시" 항목 수

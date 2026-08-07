@@ -31,7 +31,7 @@
 
 **Layer 1 (WHY) 필수 태그:**
 - `problem`: 해결하려는 핵심 문제
-- `motivation`: 왜 지금 만드는지
+- `motivation`: 왜 지금 만드는지 (`layers.md` Q1의 forcing_event 후속 질문에서 수집)
 - `impact`: 안 만들면 벌어지는 일
 
 **Layer 2 (WHO) 필수 태그:**
@@ -52,6 +52,18 @@
 **Layer 5 (MEASURE) 필수 태그:**
 - `success_metric`: 성공 측정 기준
 - `measurement_method`: 측정 방법
+
+**게이트 태그 (Layer 무관, 항상 필수):**
+- `money_flow`: 지금 나가는 돈 + 아끼거나 벌 사람 + 그 사람의 결재권 여부 (수집: `layers.md` Q4 꼬리 / `enriched-layers.md` Q3-RoundTable 꼬리)
+- `system_of_record`: 데이터가 지금 실제로 사는 곳 + 이관 필요 여부 (수집: `layers.md` Q8 꼬리 / `enriched-layers.md` Q8-RoundTable)
+- `blast_radius`: 틀린 값이 나갔을 때 누가 알아채고 되돌릴 수 있는가 (수집: `layers.md` Q10 꼬리)
+- `must_not_break`: 이걸 써도 그대로 돌아가야 하는 기존 절차 (수집: `layers.md` Q8 / `enriched-layers.md` Q8-RoundTable)
+
+게이트 태그가 하나라도 비면 종합 충분성은 **60%를 넘을 수 없다**(가중 평균 무관 상한).
+기본값으로 채우지 않는다 — 미수집이면 `frame.md` 스킵 가드와 같은 방식으로
+STATUS에 `미확인 위험: X`로 노출한다. 질문 예산 C/D도 이 상한을 면제받지 않지만
+4개를 한 질문에 묶어 물어도 된다. 단, `frame.md` 단순 depth는 게이트 태그를 면제하고
+보통 depth는 핵심 질문 2개 중 하나에 4개를 묶어 확인한다.
 
 ### 3. 충분성 계산 방법
 
