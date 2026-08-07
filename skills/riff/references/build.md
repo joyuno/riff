@@ -7,6 +7,9 @@
 ## BUILD-PLAN 산출 (태스크 보드)
 
 TaskCreate로 태스크 생성 + CANVAS [3]에 요약 행. 태스크마다:
+- **지식 근거**: core 태스크는 `A-NNN` acceptance와 연결된 `K-NNN`을 기록한다.
+  Knowledge Ledger가 `candidate`·`blocked`·`assumption`인 항목은 태스크로 만들지 않고
+  FRAME으로 돌아간다.
 - **등급**: core(성공 기준 직결) / support(접점이나 대체 가능) / trivial(실패해도 즉시 재시도). 애매하면 상위 등급.
 - **모델**: 등급 판정에 따라 `model-routing.md` 표대로 함께 기입. 순차 태스크는 `-`(= 메인 루프 인라인).
 - **병렬 여부**: 동시 실행 예정인지 (이 값이 계약·스폰 조건의 술어). 아니면 기본값인 메인 루프 인라인 실행(아래 "실행 위치" 참고).
@@ -107,3 +110,4 @@ A/B/C/D 모두 비어있으면 계약 작성을 건너뛴다.
 core 태스크 산출물에 행위 계약 기반 **실행 가능 체크 ≥1개**(테스트 or assertion 스크립트) 포함.
 작성 순서는 자유. 체크는 PROVE Tier 2가 누적 실행.
 FRAME에서 동결된 acceptance check(`detail/acceptance/`)가 이 태스크의 행위를 이미 커버하면 그것으로 갈음하고 중복 작성하지 않는다. 커버되지 않는 행위만 추가 체크 작성 — 두 세트 모두 PROVE Tier 2가 누적 실행.
+구현과 체크 이름에 같은 `A-NNN`을 기록해 Knowledge Ledger까지 역추적할 수 있게 한다.

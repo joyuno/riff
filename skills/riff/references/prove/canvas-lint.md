@@ -1,4 +1,4 @@
-# canvas-lint — Tier 0 기계적 술어 5종
+# canvas-lint — Tier 0 기계적 술어 6종
 
 캔버스↔실상태 일치 검사. 전 depth 프로파일의 PROVE에 포함. 실행 위치: 메인 루프 인라인(grep/parse 수준).
 
@@ -9,5 +9,6 @@
 | 3 | 링크 해소 | CANVAS 안 `detail/`·`contracts/` 링크가 실존 파일 | 죽은 링크 제거·복원 |
 | 4 | 섹션 상한 | STATUS≤10줄, [1]≤30, [2]≤20행, [3]≤30, [4]≤5개, [5]≤15 | "압축 규칙 적용" — 초과분 detail/ 오프로드 |
 | 5 | PROVE 기록 최신성 | [4] 최신 행의 cycle == 현재 cycle | [4] 갱신 지시 |
+| 6 | 지식 추적 | Domain Profile 사용 시 profile/model/ledger 링크 실존 + core `A-NNN`마다 `K-NNN` 연결 + blocked 0 | 누락은 FRAME으로 복귀 |
 
 SessionStart 훅이 재개 시 어긋남을 감지하면 이 lint를 먼저 실행한 후 작업 재개.

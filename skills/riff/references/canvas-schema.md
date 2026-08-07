@@ -18,11 +18,13 @@
 - 현재: Cycle N · <스테이지>
 - 성공 기준 진행도: n/m
 - depth 프로파일: 단순|보통|복잡 (신호 n/8)
+- 도메인 프로파일: <계열 + 위험 overlay> · 지식 blocked n개
 - 활성 가정: <가정 선언 요약 or 없음>
 - 다음 액션: <1줄>
 
 ## [1] FRAME — 문제와 성공 기준             <!-- 상한 30줄 -->
-질문→답 요약 · 핵심 Job · 페르소나 1줄씩 · 측정 가능한 성공 기준
+질문→답 요약 · 핵심 Job · 페르소나 · 측정 가능한 성공 기준
+Domain Profile·Model·Knowledge Ledger 링크와 confirmed/blocked/excluded 개수
 (FRAME 스킵 시 가정 선언 기록 / 상세 → detail/frame-*.md)
 
 ## [2] SHAPE — 결정 로그                    <!-- 상한 20행 -->
@@ -31,7 +33,7 @@
 
 ## [3] BUILD — 계약 + 태스크 보드           <!-- 상한 30줄 -->
 활성 계약 링크 + 1줄 요약
-| 태스크 | 등급 | 모델 | 병렬 | 플래그 | 상태 |
+| 태스크 | 근거 A/K ID | 등급 | 모델 | 병렬 | 플래그 | 상태 |
 
 ## [4] PROVE — 검증 게이트 기록             <!-- 최근 5개 -->
 | cycle | tier | 결과 | diff-review | 에스컬레이션 |
@@ -53,7 +55,7 @@
 _workspace/
 ├─ CANVAS.md      ← 유일 SSOT
 ├─ contracts/     ← 계약서 (병렬 빌드 시에만 생성)
-└─ detail/        ← 인터뷰 전문·잼 결과·검증 상세·domains/<domain>.md
+└─ detail/        ← domain-profile/model·knowledge-ledger·acceptance·검증 상세
 .riff/            ← 항체·프로파일·세션 상태 (기존 유지, .gitignore: profile.md·state.json)
 ```
 

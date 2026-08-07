@@ -9,7 +9,10 @@ description: "신규 프로젝트·앱·MVP를 처음부터 만드는 AI-Native 
 
 - 한 번에 잘 만들지 않는다. 빠르게 많이 시도한다.
 - **CANVAS.md만으로 재시작 가능해야 한다** — 캔버스는 지도, detail/·contracts/는 영토.
-- 질문은 트레이드오프가 있을 때만. 실패는 비용이 아니라 학습이다.
+- 질문은 트레이드오프가 있을 때만. Cycle 0에서는 Domain Research Router로 도메인에
+  맞는 발굴법을 고르고 Exa 조사→Domain Model→Knowledge Ledger→acceptance를 추적한다.
+  사용자 확인 없이 기능으로 추가하지 않는다(`references/frame/domain-intelligence.md`).
+  실패는 비용이 아니라 학습이다.
 - 사이클 핫패스에 세리머니를 더하지 않는다(오버헤드 ≤15% — `benchmarks/` speed-tax로 측정). 무거운 일은 이벤트 스테이지(DROP·TUNE)로.
 
 ## Bootstrap (첫 호출 1회)
@@ -54,7 +57,7 @@ FRAME 복잡 프로파일로 시작(`references/frame.md`) → CANVAS 생성 →
 
 | 스테이지 | 요약 | 세부 |
 |---|---|---|
-| FRAME | 질문·가정 선언으로 문제/성공 기준 확정, verdict 게이트 | `references/frame.md` |
+| FRAME | 도메인 Router·Exa 조사·Knowledge Ledger·재질문으로 성공 기준 확정 | `references/frame.md` |
 | SHAPE | 결정 로그. 트레이드오프 불명확 시 잼(worktree 격리) | `references/shape-jam.md` |
 | BUILD | 태스크 보드(등급·병렬·보안 플래그·도메인 태그) → 병렬 시만 계약 → 구현 | `references/build.md` |
 | PROVE | Tier 0~3 + canvas-lint + diff-review | `references/prove/` |

@@ -235,9 +235,12 @@ Tier 3 진행 가능 여부: YES / NO
 
 ## v1.0 확장 — behavior + acceptance + 시크릿
 
-1. **누적 behavior 검증**: `detail/acceptance/` 동결 체크 + core 태스크 행위 체크 전부 실행 (PROVE-lite에도 포함, PROVE-lite = 단순 depth의 Tier 0+2 축소 실행)
-2. **시크릿 grep 1회**: 하드코딩 키·토큰 패턴 매치 시 FAIL — 예:
+1. **Knowledge trace 검증**: `detail/knowledge-ledger.md`의 core `A-NNN`이 `confirmed`
+   `K-NNN`에 연결됐는지 확인한다. `candidate`·`blocked`·`assumption`만 근거인 구현은
+   FAIL하고 FRAME으로 되돌린다.
+2. **누적 behavior 검증**: `detail/acceptance/` 동결 체크 + core 태스크 행위 체크 전부 실행 (PROVE-lite에도 포함, PROVE-lite = 단순 depth의 Tier 0+2 축소 실행)
+3. **시크릿 grep 1회**: 하드코딩 키·토큰 패턴 매치 시 FAIL — 예:
    ```bash
    grep -riEn "(api[_-]?key|secret|token|password)[[:space:]]*[:=][[:space:]]*['\"][A-Za-z0-9_-]{16,}" src/ app/ lib/ 2>/dev/null
    ```
-3. 실행 위치: 메인 루프 인라인(bash 직접 호출) — 서브에이전트 스폰 금지
+4. 실행 위치: 메인 루프 인라인(bash 직접 호출) — 서브에이전트 스폰 금지
