@@ -3,12 +3,12 @@
     "id": "fixture-reviews",
     "critical": true,
     "passed": true,
-    "evidence": "review items visible=12"
+    "evidence": "review items visible=5"
   },
   {
     "id": "sentiment-theme",
     "critical": true,
-    "passed": true,
+    "passed": false,
     "evidence": "sentiment and theme text visible"
   },
   {

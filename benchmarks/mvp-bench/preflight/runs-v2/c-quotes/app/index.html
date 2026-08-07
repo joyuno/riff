@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>견적 관리</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app">
+  <header class="app-header">
+    <h1>견적 관리</h1>
+    <div class="summary">
+      <span class="summary-label">예상 매출 (승인됨 합계)</span>
+      <span class="summary-value" id="approvedTotal">0원</span>
+    </div>
+    <button id="newQuoteBtn" class="btn btn-primary" type="button">+ 새 견적</button>
+  </header>
+
+  <main>
+    <div class="table-wrap">
+      <table class="quote-table">
+        <thead>
+          <tr>
+            <th>고객</th>
+            <th>합계</th>
+            <th>상태</th>
+            <th>유효기간</th>
+            <th>작업</th>
+          </tr>
+        </thead>
+        <tbody id="quoteList"></tbody>
+      </table>
+    </div>
+    <p id="emptyState" class="empty-state" hidden>아직 견적이 없어요. "+ 새 견적"으로 시작해보세요.</p>
+  </main>
+</div>
+
+<!-- 견적 작성/수정 -->
+<dialog id="formDialog">
+  <form id="quoteForm">
+    <h2 id="formTitle">새 견적</h2>
+
+    <label class="field">
+      <span>고객명 *</span>
+      <input type="text" id="clientInput" required>
+    </label>
+
+    <label class="field">
+      <span>연락처 (전화 또는 이메일)</span>
+      <input type="text" id="contactInput">
+    </label>
+
+    <label class="field">
+      <span>유효기간 (발행일로부터 며칠)</span>
+      <input type="number" id="validDaysInput" min="1" step="1" value="14">
+    </label>
+
+    <div class="items-block">
+      <div class="items-header">
+        <span>항목</span>
+        <button type="button" id="addItemRow" class="btn-link">+ 항목 추가</button>
+      </div>
+      <div id="itemRows"></div>
+    </div>
+
+    <p class="form-total">합계: <strong id="formTotal">0원</strong></p>
+    <p class="form-error" id="formError" hidden></p>
+
+    <div class="dialog-actions">
+      <button type="button" id="cancelForm">취소</button>
+      <button type="submit" class="btn btn-primary">저장</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- 발송 전 확인 -->
+<dialog id="previewDialog">
+  <h2>발송 전 확인</h2>
+  <p class="hint">고객에게 나갈 내용이 맞는지 마지막으로 확인해주세요.</p>
+  <div id="previewContent" class="preview-content"></div>
+  <div class="dialog-actions">
+    <button type="button" id="previewCancel">취소</button>
+    <button type="button" id="previewConfirm" class="btn btn-primary">확인, 발송함으로 표시</button>
+  </div>
+</dialog>
+
+<!-- 수정 이력 -->
+<dialog id="historyDialog">
+  <h2>수정 이력</h2>
+  <ul id="historyList" class="history-list"></ul>
+  <div class="dialog-actions">
+    <button type="button" id="historyClose">닫기</button>
+  </div>
+</dialog>
+
+<!-- 인쇄 전용 영역: 평소엔 화면에 안 보이고, 인쇄 시 이 영역만 보인다 -->
+<div id="printArea"></div>
+
+<script src="calc.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

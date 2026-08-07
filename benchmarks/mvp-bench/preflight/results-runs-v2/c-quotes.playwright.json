@@ -1,0 +1,56 @@
+[
+  {
+    "id": "line-items",
+    "critical": true,
+    "passed": true,
+    "evidence": "quantity and unit-price inputs present"
+  },
+  {
+    "id": "vat-total",
+    "critical": true,
+    "passed": false,
+    "evidence": "supply, VAT and total visible"
+  },
+  {
+    "id": "status-change",
+    "critical": true,
+    "passed": true,
+    "evidence": "four statuses present"
+  },
+  {
+    "id": "search-filter",
+    "critical": true,
+    "passed": false,
+    "evidence": "customer or status filter present"
+  },
+  {
+    "id": "revenue-summary",
+    "critical": true,
+    "passed": true,
+    "evidence": "expected and approved revenue visible"
+  },
+  {
+    "id": "persistence",
+    "critical": true,
+    "passed": true,
+    "evidence": "quote retained after reload"
+  },
+  {
+    "id": "print-view",
+    "critical": true,
+    "passed": true,
+    "evidence": "print media rule present"
+  },
+  {
+    "id": "mobile-390",
+    "critical": false,
+    "passed": true,
+    "evidence": "horizontal overflow=False"
+  },
+  {
+    "id": "research-evidence",
+    "critical": true,
+    "passed": true,
+    "evidence": "source links=7"
+  }
+]

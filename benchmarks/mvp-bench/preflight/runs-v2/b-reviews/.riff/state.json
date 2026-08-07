@@ -1,0 +1,5 @@
+{
+  "cycle": 0,
+  "last_anchor": null,
+  "note": "커밋 앵커 생략 — benchmarks/mvp-bench/는 여러 run이 공유하는 워킹트리라 git add -A 위험 있음 (CANVAS.md [5] 참고)"
+}
