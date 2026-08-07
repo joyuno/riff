@@ -82,3 +82,39 @@ README.md  전면 재작성(mermaid, 단일 설치, PNG 제거)
 - Codex 호출 시 `--model`/`--effort` 플래그 미지정(최신 기본값 사용) — 리포 자체 정책이기도 함
 - `docs/superpowers/`·`exa-results/`는 역사 기록 — 용어 sweep 대상 제외
 - 스펙 수정 시 반드시 관련 references 파일과 교차 정합 확인 (이번 세션 결함 대부분이 문서 간 불일치였음)
+
+---
+
+# 2026-08-07 추가 세션 (Claude Code)
+
+## 완료
+
+1. **Codex 세션 미커밋 산출물 정리** — 도메인 인텔리전스 전체(Router·Domain Model·Knowledge Ledger·K→A 게이트), MVP Bench 하네스, 프로젝트 지침 문서를 3커밋으로 분리 커밋. 테스트 3종 PASS.
+2. **graphify 갱신** — Codex sandbox 권한 오류였던 것이 로컬에서는 정상. 1258 노드/1278 엣지.
+3. **Playwright grader 차단 해제** — `grader/riff_preflight_playwright.py`가 로컬에서 실행되고 결과 JSON이 커밋본과 byte-identical 재현. `BROWSER-BLOCKER.md`에 재검증 기록 추가.
+   - baseline(도메인 인텔리전스 이전): a-salon 4/8, b-reviews 6/8, c-quotes 5/9. **critical 실패 8건 전부 실무 요구사항 누락**(합계·상태 전이·지속성·인쇄)이지 코드 버그가 아님.
+4. **FRAME 질문 체계 개편 (방향 2)** — 커밋 `958201e`. 아래 참조.
+
+## FRAME 개편 내용
+
+근거: 외부 2레포(addyosmani/agent-skills, mattpocock/skills) + riff 자체 감사 + 로컬 경쟁 스킬(OMC deep-interview·GSD·superpowers) + 실무 질문법 웹조사, 5방향 병렬 리서치.
+
+진단한 근본 원인 4개:
+- 질문이 방법론(JTBD·Mom Test)에서 연역돼 도메인 중립 → `domains/*.md`의 🔴 리스크가 참고표로만 존재
+- 위험 Router가 인터뷰 **뒤에** 돌아 질문에 반영되지 않음
+- 충분성 태그 14개에 돈·데이터 거처·되돌림·기존 절차가 없음 → 안 물어도 100%
+- 되묻기 규칙이 Layer 2에만 존재 → 첫 답을 그대로 수용
+
+적용:
+- 게이트 태그 4종 신설, 미수집 시 충분성 60% 상한 (종료 조건 70%)
+- Router 2패스 분리 — 1차(계열·overlay 판정)는 Layer 1~2 직후, 2차(Exa 조사)는 종전대로 인터뷰 뒤
+- 질문 12개 교체, 순증 턴 **net −1** (Q7 폐지가 신규 2턴 상쇄)
+- 프레임워크 이름 사용자 출력 전면 제거 (내부 설계 근거 블록은 유지)
+
+검증 2라운드에서 blocking 2건(게이트 태그 선언만 하고 수집 질문 부재 → 60% 상한 때문에 종료 조건 도달 불가) 포함 9건 수정.
+
+## 다음
+
+- **human pilot** — K-ID → A-ID → 구현 → Playwright 전체 trace 검증. 브라우저 어댑터는 이제 실행 가능하나 성공/실패 fixture 대조는 미완(`plans/2026-08-06-human-pilot-harness.md` 미체크 4건).
+- 개편된 질문으로 preflight 재실행 → baseline 대비 critical 실패 감소 측정 (개편 효과의 유일한 객관 증거)
+- push + v1.x 태그 (사용자 확인 대기, 미푸시 9커밋)
