@@ -1,0 +1,50 @@
+[
+  {
+    "id": "fixture-reviews",
+    "critical": true,
+    "passed": true,
+    "evidence": "review cards visible"
+  },
+  {
+    "id": "sentiment-theme",
+    "critical": true,
+    "passed": true,
+    "evidence": "sentiment and theme text visible"
+  },
+  {
+    "id": "filters",
+    "critical": true,
+    "passed": true,
+    "evidence": "select filters=2"
+  },
+  {
+    "id": "processing-status",
+    "critical": true,
+    "passed": false,
+    "evidence": "workflow status options present"
+  },
+  {
+    "id": "summary",
+    "critical": true,
+    "passed": true,
+    "evidence": "review summary visible"
+  },
+  {
+    "id": "persistence",
+    "critical": true,
+    "passed": false,
+    "evidence": "status persistence requires a status control"
+  },
+  {
+    "id": "mobile-390",
+    "critical": false,
+    "passed": true,
+    "evidence": "horizontal overflow=False"
+  },
+  {
+    "id": "research-evidence",
+    "critical": true,
+    "passed": true,
+    "evidence": "source links=3"
+  }
+]

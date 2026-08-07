@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "critical", "passed", "evidence"],
+    "properties": {
+      "id": { "type": "string", "minLength": 1 },
+      "critical": { "type": "boolean" },
+      "passed": { "type": "boolean" },
+      "evidence": { "type": "string", "minLength": 1 }
+    }
+  }
+}
