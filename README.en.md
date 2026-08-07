@@ -72,7 +72,7 @@ Details: [hooks/README.md](hooks/README.md)
 
 | Stage | What happens | What remains |
 |---|---|---|
-| **FRAME** | Clarify users, problem, constraints, and success | Assumptions and acceptance |
+| **FRAME** | Use Exa research and follow-up questions to clarify users, missing needs, constraints, and success | Evidence, assumptions, and acceptance |
 | **SHAPE** | Compare viable directions and trade-offs | Selected approach and decision log |
 | **BUILD** | Implement in small, explicit tasks | Working software |
 | **PROVE** | Run tests, behavior checks, and diff review | Pass/fail evidence |
@@ -117,6 +117,19 @@ CANVAS compact and current.
 For small tasks, the normal Claude Code or Codex workflow is faster.
 
 ## Core capabilities
+
+### Domain Intelligence
+
+Riff does not use one generic search method for clinical, legal, operational, SaaS, creative, and
+AI work. Its Domain Research Router selects an evidence method from the domain's knowledge family,
+risk, jurisdiction, and freshness needs.
+
+Exa findings become a Domain Model of actors, jobs, artifacts, lifecycle, rules, and exceptions.
+A Knowledge Ledger records evidence state and preserves the trace from confirmed knowledge to
+acceptance, implementation, and PROVE. Search findings never become features automatically.
+
+The bundled Exa MCP starts with its keyless free path. If it is unavailable or rate-limited, Riff
+falls back to the host's web search instead of stopping the beginner flow for signup.
 
 ### Adaptive depth
 
@@ -170,6 +183,7 @@ See [benchmarks/README.md](benchmarks/README.md) for live command integration an
 riff/
 ├── .claude-plugin/              Claude Code plugin metadata
 ├── .codex-plugin/plugin.json    Codex plugin manifest
+├── .mcp.json                    bundled Exa search
 ├── .agents/plugins/             local Codex marketplace
 ├── skills/riff/
 │   ├── SKILL.md                 workflow entry point
@@ -185,6 +199,7 @@ Read [`skills/riff/SKILL.md`](skills/riff/SKILL.md) and
 ## Requirements
 
 - Claude Code or Codex
+- Internet access for requirement discovery (host search is the Exa fallback)
 - Python 3.9+ and jq for benchmarks
 - Whatever build, test, or browser tools the target project actually uses
 

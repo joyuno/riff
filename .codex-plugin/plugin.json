@@ -11,6 +11,7 @@
   "license": "MIT",
   "keywords": ["riff", "product-development", "canvas", "adaptive-depth", "qa"],
   "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Riff",
     "shortDescription": "Right questions, right products.",

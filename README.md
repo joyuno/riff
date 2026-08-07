@@ -72,7 +72,7 @@ bash hooks/install.sh
 
 | 단계 | 하는 일 | 남는 결과 |
 |---|---|---|
-| **FRAME** | 사용자·문제·제약·성공 기준을 질문으로 확정 | 가정과 acceptance |
+| **FRAME** | Exa 조사와 재질문으로 사용자·문제·빠진 요구·성공 기준을 확정 | 근거, 가정과 acceptance |
 | **SHAPE** | 가능한 방향과 트레이드오프를 비교 | 선택한 접근과 결정 로그 |
 | **BUILD** | 작은 작업 단위로 구현 | 실행 가능한 결과물 |
 | **PROVE** | 테스트·행동 검증·diff review | 통과/실패 증거 |
@@ -117,6 +117,19 @@ STATUS       현재 Cycle·단계·활성 가정·다음 행동
 이런 작은 작업에서는 일반적인 Claude Code/Codex workflow가 더 빠릅니다.
 
 ## 핵심 기능
+
+### Domain Intelligence
+
+Riff는 의료·법률·현장 운영·SaaS·콘텐츠·AI처럼 서로 다른 도메인에 같은 검색법을
+적용하지 않습니다. Domain Research Router가 도메인의 지식 계열·위험·관할을 판정하고,
+그에 맞는 출처와 발굴법을 선택합니다.
+
+Exa로 찾은 내용은 역할·업무·데이터·상태·규칙·예외의 Domain Model로 바꾸고 Knowledge
+Ledger에 근거 상태를 기록합니다. 검색 결과를 기능으로 몰래 추가하지 않으며, 사용자가
+확인한 지식만 `Knowledge → acceptance → 구현 → PROVE`로 추적됩니다.
+
+번들 Exa MCP는 API 키 없는 무료 경로를 기본으로 사용합니다. 무료 한도에 걸리거나 연결할
+수 없으면 Claude Code/Codex의 웹 검색으로 폴백하며, 가입 때문에 작업을 멈추지 않습니다.
 
 ### Adaptive depth
 
@@ -170,6 +183,7 @@ cd benchmarks
 riff/
 ├── .claude-plugin/              Claude Code plugin metadata
 ├── .codex-plugin/plugin.json    Codex plugin manifest
+├── .mcp.json                    bundled Exa search
 ├── .agents/plugins/             local Codex marketplace
 ├── skills/riff/
 │   ├── SKILL.md                 workflow 진입점
@@ -185,6 +199,7 @@ riff/
 ## 요구사항
 
 - Claude Code 또는 Codex
+- 요구사항 발굴을 위한 인터넷 연결(Exa 실패 시 호스트 검색으로 폴백)
 - benchmark 실행 시 Python 3.9+와 jq
 - 프로젝트가 실제로 사용하는 build/test/browser 도구
 
