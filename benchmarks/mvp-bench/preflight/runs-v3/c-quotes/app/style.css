@@ -1,0 +1,187 @@
+:root {
+  --bg: #f7f5f2;
+  --panel: #ffffff;
+  --text: #2a2a2a;
+  --muted: #6b6b6b;
+  --border: #e2ddd6;
+  --accent: #a8763e;
+  --accent-contrast: #ffffff;
+  --danger: #b3441f;
+  --draft: #8d8d8d;
+  --sent: #b08a3e;
+  --approved: #3f7a4f;
+  --rejected: #b3441f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1a17;
+    --panel: #26221e;
+    --text: #ece7e0;
+    --muted: #a49b8f;
+    --border: #3a352e;
+    --accent: #d7a15e;
+    --accent-contrast: #1c1a17;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #1c1a17;
+  --panel: #26221e;
+  --text: #ece7e0;
+  --muted: #a49b8f;
+  --border: #3a352e;
+  --accent: #d7a15e;
+  --accent-contrast: #1c1a17;
+}
+
+:root[data-theme="light"] {
+  --bg: #f7f5f2;
+  --panel: #ffffff;
+  --text: #2a2a2a;
+  --muted: #6b6b6b;
+  --border: #e2ddd6;
+  --accent: #a8763e;
+  --accent-contrast: #ffffff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar h1 { font-size: 1.2rem; margin: 0; }
+
+.summary { text-align: right; }
+.summary-label { display: block; font-size: 0.75rem; color: var(--muted); }
+.summary-amount { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+
+main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.panel h2 { margin-top: 0; font-size: 1rem; }
+
+.field { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.8rem; }
+.field label { font-size: 0.85rem; color: var(--muted); }
+.field input, .field select {
+  padding: 0.55rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.95rem;
+}
+.field-amount { flex-direction: row; align-items: flex-end; }
+.field-amount input { flex: 1; }
+.field-amount select { width: auto; }
+
+.form-error {
+  color: var(--danger);
+  font-size: 0.85rem;
+  margin-bottom: 0.6rem;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  padding: 0.55rem 1rem;
+  font-size: 0.9rem;
+}
+
+#quoteForm button[type="submit"] {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-weight: 600;
+}
+
+.controls {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.controls input, .controls select {
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+}
+.controls button {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.quote-list { display: flex; flex-direction: column; gap: 0.7rem; }
+
+.quote-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.quote-main { display: flex; flex-direction: column; gap: 0.15rem; }
+.quote-client { font-weight: 700; }
+.quote-item { color: var(--muted); font-size: 0.85rem; }
+.quote-scope { color: var(--muted); font-size: 0.8rem; }
+.quote-money { display: flex; gap: 0.6rem; font-size: 0.85rem; margin-top: 0.2rem; }
+.quote-total { font-weight: 700; }
+
+.quote-actions { display: flex; gap: 0.4rem; align-items: center; }
+.quote-actions select {
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+}
+.quote-actions button {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.status-draft { border-left: 4px solid var(--draft); }
+.status-sent { border-left: 4px solid var(--sent); }
+.status-approved { border-left: 4px solid var(--approved); }
+.status-rejected { border-left: 4px solid var(--rejected); }
+
+.empty-msg { color: var(--muted); text-align: center; }
+
+.restoreBtn { display: none; }
+.archived .archiveBtn { display: none; }
+.archived .restoreBtn { display: inline-block; }

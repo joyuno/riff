@@ -1,0 +1,156 @@
+:root {
+  --bg: #f5f6f8;
+  --card-bg: #ffffff;
+  --text: #1f2430;
+  --muted: #6b7280;
+  --border: #e2e4e9;
+  --accent: #2563eb;
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
+  --ok: #16a34a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15171c;
+    --card-bg: #1e2129;
+    --text: #e5e7eb;
+    --muted: #9aa1ac;
+    --border: #33384533;
+    --accent: #60a5fa;
+    --danger: #f87171;
+    --danger-bg: #3a1f22;
+    --ok: #4ade80;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+header {
+  padding: 24px 20px 8px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+header h1 { margin: 0 0 4px; font-size: 22px; }
+.sub { color: var(--muted); margin: 0; font-size: 14px; }
+
+main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 12px 20px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+.card h2 { margin: 0 0 12px; font-size: 16px; }
+
+.urgent-banner {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 8px;
+}
+.summary-cell {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  text-align: center;
+}
+.summary-cell .cat-name { font-size: 13px; color: var(--muted); }
+.summary-cell .cat-total { font-size: 20px; font-weight: 700; }
+.summary-cell .cat-negative { font-size: 12px; color: var(--danger); }
+
+form { display: flex; flex-direction: column; gap: 10px; }
+.field-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.field-row label { flex: 1; min-width: 120px; }
+
+label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+input, select, textarea, button {
+  font: inherit;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+textarea { resize: vertical; }
+
+button[type="submit"], .action-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+button[type="submit"]:hover, .action-btn:hover { opacity: 0.9; }
+
+.filter-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.filter-row label { flex: 1; min-width: 100px; }
+
+.review-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.review-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.review-item.unconfirmed { border-left: 4px solid var(--danger); }
+.review-item.confirmed { border-left: 4px solid var(--ok); opacity: 0.85; }
+
+.review-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.badge {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.badge.status-unconfirmed { color: var(--danger); border-color: var(--danger); }
+.badge.status-confirmed { color: var(--ok); border-color: var(--ok); }
+
+.review-content { margin: 8px 0; white-space: pre-wrap; word-break: break-word; }
+.review-meta { font-size: 12px; color: var(--muted); }
+
+.review-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.review-actions button {
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 4px 10px;
+}
+.review-actions .delete-btn { color: var(--danger); border-color: var(--danger); }
+.review-actions .restore-btn { color: var(--ok); border-color: var(--ok); }
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.empty-msg { color: var(--muted); font-size: 14px; }

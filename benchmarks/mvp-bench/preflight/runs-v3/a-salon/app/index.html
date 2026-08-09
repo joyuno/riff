@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1인 미용실 예약 관리</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>오늘의 예약</h1>
+
+  <section id="add-form">
+    <h2>새 예약</h2>
+    <form id="reservation-form">
+      <input type="text" id="f-name" placeholder="손님 이름" required>
+      <input type="tel" id="f-phone" placeholder="전화번호" required>
+      <span id="noshow-hint"></span>
+      <input type="text" id="f-service" placeholder="시술 종류" required>
+      <input type="date" id="f-date" required>
+      <input type="time" id="f-time" required>
+      <input type="number" id="f-duration" placeholder="소요시간(분)" min="5" value="60" required>
+      <input type="number" id="f-price" placeholder="가격(원)" min="0" required>
+      <button type="submit">예약 등록</button>
+      <span id="form-error" class="error"></span>
+    </form>
+  </section>
+
+  <section id="filter-bar">
+    <label>날짜 <input type="date" id="filter-date"></label>
+    <label>검색(이름/전화번호/시술) <input type="text" id="filter-search" placeholder="검색하면 전체 날짜에서 찾습니다"></label>
+  </section>
+
+  <section id="list-section">
+    <table id="reservation-table">
+      <thead>
+        <tr>
+          <th>시간</th><th>이름</th><th>전화번호</th><th>시술</th><th>소요</th><th>가격</th><th>상태</th><th>노쇼이력</th><th>변경</th>
+        </tr>
+      </thead>
+      <tbody id="reservation-body"></tbody>
+    </table>
+    <p id="empty-msg" hidden>예약이 없습니다.</p>
+  </section>
+
+  <section id="summary-section">
+    <h2>매출 요약 (선택한 날짜, 완료 기준)</h2>
+    <p id="summary-total"></p>
+    <ul id="summary-by-service"></ul>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>

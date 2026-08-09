@@ -1,0 +1,50 @@
+[
+  {
+    "id": "booking-create",
+    "critical": true,
+    "passed": true,
+    "evidence": "created customer visible"
+  },
+  {
+    "id": "booking-conflict",
+    "critical": true,
+    "passed": true,
+    "evidence": "overlap message visible"
+  },
+  {
+    "id": "expected-revenue",
+    "critical": true,
+    "passed": false,
+    "evidence": "45,000+30,000 총액 75,000 표시 여부"
+  },
+  {
+    "id": "persistence",
+    "critical": true,
+    "passed": false,
+    "evidence": "customer retained after reload"
+  },
+  {
+    "id": "zero-price",
+    "critical": false,
+    "passed": false,
+    "evidence": "0 price booking rejected"
+  },
+  {
+    "id": "past-date",
+    "critical": false,
+    "passed": false,
+    "evidence": "past booking rejected"
+  },
+  {
+    "id": "mobile-390",
+    "critical": false,
+    "passed": true,
+    "evidence": "horizontal overflow=False"
+  },
+  {
+    "id": "research-evidence",
+    "critical": true,
+    "passed": false,
+    "evidence": "source links=0"
+  }
+]

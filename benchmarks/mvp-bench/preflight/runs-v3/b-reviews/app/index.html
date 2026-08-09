@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>쇼핑몰 리뷰 한눈에 보기</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header>
+  <h1>쇼핑몰 리뷰 한눈에 보기</h1>
+  <p class="sub">오늘 리뷰 중 뭐가 제일 급한지 한눈에 확인하세요.</p>
+</header>
+
+<main>
+  <section class="card" id="summary-section">
+    <h2>카테고리별 요약</h2>
+    <div id="urgent-banner" class="urgent-banner" hidden></div>
+    <div id="summary-grid" class="summary-grid"></div>
+  </section>
+
+  <section class="card">
+    <h2>리뷰 추가</h2>
+    <form id="review-form">
+      <div class="field-row">
+        <label>별점
+          <select id="f-rating" required>
+            <option value="1">★☆☆☆☆ (1)</option>
+            <option value="2">★★☆☆☆ (2)</option>
+            <option value="3" selected>★★★☆☆ (3)</option>
+            <option value="4">★★★★☆ (4)</option>
+            <option value="5">★★★★★ (5)</option>
+          </select>
+        </label>
+        <label>카테고리
+          <select id="f-category" required></select>
+        </label>
+        <label>작성일
+          <input type="date" id="f-date" required />
+        </label>
+      </div>
+      <label>리뷰 내용
+        <textarea id="f-content" rows="3" required placeholder="리뷰 내용을 붙여넣거나 입력하세요"></textarea>
+      </label>
+      <button type="submit">저장</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>리뷰 목록</h2>
+    <div class="filter-row">
+      <label>카테고리
+        <select id="filter-category"></select>
+      </label>
+      <label>상태
+        <select id="filter-status">
+          <option value="all">전체</option>
+          <option value="unconfirmed">미확인</option>
+          <option value="confirmed">확인함</option>
+        </select>
+      </label>
+      <label>검색
+        <input type="text" id="filter-query" placeholder="리뷰 내용 검색" />
+      </label>
+    </div>
+    <ul id="review-list" class="review-list"></ul>
+    <p id="empty-msg" class="empty-msg" hidden>표시할 리뷰가 없습니다.</p>
+  </section>
+
+  <section class="card">
+    <button id="toggle-trash" type="button" class="link-btn">삭제된 리뷰 보기</button>
+    <ul id="trash-list" class="review-list" hidden></ul>
+  </section>
+</main>
+
+<script src="logic.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+body {
+  font-family: -apple-system, "Malgun Gothic", sans-serif;
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  color: #222;
+}
+
+h1 { font-size: 1.4rem; }
+h2 { font-size: 1.1rem; margin-top: 2rem; }
+
+#reservation-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+#reservation-form input {
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+#reservation-form button {
+  padding: 0.4rem 1rem;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.error { color: #c0392b; font-size: 0.85rem; }
+
+#noshow-hint { color: #c0392b; font-size: 0.85rem; }
+
+#filter-bar {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+th, td {
+  border-bottom: 1px solid #e2e2e2;
+  padding: 0.5rem;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.badge {
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  color: #fff;
+}
+.status-예약중 { background: #f59e0b; }
+.status-완료 { background: #16a34a; }
+.status-취소 { background: #6b7280; }
+.status-노쇼 { background: #dc2626; }
+
+.noshow-count { color: #dc2626; font-weight: bold; }
+
+td button {
+  margin-right: 0.25rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+#summary-section { margin-top: 2rem; }
