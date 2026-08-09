@@ -99,7 +99,9 @@ FRAME verdict 전에 다음을 모두 만족해야 한다.
 
 1. Domain Profile의 계열·overlay·관할·기준일이 정해졌다.
 2. Domain Model 7절이 채워졌거나 해당 없음의 이유가 있다.
-3. 관련 있는 core-closure 행에 `blocked`가 없다.
+3. core-closure **7행 전부**가 `frozen`·`excluded`·`n/a` 중 하나로 처분됐고
+   (`discovery-research.md` 처분 강제), 처분표가 `detail/discovery-research-cycle-N.md`에
+   있으며, `blocked`가 남은 행이 없다. 미처분 행이 하나라도 있으면 verdict을 요청하지 않는다.
 4. 모든 core acceptance에 `A-NNN` ID와 근거 `K-NNN`이 연결됐다.
 5. `candidate`·`assumption`은 BUILD 태스크에 들어가지 않았다.
 6. `excluded` 항목과 제외 비용이 기록됐다.
