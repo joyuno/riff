@@ -96,15 +96,20 @@ Cycle 0 인터뷰 직후 다음 프로파일을 `_workspace/detail/domain-profil
 ## 4. Knowledge → Acceptance trace gate
 
 FRAME verdict 전에 다음을 모두 만족해야 한다.
+**`frame.md`의 단순 depth는 이 게이트 전체를 면제한다**(가정 선언 1줄로 대체).
 
 1. Domain Profile의 계열·overlay·관할·기준일이 정해졌다.
 2. Domain Model 7절이 채워졌거나 해당 없음의 이유가 있다.
 3. core-closure **7행 전부**가 `frozen`·`excluded`·`n/a` 중 하나로 처분됐고
    (`discovery-research.md` 처분 강제), 처분표가 `detail/discovery-research-cycle-N.md`에
    있으며, `blocked`가 남은 행이 없다. 미처분 행이 하나라도 있으면 verdict을 요청하지 않는다.
-4. 모든 core acceptance에 `A-NNN` ID와 근거 `K-NNN`이 연결됐다.
-5. `candidate`·`assumption`은 BUILD 태스크에 들어가지 않았다.
-6. `excluded` 항목과 제외 비용이 기록됐다.
+4. 조사 근거(출처 URL) 1개 이상이 Knowledge Ledger에 있다. 처분표는 조사 근거를
+   대체하지 않는다. **`discovery-research.md`의 실행 조건에 따라 조사를 생략했으면**
+   (사용자가 검색 거부 / acceptance를 이미 완전히 제공 / 검색 자체가 불가능) 그 사유를
+   FRAME 기록에 남기는 것으로 대체한다.
+5. 모든 core acceptance에 `A-NNN` ID와 근거 `K-NNN`이 연결됐다.
+6. `candidate`·`assumption`은 BUILD 태스크에 들어가지 않았다.
+7. `excluded` 항목과 제외 비용이 기록됐다.
 
 추적 형식:
 

@@ -69,15 +69,21 @@
 ### Task 4: Browser Task Adapters
 
 **Files:**
-- Create later: `benchmarks/mvp-bench/grader/adapters/*.spec.*`
+- `benchmarks/mvp-bench/grader/riff_preflight_playwright.py`
+- `benchmarks/mvp-bench/grader/fixtures/{pass,fail}/{a-salon,b-reviews,c-quotes}/`
+- `benchmarks/mvp-bench/grader/test_grader.py`
 
 **Interfaces:**
 - Consumes: a running app URL and hidden task criteria
 - Produces: schema-valid `checks.json`
 
-- [ ] Select one browser runtime only after it is installable in the official runner environment.
-- [ ] Build success and failure fixtures for each of the three tasks.
-- [ ] Prove each adapter accepts the success fixture and rejects the failure fixture.
-- [ ] Run desktop, reload and 390px checks before any official human run.
+- [x] Select one browser runtime only after it is installable in the official runner environment.
+- [x] Build success and failure fixtures for each of the three tasks.
+- [x] Prove each adapter accepts the success fixture and rejects the failure fixture.
+- [x] Run desktop, reload and 390px checks before any official human run.
+
+Browser runtime is Playwright Chromium: it is the only runtime that completed localhost bind, click, `page.reload()` and the 390px viewport end to end in the official runner environment (`benchmarks/mvp-bench/grader/BROWSER-BLOCKER.md`, 2026-08-07 local rerun).
+
+Discrimination proof: `cd benchmarks/mvp-bench/grader && python3 -m unittest test_grader -v` grades both fixture sets with the same `grade_*` functions. `pass` returns zero critical failures on all three tasks; `fail` fails exactly the one check each fixture removed (`booking-conflict`, `persistence`, `vat-total`). Desktop 1280×900, `page.reload()` and the 390px viewport all run inside those graded passes.
 
 Task 4 is a hard gate for the human pilot. Tasks 1–3 may ship first; no official run may start before Task 4 passes.

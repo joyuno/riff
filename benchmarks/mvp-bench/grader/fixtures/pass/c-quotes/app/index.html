@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>견적·고객 진행 관리</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font: 15px/1.6 system-ui, sans-serif; margin: 0; padding: 16px; max-width: 720px; }
+  label { display: block; margin: 8px 0; }
+  input, select { width: 100%; padding: 6px; }
+  button { padding: 8px 12px; margin-right: 6px; }
+  .item { border: 1px dashed #bbb; padding: 8px; margin: 8px 0; }
+  .quote { border: 1px solid #ccc; border-radius: 6px; padding: 8px; margin: 8px 0; overflow-wrap: anywhere; }
+  .msg { color: #b00020; }
+  @media print {
+    form, #search, .status, .msg, button { display: none; }
+    .quote { border: none; page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<h1>견적·고객 진행 관리</h1>
+
+<form id="form" novalidate>
+  <label>고객명 <input type="text" name="customer" required></label>
+  <label>작업명 <input type="text" name="project"></label>
+  <div id="items">
+    <div class="item">
+      <label>품목 <input type="text" class="desc" name="desc"></label>
+      <label>수량 <input type="number" class="qty" name="qty"></label>
+      <label>단가 <input type="number" class="unit" name="unit"></label>
+    </div>
+  </div>
+  <button type="button" id="add-item">+ 항목 한 줄 더</button>
+  <button type="submit">견적 저장</button>
+</form>
+<p class="msg" id="msg"></p>
+
+<label>고객명 검색 <input type="search" id="search" placeholder="고객명 검색"></label>
+
+<h2>견적 목록</h2>
+<p id="summary"></p>
+<div id="list"></div>
+
+<script>
+const KEY = 'riff-quotes';
+const VAT_RATE = 0.1;
+const STATUSES = [['draft', '초안'], ['sent', '발송'], ['approved', '승인'], ['rejected', '거절']];
+const $ = s => document.querySelector(s);
+const won = n => n.toLocaleString('ko-KR') + '원';
+
+let quotes = JSON.parse(localStorage.getItem(KEY) || '[]');
+const save = () => localStorage.setItem(KEY, JSON.stringify(quotes));
+
+$('#add-item').onclick = () => {
+  const row = $('.item').cloneNode(true);
+  row.querySelectorAll('input').forEach(input => { input.value = ''; });
+  $('#items').append(row);
+};
+
+function render() {
+  const keyword = $('#search').value.trim();
+  const shown = quotes.filter(q => !keyword || q.customer.includes(keyword));
+  const expected = quotes.filter(q => q.status !== 'rejected').reduce((s, q) => s + q.total, 0);
+  const approved = quotes.filter(q => q.status === 'approved').reduce((s, q) => s + q.total, 0);
+  $('#summary').textContent = `예상 매출 ${won(expected)} · 승인 견적 ${won(approved)}`;
+
+  const list = $('#list');
+  list.textContent = '';
+  if (!shown.length) {
+    const empty = document.createElement('p');
+    empty.textContent = quotes.length ? '검색 조건에 맞는 견적이 없습니다.' : '등록된 견적이 없습니다. 위에서 첫 견적을 만드세요.';
+    list.append(empty);
+    return;
+  }
+  shown.forEach(quote => {
+    const card = document.createElement('div');
+    card.className = 'quote';
+    const head = document.createElement('div');
+    head.textContent = `${quote.customer} · ${quote.project || '작업명 미지정'}`;
+    const lines = document.createElement('div');
+    lines.textContent = quote.items
+      .map(i => `${i.desc} ${i.qty} × ${won(i.unit)} = ${won(i.qty * i.unit)}`).join(' / ');
+    const totals = document.createElement('div');
+    totals.textContent = `공급가액 ${won(quote.supply)} · 부가세 ${won(quote.vat)} · 합계 ${won(quote.total)}`;
+    const select = document.createElement('select');
+    select.className = 'status';
+    select.setAttribute('aria-label', '견적 진행 상태');
+    STATUSES.forEach(([value, label]) => select.append(new Option(label, value, false, value === quote.status)));
+    select.onchange = () => { quote.status = select.value; save(); render(); };
+    card.append(head, lines, totals, select);
+    list.append(card);
+  });
+}
+
+$('#search').oninput = render;
+
+$('#form').addEventListener('submit', event => {
+  event.preventDefault();
+  const form = event.target;
+  const customer = form.customer.value.trim();
+  const items = [...$('#items').querySelectorAll('.item')].map(row => ({
+    desc: row.querySelector('.desc').value.trim(),
+    qty: Number(row.querySelector('.qty').value),
+    unit: Number(row.querySelector('.unit').value),
+  }));
+  if (!customer) { $('#msg').textContent = '고객명을 입력하세요.'; return; }
+  if (!items.length || items.some(i => !i.desc || !(i.qty > 0) || !(i.unit > 0))) {
+    $('#msg').textContent = '모든 항목의 품목, 수량, 단가를 채우세요. 수량과 단가는 0보다 커야 합니다.';
+    return;
+  }
+
+  const supply = items.reduce((sum, i) => sum + i.qty * i.unit, 0);
+  const vat = Math.round(supply * VAT_RATE);
+  quotes.push({
+    customer, project: form.project.value.trim(), items, supply, vat, total: supply + vat, status: 'draft',
+  });
+  save();
+  form.reset();
+  $('#items').querySelectorAll('.item').forEach((row, index) => { if (index) row.remove(); });
+  $('#msg').textContent = '';
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

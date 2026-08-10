@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>예약·노쇼 관리</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font: 15px/1.6 system-ui, sans-serif; margin: 0; padding: 16px; max-width: 720px; }
+  label { display: block; margin: 8px 0; }
+  input, select { width: 100%; padding: 6px; }
+  button { padding: 8px 12px; }
+  .row { border: 1px solid #ccc; border-radius: 6px; padding: 8px; margin: 8px 0; overflow-wrap: anywhere; }
+  .msg { color: #b00020; }
+</style>
+</head>
+<body>
+<h1>예약·노쇼 관리</h1>
+
+<form id="form" novalidate>
+  <label>고객명 <input type="text" name="customer" required></label>
+  <label>연락처 <input type="tel" name="phone"></label>
+  <label>날짜 <input type="date" name="date" required></label>
+  <label>시작 시간 <input type="time" name="start" required></label>
+  <label>시술 <input type="text" name="service"></label>
+  <label>가격 <input type="number" name="price" required></label>
+  <button type="submit">예약 저장</button>
+</form>
+<p class="msg" id="msg"></p>
+
+<h2>예약 목록</h2>
+<p id="summary"></p>
+<div id="list"></div>
+
+<script>
+const KEY = 'riff-salon';
+const SLOT = 60; // 시술 1건을 60분으로 보고 시간대 겹침을 판정한다
+const STATUSES = ['예정', '완료', '취소', '노쇼'];
+const $ = s => document.querySelector(s);
+const won = n => n.toLocaleString('ko-KR') + '원';
+const minutes = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+const today = () => { const d = new Date(); return new Date(d - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10); };
+
+let bookings = JSON.parse(localStorage.getItem(KEY) || '[]');
+const save = () => localStorage.setItem(KEY, JSON.stringify(bookings));
+
+function render() {
+  const active = bookings.filter(b => b.status === '예정' || b.status === '완료');
+  const revenue = active.reduce((sum, b) => sum + b.price, 0);
+  $('#summary').textContent =
+    `오늘 일정 ${bookings.filter(b => b.date === today()).length}건 · 예상 매출 ${won(revenue)}`;
+
+  const list = $('#list');
+  list.textContent = '';
+  if (!bookings.length) {
+    const empty = document.createElement('p');
+    empty.textContent = '등록된 예약이 없습니다. 위에서 첫 예약을 추가하세요.';
+    list.append(empty);
+    return;
+  }
+  bookings.forEach((b, i) => {
+    const row = document.createElement('div');
+    row.className = 'row';
+    const info = document.createElement('div');
+    info.textContent = `${b.name} · ${b.date} ${b.start} · ${b.service || '시술 미지정'} · ${won(b.price)}`;
+    const select = document.createElement('select');
+    select.setAttribute('aria-label', '예약 상태');
+    STATUSES.forEach(s => select.append(new Option(s, s, false, s === b.status)));
+    // 상태만 바꾸고 기록은 지우지 않는다
+    select.onchange = () => { bookings[i].status = select.value; save(); render(); };
+    row.append(info, select);
+    list.append(row);
+  });
+}
+
+$('#form').addEventListener('submit', event => {
+  event.preventDefault();
+  const form = event.target;
+  const entry = {
+    name: form.customer.value.trim(),
+    phone: form.phone.value.trim(),
+    date: form.date.value,
+    start: form.start.value,
+    service: form.service.value.trim(),
+    price: Number(form.price.value),
+    status: '예정',
+  };
+  const fail = message => { $('#msg').textContent = message; };
+
+  if (!entry.name || !entry.date || !entry.start) return fail('고객명, 날짜, 시작 시간을 입력하세요.');
+  if (entry.date < today()) return fail('지난 날짜에는 예약할 수 없습니다.');
+  if (!(entry.price > 0)) return fail('가격은 0보다 커야 합니다.');
+  if (bookings.some(b => b.status !== '취소' && b.date === entry.date
+      && Math.abs(minutes(b.start) - minutes(entry.start)) < SLOT)) {
+    return fail(`같은 시간대에 겹치는 예약이 있습니다. ${entry.start} 앞뒤 ${SLOT}분을 확인하세요.`);
+  }
+
+  bookings.push(entry);
+  save();
+  form.reset();
+  $('#msg').textContent = '';
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

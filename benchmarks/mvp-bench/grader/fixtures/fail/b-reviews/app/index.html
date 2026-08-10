@@ -1,0 +1,127 @@
+<!doctype html>
+<!-- FAIL fixture: pass/b-reviews에서 처리 상태 변경의 저장만 제거했다 (persistence 실패용). -->
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>고객 리뷰 인사이트</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font: 15px/1.6 system-ui, sans-serif; margin: 0; padding: 16px; max-width: 720px; }
+  label { display: block; margin: 8px 0; }
+  input, select, textarea { width: 100%; padding: 6px; }
+  button { padding: 8px 12px; }
+  .card { border: 1px solid #ccc; border-radius: 6px; padding: 8px; margin: 8px 0; overflow-wrap: anywhere; }
+  .tags { color: #444; }
+  .msg { color: #b00020; }
+</style>
+</head>
+<body>
+<h1>고객 리뷰 인사이트</h1>
+
+<form id="form" novalidate>
+  <label>상품명 <input type="text" name="product" required></label>
+  <label>리뷰 붙여넣기 (빈 줄로 구분) <textarea name="reviews" rows="5" required></textarea></label>
+  <button type="submit">리뷰 분석 추가</button>
+</form>
+<p class="msg" id="msg"></p>
+
+<label>감정 <select id="filter-sentiment"></select></label>
+<label>주제 <select id="filter-theme"></select></label>
+
+<h2>분석 결과</h2>
+<p id="summary"></p>
+<div id="list"></div>
+
+<script>
+const KEY = 'riff-reviews';
+const SENTIMENTS = ['긍정', '부정', '중립'];
+const THEMES = [
+  ['배송', /도착|배송|출발|오지 않|늦/],
+  ['포장', /박스|포장|찌그/],
+  ['품질', /깨|파손|불량|고장/],
+  ['사이즈', /사이즈|치수|작게|크게|옷/],
+];
+const STATUSES = [['todo', '처리 전'], ['doing', '검토 중'], ['done', '개선 반영']];
+const $ = s => document.querySelector(s);
+
+// 별점으로 감정을, 본문 어휘로 주제를 정한다. 외부 API 없이 로컬에서만 동작한다.
+const sentimentOf = text => {
+  const stars = (text.match(/★/g) || []).length;
+  return stars >= 4 ? '긍정' : (stars > 0 && stars <= 2 ? '부정' : '중립');
+};
+const themeOf = text => (THEMES.find(([, pattern]) => pattern.test(text)) || ['기타'])[0];
+
+let reviews = JSON.parse(localStorage.getItem(KEY) || '[]');
+const save = () => localStorage.setItem(KEY, JSON.stringify(reviews));
+
+const fillFilter = (select, values) => {
+  select.append(new Option('전체', ''));
+  values.forEach(v => select.append(new Option(v, v)));
+  select.onchange = render;
+};
+fillFilter($('#filter-sentiment'), SENTIMENTS);
+fillFilter($('#filter-theme'), THEMES.map(([name]) => name));
+
+function render() {
+  const wantSentiment = $('#filter-sentiment').value;
+  const wantTheme = $('#filter-theme').value;
+  const shown = reviews
+    .map((review, index) => ({ review, index }))
+    .filter(({ review }) => (!wantSentiment || review.sentiment === wantSentiment)
+      && (!wantTheme || review.theme === wantTheme));
+
+  const negative = reviews.filter(r => r.sentiment === '부정');
+  const counts = {};
+  negative.forEach(r => { counts[r.theme] = (counts[r.theme] || 0) + 1; });
+  const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+  $('#summary').textContent = `요약 · 전체 리뷰 ${reviews.length}건 · 부정 리뷰 ${negative.length}건 · `
+    + `주요 문제 ${top ? `${top[0]} ${top[1]}건` : '없음'}`;
+
+  const list = $('#list');
+  list.textContent = '';
+  if (!shown.length) {
+    const empty = document.createElement('p');
+    empty.textContent = reviews.length ? '조건에 맞는 리뷰가 없습니다.' : '분석할 리뷰가 없습니다. 위에 붙여넣으세요.';
+    list.append(empty);
+    return;
+  }
+  shown.forEach(({ review, index }) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const body = document.createElement('div');
+    body.textContent = review.text;
+    const tags = document.createElement('div');
+    tags.className = 'tags';
+    tags.textContent = `${review.product} · ${review.sentiment} · ${review.theme}`;
+    const select = document.createElement('select');
+    select.setAttribute('aria-label', '처리 상태');
+    STATUSES.forEach(([value, label]) => select.append(new Option(label, value, false, value === review.status)));
+    select.onchange = () => { reviews[index].status = select.value; render(); };
+    card.append(body, tags, select);
+    list.append(card);
+  });
+}
+
+$('#form').addEventListener('submit', event => {
+  event.preventDefault();
+  const form = event.target;
+  const product = form.product.value.trim();
+  const blocks = form.reviews.value.split(/\n\s*\n/).map(t => t.trim()).filter(Boolean);
+  if (!product || !blocks.length) {
+    $('#msg').textContent = '상품명과 리뷰 본문을 모두 입력하세요.';
+    return;
+  }
+  blocks.forEach(text => reviews.push({
+    product, text, sentiment: sentimentOf(text), theme: themeOf(text), status: 'todo',
+  }));
+  save();
+  form.reset();
+  $('#msg').textContent = '';
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
