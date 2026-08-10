@@ -48,6 +48,13 @@ Domain Profile·Model·Knowledge Ledger 링크와 confirmed/blocked/excluded 개
 2. **압축**: UPDATE RULE이 자기 기술 — 스킬 컨텍스트가 없는 세션에서도 규칙이 문서와 함께 이동.
 3. **single-writer**: CANVAS.md 쓰기는 메인 루프 단독.
 4. **verdict 게이트**: FRAME 산출(또는 가정 선언)과 사이클 종료는 approve/request-changes로 닫는다 — `ecc-plan-canvas` 있으면 브라우저(요소 앵커 주석+판정), 없으면 터미널 구조화 질문(`companions.md`).
+5. **승인 후 수정 (in-place amend)**: 이미 approve된 항목이라도 사용자가 선택을 바꾸거나
+   모순이 발견되면 **그 자리에서 고치고 계속한다.** 절차는 셋뿐이다 —
+   ① 바뀐 선택을 해당 CANVAS 섹션에 반영, ② 그 선택에 연결된 `K-NNN`·`A-NNN`만 갱신
+   (연결 없는 항목은 건드리지 않는다), ③ 영향 범위를 1줄로 알리고 재승인.
+   **세션 분리·핸드오프·되감기는 이 경우의 답이 아니다** — 각각의 발동 조건은
+   컨텍스트 압박, 그리고 PROVE 3회 연속 실패뿐이다(`../SKILL.md` 가드).
+   기획 수정은 정상 흐름이지 사고가 아니다.
 
 ## 디렉토리
 
