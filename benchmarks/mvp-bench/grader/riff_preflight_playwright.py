@@ -41,6 +41,7 @@ def serve(directory: Path):
     finally:
         server.shutdown()
         thread.join()
+        server.server_close()  # 리스닝 소켓까지 닫는다(fd 누수·ResourceWarning 방지)
 
 
 def result(check_id: str, critical: bool, passed: bool, evidence: str) -> dict:
@@ -180,6 +181,29 @@ FIND_STATUS_JS = """
 }
 """ % _SHOWN
 
+STATUS_BUTTONS_JS = """
+(root, pattern) => {
+  %s
+  const re = new RegExp(pattern, 'i');
+  return [...root.querySelectorAll('button, [role=button]')].filter(shown)
+    .map(b => (b.innerText || '').trim()).filter(label => re.test(label));
+}
+""" % _SHOWN
+
+# 앱이 '렌더한 상태'만 읽는다: 컨트롤 라벨(옵션·버튼 텍스트)과 스크립트 본문은 상태 표시가 아니다.
+# select는 선택된 옵션만 상태로 친다.
+STATUS_READOUT_JS = r"""
+() => {
+  const clone = document.body.cloneNode(true);
+  clone.querySelectorAll(
+    'script, style, noscript, template, button, [role=button], select, option, input, textarea'
+  ).forEach(el => el.remove());
+  const selected = [...document.querySelectorAll('select')]
+    .map(s => (s.selectedOptions[0] || {}).textContent || '').join(' ');
+  return (selected + ' ' + (clone.textContent || '')).replace(/\s+/g, ' ').trim();
+}
+"""
+
 
 def body_of(page: Page):
     return page.evaluate_handle("document.body").as_element()
@@ -239,7 +263,53 @@ def form_of(page: Page, submit_pattern: str = SUBMIT_RE):
 
 
 def has_amount(text: str, value: int) -> bool:
-    return f"{value:,}" in text or str(value) in text
+    """금액이 '그 숫자 자체'로 화면에 있는지. 콤마 유무는 허용하되 다른 숫자의 일부는 인정하지 않는다.
+
+    부분문자열 매칭이면 합계 110,000원 하나로 부가세 10,000원까지 통과해 금액 단언이 무력화된다.
+    앞뒤에 숫자·콤마가 붙지 않을 때만 매칭한다.
+    """
+    return any(
+        re.search(rf"(?<![\d,]){re.escape(form)}(?![\d,])", text)
+        for form in (f"{value:,}", str(value))
+    )
+
+
+def status_transition(page: Page, pattern: str) -> tuple[bool, str]:
+    """상태를 실제로 바꾼 뒤 목록·카드에 그 상태가 반영되는지 본다.
+
+    컨트롤이 select든 버튼이든 동작해야 하며, 옵션·버튼 라벨이 화면에 있다는 사실만으로는 통과하지 못한다.
+    새로고침 후에도 남아야 통과 — 위젯 표시가 아니라 앱 상태가 바뀌었다는 유일한 증거다.
+    """
+    body = body_of(page)
+    control = body.evaluate_handle(FIND_STATUS_JS, pattern).as_element()
+    if control is None:
+        return False, "status control not found"
+    before = page.evaluate(STATUS_READOUT_JS)
+
+    if control.evaluate("el => el.tagName") == "SELECT":
+        target = control.evaluate(
+            "el => { const o = [...el.options].find(o => o.value !== el.value);"
+            " return o ? [o.value, o.textContent.trim()] : null; }"
+        )
+        if target is None:
+            return False, "status control offers a single state"
+        control.select_option(value=target[0])
+        label = target[1]
+    else:
+        # 버튼형: 지금 표시된 상태와 다른 라벨을 눌러야 전이가 확인된다.
+        labels = body.evaluate(STATUS_BUTTONS_JS, pattern)
+        # 상태 이름을 안내문·범례로 노출하는 앱은 모든 라벨이 before에 있다.
+        # 후보가 없으면 마지막 라벨로 폴백 — 아래 changed 게이트가 실제 전이를 계속 요구한다.
+        label = next((l for l in reversed(labels) if l and l not in before), labels[-1] if labels else "")
+        if not label or not click_button(body, re.escape(label)):
+            return False, "no status control to change the state"
+
+    page.wait_for_timeout(150)
+    page.reload()
+    page.wait_for_timeout(200)
+    after = page.evaluate(STATUS_READOUT_JS)
+    changed = label in after and after != before
+    return changed, f"status changed to '{label}' and rendered after reload={changed}"
 
 
 def mobile_check(page: Page) -> dict:
@@ -306,14 +376,13 @@ def grade_salon(page: Page, url: str, run: Path) -> list[dict]:
     page.reload()
     persisted = "검수고객" in body_text(page)
 
-    before = body_text(page)
+    # 정적 문구("중복 예약 방지" 같은 안내)가 아니라 행동으로 판정한다.
+    # 겹치는 예약을 저장 시도했을 때 목록이 늘지 않고, 경고가 '새로' 나타나야 한다(before/after 델타).
+    before, before_items = body_text(page), page.evaluate(ITEM_COUNT_JS)
     salon_fill(page, "셋째고객", "45000", future, "11:00")
-    after = body_text(page)
-    conflict = (
-        "셋째고객" not in after
-        and bool(re.search(CONFLICT_RE, after))
-        and not re.search(CONFLICT_RE, before)
-    )
+    after, after_items = body_text(page), page.evaluate(ITEM_COUNT_JS)
+    warned = len(re.findall(CONFLICT_RE, after)) > len(re.findall(CONFLICT_RE, before))
+    conflict = "셋째고객" not in after and after_items <= before_items and warned
 
     salon_fill(page, "영원고객", "0", future, "15:00")
     zero_blocked = "영원고객" not in body_text(page)
@@ -354,6 +423,27 @@ REVIEW_SEEDS = [
 ]
 STATUS_RE = r"처리|검토|반영|상태|status"
 FILTER_RE = r"주제|감정|카테고리|분류|필터|상품|검색|filter|theme|sentiment|search|category"
+SENTIMENT_RE = r"긍정|부정|중립|positive|negative|neutral"
+THEME_RE = r"배송|포장|품질|사이즈|기타"
+
+# 리뷰 '한 건'에 감정·주제가 함께 붙어 있는 항목의 수.
+# 필터 드롭다운·버튼 라벨은 분류 근거가 아니므로 제외하고, 다른 후보를 품은 조상은 세지 않는다(= 항목 단위).
+CLASSIFIED_ITEMS_JS = """
+(root, [sentimentPattern, themePattern]) => {
+  %s
+  const sentiment = new RegExp(sentimentPattern, 'i');
+  const theme = new RegExp(themePattern, 'i');
+  const tagged = el => {
+    const clone = el.cloneNode(true);
+    clone.querySelectorAll('script, style, select, option, button, [role=button], input, textarea')
+      .forEach(n => n.remove());
+    const text = clone.textContent || '';
+    return sentiment.test(text) && theme.test(text);
+  };
+  const hits = [...root.querySelectorAll('*')].filter(el => shown(el) && tagged(el));
+  return hits.filter(el => !hits.some(other => other !== el && el.contains(other))).length;
+}
+""" % _SHOWN
 
 
 def seed_reviews(page: Page) -> bool:
@@ -383,11 +473,13 @@ def grade_reviews(page: Page, url: str, run: Path) -> list[dict]:
 
     items = page.evaluate(ITEM_COUNT_JS)
     text = body_text(page)
+    # 필터 UI가 아니라 개별 리뷰에 분류가 붙었는지로 본다(드롭다운 옵션만 있어도 통과하던 구멍).
+    classified = body_of(page).evaluate(CLASSIFIED_ITEMS_JS, [SENTIMENT_RE, THEME_RE])
     sentiment = bool(
         re.search(r"긍정|positive", text)
         and re.search(r"부정|negative", text)
         and re.search(r"배송|포장|품질|사이즈", text)
-    )
+    ) and classified >= max(2, items // 2)   # 항목 과반이 분류돼야 한다(요약 블록 오탐 방지)
 
     body = body_of(page)
     review_form = form_of(page)
@@ -405,27 +497,17 @@ def grade_reviews(page: Page, url: str, run: Path) -> list[dict]:
         filter_control.select_option(index=0)
         page.wait_for_timeout(120)
 
-    status_control = body_of(page).evaluate_handle(FIND_STATUS_JS, STATUS_RE).as_element()
-    has_status = status_control is not None
-
-    status_persisted = False
-    if has_status and status_control.evaluate("el => el.tagName") == "SELECT":
-        options = status_control.evaluate("el => [...el.options].map(o => o.value)")
-        target = options[-1]
-        status_control.select_option(value=target)
-        page.wait_for_timeout(150)
-        page.reload()
-        page.wait_for_timeout(150)
-        again = body_of(page).evaluate_handle(FIND_STATUS_JS, STATUS_RE).as_element()
-        status_persisted = again is not None and again.evaluate("el => el.value") == target
+    has_status = body_of(page).evaluate_handle(FIND_STATUS_JS, STATUS_RE).as_element() is not None
+    # 컨트롤 종류(select·버튼)와 무관하게 상태 변경 → reload → 유지로 판정한다.
+    status_persisted, status_evidence = status_transition(page, STATUS_RE)
 
     return [
         result("fixture-reviews", True, items >= 3, f"review items visible={items}"),
-        result("sentiment-theme", True, sentiment, "sentiment and theme text visible"),
+        result("sentiment-theme", True, sentiment, f"reviews tagged with sentiment+theme={classified}"),
         result("filters", True, filtered, f"filter control re-rendered the list={filtered}"),
         result("processing-status", True, has_status, "workflow status options present"),
         result("summary", True, bool(re.search(r"전체 리뷰|평균|요약|건수|summary", text)), "review summary visible"),
-        result("persistence", True, status_persisted, "status persistence requires a status control"),
+        result("persistence", True, status_persisted, status_evidence),
         mobile_check(page),
         research_check(run),
     ]
@@ -437,6 +519,7 @@ def grade_reviews(page: Page, url: str, run: Path) -> list[dict]:
 
 QTY_RE = r"수량|개수|qty|quantity"
 UNIT_RE = r"단가|개당|건당|unit"
+QUOTE_STATUS_RE = r"초안|작성중|작성 중|임시|draft|발송|보냄|전송|sent|승인|수락|approved|거절|반려|rejected"
 
 
 def grade_quotes(page: Page, url: str, run: Path) -> list[dict]:
@@ -491,7 +574,7 @@ def grade_quotes(page: Page, url: str, run: Path) -> list[dict]:
         r"승인|수락|approved",
         r"거절|반려|rejected",
     ]
-    status_ok = all(re.search(pattern, text, re.I) for pattern in statuses)
+    status_words = all(re.search(pattern, text, re.I) for pattern in statuses)
 
     body = body_of(page)
     open_form = form_of(page)
@@ -508,13 +591,17 @@ def grade_quotes(page: Page, url: str, run: Path) -> list[dict]:
            }) || [...document.querySelectorAll('link[media]')].some(l => l.media.includes('print'))"""
     )
 
+    # 네 상태가 화면에 있다는 것만으로는 부족하다 — 실제로 전이시켜 목록에 반영되는지까지 본다.
+    status_changed, status_evidence = status_transition(page, QUOTE_STATUS_RE)
+    status_ok = status_words and status_changed
+
     page.reload()
     persisted = "검수회사" in body_text(page)
 
     return [
         result("line-items", True, has_items, "quantity and unit-price inputs present"),
         result("vat-total", True, vat_ok, "supply, VAT and total visible"),
-        result("status-change", True, status_ok, "four statuses present"),
+        result("status-change", True, status_ok, f"four statuses present={status_words}; {status_evidence}"),
         result("search-filter", True, has_filter, "customer or status filter present"),
         result("revenue-summary", True, revenue_ok, "expected and approved revenue visible"),
         result("persistence", True, persisted, "quote retained after reload"),
