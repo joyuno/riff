@@ -1,3 +1,7 @@
+## 작업 규칙
+
+- riff에 규칙·게이트·감지 조건을 추가할 때는 **그 조건이 참일 때 실행할 구체적 행동·주체·시점**을 같은 커밋에서 문서화한다. 조건만 선언하고 행동을 비우면 모델이 가장 무거운 대안을 고른다(실측 3회). `tests/test-rule-closure.sh`가 이를 검사한다.
+
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
