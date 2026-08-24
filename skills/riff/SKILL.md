@@ -13,7 +13,7 @@ description: "신규 프로젝트·앱·MVP를 처음부터 만드는 AI-Native 
   맞는 발굴법을 고르고 Exa 조사→Domain Model→Knowledge Ledger→acceptance를 추적한다.
   사용자 확인 없이 기능으로 추가하지 않는다(`references/frame/domain-intelligence.md`).
   실패는 비용이 아니라 학습이다.
-- 사이클 핫패스에 세리머니를 더하지 않는다(오버헤드 ≤15% — `benchmarks/` speed-tax로 측정). 무거운 일은 이벤트 스테이지(DROP·TUNE)로.
+- 사이클 핫패스에 세리머니를 더하지 않는다(오버헤드 ≤15% — `benchmarks/context-tax.py`로 depth별 문서 컨텍스트 세금을 측정한다. wall-clock은 측정하지 않는다). 무거운 일은 이벤트 스테이지(DROP·TUNE)로.
 
 ## Bootstrap (첫 호출 1회)
 

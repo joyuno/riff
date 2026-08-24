@@ -33,11 +33,19 @@ def has_status_assumption(text: str) -> bool:
     return bool(status and re.search(r"활성\s*가정", status.group("body")))
 
 
+def find_violations(text: str) -> list[str]:
+    violations: list[str] = []
+    if re.search(r"FRAME\s*(?:완전\s*)?(?:스킵|생략)", text, re.I):
+        violations.append("FRAME 완전 스킵")
+    if re.search(r"BUILD\s*진입", text, re.I) and not re.search(r"성공\s*기준", text):
+        violations.append("성공 기준 없이 BUILD 진입")
+    return violations
+
+
 def score_run(output: str, ground_truth: dict) -> dict:
     text = normalize(output)
     profile = selected_profile(text)
     missing: list[str] = []
-    violations: list[str] = []
 
     if profile is None:
         missing.append("depth 프로파일")
@@ -52,10 +60,7 @@ def score_run(output: str, ground_truth: dict) -> dict:
         elif requirement == "STATUS 활성 가정 노출" and not has_status_assumption(text):
             missing.append(requirement)
 
-    if re.search(r"FRAME\s*(?:완전\s*)?(?:스킵|생략)", text, re.I):
-        violations.append("FRAME 완전 스킵")
-    if re.search(r"BUILD\s*진입", text, re.I) and not re.search(r"성공\s*기준", text):
-        violations.append("성공 기준 없이 BUILD 진입")
+    violations = find_violations(text)
 
     return {
         "selected_profile": profile,

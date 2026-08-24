@@ -20,7 +20,8 @@ OMC(oh-my-claudecode)의 harsh-critic 벤치마크 방식을 Riff 도메인에 �
 
 Riff v1.0의 adaptive depth 판정과 Living CANVAS.md 재개 로직을 검증하는 시나리오입니다.
 depth fixture는 `scoring/depth_reproducibility.py`가 `must_have`/`must_not`과 반복
-프로파일 일관성을 자동 채점합니다. canvas fixture는 계속 정성 검토 대상입니다.
+프로파일 일관성을 자동 채점합니다. 사람이 기록한 판정만 있을 때는 `depth-repro.py`가
+같은 ground truth로 정답률·재현성을 채점합니다. canvas fixture는 계속 정성 검토 대상입니다.
 
 | 시나리오 | Fixture | Ground Truth | 판정 기준 |
 |---|---|---|---|
@@ -135,6 +136,29 @@ DEPTH_COMMAND='your-agent-command' ./run-depth-reproducibility.sh --repetitions 
 저장 출력 파일명은 `<scenario>-<run>.txt` 형식입니다. 예를 들어
 `depth-ambiguous-notes-1.txt`부터 `-3.txt`까지 둡니다. 모든 실행이 ground truth를
 통과하고 세 번의 프로파일 판정이 같아야 전체 PASS입니다.
+
+### 기록된 판정 채점
+
+에이전트 출력 대신 사람이 기록한 판정만 있을 때 사용합니다. 실행은 사람이 하고
+스크립트는 채점만 합니다:
+
+```bash
+python3 depth-repro.py --verdicts ./depth-verdicts.json          # 표
+python3 depth-repro.py --verdicts ./depth-verdicts.json --json   # JSON 리포트
+```
+
+입력은 `{"fixture", "profile", "signals", "declared_assumption", "raw"}` 객체의 배열이며
+`fixture`는 ground truth 파일명(`depth-ambiguous-notes` 등)과 같아야 합니다. 채점 축은
+둘입니다. **정답률**은 `expected_profile` 일치이고 `allow_alternative`(예: `보통+가정선언`)는
+정답으로 치되 따로 집계합니다. **재현성**은 같은 픽스처 반복 판정의 최빈값 일치율로,
+판정이 흔들리면 규칙이 재현 불가라는 뜻입니다. `must_have`/`must_not`은 `raw` 필드에서
+검사해 누락과 위반을 보고합니다. 정답률·재현성이 모두 100%이고 위반이 없어야 종료 코드 0입니다.
+
+**판정 수집 절차**
+
+1. 같은 브리프를 blind로 N회(권장 3회) 판정합니다 — 이전 판정과 ground truth를 보지 않은 상태에서 매번 새로 시작합니다.
+2. 회차마다 depth 프로파일·신호 수·가정 선언 여부와 출력 원문(`raw`)을 그대로 기록합니다.
+3. 두 픽스처의 모든 회차를 하나의 JSON 배열로 모아 `--verdicts`로 넘깁니다.
 
 ---
 
