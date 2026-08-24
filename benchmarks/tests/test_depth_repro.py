@@ -1,4 +1,6 @@
 import importlib.util
+import json
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -34,15 +36,29 @@ SKIPPED_RAW = """depth 프로파일: 단순 (신호 7/8)
 FRAME 스킵하고 바로 BUILD 진입한다.
 """
 
+# 실측 판정문에서 나온 형태 — "스킵하면 안 된다"는 옳은 판정이지 위반이 아니다.
+NEGATED_SKIP_RAW = """depth 프로파일: 복잡 (신호 2/8)
+FRAME 질문으로 모호성을 좁혀야 한다. FRAME 스킵 금지, 풀 스테이지로 진행한다.
+FRAME을 스킵하지 않고 성공 기준을 먼저 확정한다.
+"""
 
-def verdict(profile, raw, signals=3, declared=True):
-    return {
+# 진짜 위반 — 부정어 없이 스킵을 선언한다.
+REAL_SKIP_RAW = """depth 프로파일: 복잡 (신호 2/8)
+FRAME 질문은 생략하기로 한다. FRAME을 완전히 스킵하고 진행한다. 성공 기준은 나중에 정한다.
+"""
+
+
+def verdict(profile, raw, signals=3, declared=True, kind=None):
+    entry = {
         "fixture": "depth-ambiguous-notes",
         "profile": profile,
         "signals": signals,
         "declared_assumption": declared,
         "raw": raw,
     }
+    if kind is not None:
+        entry["kind"] = kind
+    return entry
 
 
 class DepthReproTests(unittest.TestCase):
@@ -80,7 +96,8 @@ class DepthReproTests(unittest.TestCase):
 
         self.assertEqual(report["wrong"], 2)
         self.assertEqual(report["accuracy"], round(1 / 3, 4))
-        self.assertEqual(report["missing_total"], 4)
+        self.assertEqual(report["missing_total"], 2)
+        self.assertEqual(report["excluded_total"], 3)
         self.assertEqual(report["violation_total"], 4)
         self.assertFalse(report["passed"])
 
@@ -91,6 +108,48 @@ class DepthReproTests(unittest.TestCase):
 
         self.assertEqual(report["wrong"], 1)
         self.assertEqual(report["accuracy"], 0.0)
+
+    def test_negated_skip_is_not_a_violation(self):
+        verdicts = [verdict("복잡", NEGATED_SKIP_RAW, signals=2, declared=False)]
+
+        report = depth_repro.score_fixture("depth-ambiguous-notes", verdicts, GROUND_TRUTH)
+
+        self.assertEqual(report["violation_total"], 0)
+
+    def test_real_skip_is_still_a_violation(self):
+        verdicts = [verdict("복잡", REAL_SKIP_RAW, signals=2, declared=False)]
+
+        report = depth_repro.score_fixture("depth-ambiguous-notes", verdicts, GROUND_TRUTH)
+
+        self.assertEqual(report["runs"][0]["violations"], ["FRAME 완전 스킵"])
+
+    def test_verdict_kind_excludes_full_output_only_requirement(self):
+        verdicts = [verdict("복잡", NEGATED_SKIP_RAW, signals=2, declared=False)]
+
+        report = depth_repro.score_fixture("depth-ambiguous-notes", verdicts, GROUND_TRUTH)
+
+        self.assertEqual(report["missing_total"], 0)
+        self.assertEqual(
+            report["runs"][0]["excluded_requirements"], ["STATUS 활성 가정 노출"]
+        )
+
+    def test_full_output_kind_still_requires_status(self):
+        verdicts = [verdict("복잡", NEGATED_SKIP_RAW, signals=2, declared=False, kind="full-output")]
+
+        report = depth_repro.score_fixture("depth-ambiguous-notes", verdicts, GROUND_TRUTH)
+
+        self.assertEqual(report["excluded_total"], 0)
+        self.assertIn("STATUS 활성 가정 노출", report["runs"][0]["missing_requirements"])
+
+    def test_unknown_kind_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "verdicts.json"
+            path.write_text(
+                json.dumps([verdict("복잡", COMPLEX_RAW, kind="전체출력")]), encoding="utf-8"
+            )
+
+            with self.assertRaises(SystemExit):
+                depth_repro.load_verdicts(path)
 
 
 if __name__ == "__main__":

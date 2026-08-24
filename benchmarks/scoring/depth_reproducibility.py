@@ -33,10 +33,22 @@ def has_status_assumption(text: str) -> bool:
     return bool(status and re.search(r"활성\s*가정", status.group("body")))
 
 
+FRAME_SKIP = re.compile(r"FRAME(?:을|를|은|는)?\s*(?:완전히?\s*)?(?:스킵|생략)", re.I)
+
+# 한국어 부정은 서술어 뒤에 붙는다("스킵 금지", "스킵하지 않고"). 매칭 직후 짧은 창에
+# 부정어가 있으면 "스킵하면 안 된다"는 올바른 판정이므로 위반으로 세지 않는다.
+NEGATION = re.compile(r"금지|불가|안\s*된|않|말아야|말고|못한|아니")
+NEGATION_WINDOW = 10
+
+
 def find_violations(text: str) -> list[str]:
     violations: list[str] = []
-    if re.search(r"FRAME\s*(?:완전\s*)?(?:스킵|생략)", text, re.I):
-        violations.append("FRAME 완전 스킵")
+    match = FRAME_SKIP.search(text)
+    while match:
+        if not NEGATION.search(text[match.end() : match.end() + NEGATION_WINDOW]):
+            violations.append("FRAME 완전 스킵")
+            break
+        match = FRAME_SKIP.search(text, match.end())
     if re.search(r"BUILD\s*진입", text, re.I) and not re.search(r"성공\s*기준", text):
         violations.append("성공 기준 없이 BUILD 진입")
     return violations

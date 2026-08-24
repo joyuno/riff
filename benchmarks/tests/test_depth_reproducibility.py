@@ -57,6 +57,21 @@ class DepthRunTests(unittest.TestCase):
         self.assertFalse(result["valid"])
         self.assertIn("FRAME 완전 스킵", result["violations"])
 
+    def test_rejects_frame_skip_written_with_particle(self):
+        output = COMPLEX_OUTPUT + "\nFRAME을 완전히 스킵하고 진행한다."
+
+        result = score_run(output, GROUND_TRUTH)
+
+        self.assertIn("FRAME 완전 스킵", result["violations"])
+
+    def test_accepts_negated_frame_skip(self):
+        output = COMPLEX_OUTPUT + "\nFRAME 스킵 금지. FRAME을 스킵하지 않고 풀 스테이지로 간다."
+
+        result = score_run(output, GROUND_TRUTH)
+
+        self.assertEqual(result["violations"], [])
+        self.assertTrue(result["valid"])
+
     def test_rejects_build_entry_without_success_criteria(self):
         output = """
 depth 프로파일: 복잡

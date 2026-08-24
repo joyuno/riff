@@ -6,6 +6,9 @@
 
     [{"fixture": "depth-ambiguous-notes", "profile": "복잡",
       "signals": 3, "declared_assumption": true, "raw": "..."}, ...]
+
+`kind`는 raw가 무엇인지 알린다: "verdict"(기본, 판정 근거 문단) 또는 "full-output"(riff 사이클
+전체 출력). verdict 입력에는 전체 출력 구조를 요구하는 must_have를 적용하지 않는다.
 """
 
 from __future__ import annotations
@@ -29,6 +32,13 @@ from scoring.depth_reproducibility import (  # noqa: E402
 
 GROUND_TRUTH_DIR = BENCHMARKS_DIR / "ground-truth"
 
+# 판정 단위 입력(kind="verdict")의 raw는 depth 판정 근거 문단이지 riff 사이클 전체 출력이 아니다.
+# ground truth의 must_have 중 "STATUS 활성 가정 노출"만 riff가 사이클 끝에 렌더하는
+# `## STATUS` 섹션 구조를 요구하므로 판정 문단으로는 구조상 충족 불가 — 전체 출력에서만 검사한다.
+# 나머지("가정 선언 또는 FRAME 질문")는 판정 근거 문단 안에서 그대로 확인 가능하다.
+FULL_OUTPUT_ONLY_REQUIREMENTS = frozenset({"STATUS 활성 가정 노출"})
+VERDICT_KINDS = ("verdict", "full-output")
+
 
 def load_ground_truth(fixture: str) -> dict:
     path = GROUND_TRUTH_DIR / f"{fixture}.json"
@@ -47,6 +57,8 @@ def load_verdicts(path: Path) -> list[dict]:
         for field in ("fixture", "profile"):
             if not verdict.get(field):
                 raise SystemExit(f"verdicts[{index}]에 '{field}' 필드가 없습니다")
+        if verdict.get("kind", "verdict") not in VERDICT_KINDS:
+            raise SystemExit(f"verdicts[{index}]의 kind는 {VERDICT_KINDS} 중 하나여야 합니다")
     return verdicts
 
 
@@ -76,11 +88,16 @@ def grade_profile(verdict: dict, ground_truth: dict) -> str:
     return "wrong"
 
 
-def check_keywords(verdict: dict, ground_truth: dict) -> tuple[list[str], list[str]]:
-    """must_have 누락과 must_not 위반을 raw 필드에서 찾는다."""
+def check_keywords(verdict: dict, ground_truth: dict) -> tuple[list[str], list[str], list[str]]:
+    """must_have 누락·판정 제외와 must_not 위반을 raw 필드에서 찾는다."""
     text = normalize(verdict.get("raw", ""))
+    full_output = verdict.get("kind", "verdict") == "full-output"
     missing: list[str] = []
+    excluded: list[str] = []
     for requirement in ground_truth.get("must_have", []):
+        if not full_output and requirement in FULL_OUTPUT_ONLY_REQUIREMENTS:
+            excluded.append(requirement)
+            continue
         if requirement == "가정 선언 또는 FRAME 질문":
             satisfied = has_frame_or_assumption(text)
         elif requirement == "STATUS 활성 가정 노출":
@@ -89,20 +106,22 @@ def check_keywords(verdict: dict, ground_truth: dict) -> tuple[list[str], list[s
             satisfied = requirement in text
         if not satisfied:
             missing.append(requirement)
-    return missing, find_violations(text)
+    return missing, find_violations(text), excluded
 
 
 def score_fixture(fixture: str, verdicts: Sequence[dict], ground_truth: dict) -> dict:
     runs = []
     for verdict in verdicts:
-        missing, violations = check_keywords(verdict, ground_truth)
+        missing, violations, excluded = check_keywords(verdict, ground_truth)
         runs.append(
             {
                 "profile": verdict["profile"],
+                "kind": verdict.get("kind", "verdict"),
                 "signals": verdict.get("signals"),
                 "declared_assumption": declared_assumption(verdict),
                 "grade": grade_profile(verdict, ground_truth),
                 "missing_requirements": missing,
+                "excluded_requirements": excluded,
                 "violations": violations,
             }
         )
@@ -114,6 +133,7 @@ def score_fixture(fixture: str, verdicts: Sequence[dict], ground_truth: dict) ->
     correct = grades["exact"] + grades["alternative"]
     graded = total - grades["unscored"]
     missing_total = sum(len(run["missing_requirements"]) for run in runs)
+    excluded_total = sum(len(run["excluded_requirements"]) for run in runs)
     violation_total = sum(len(run["violations"]) for run in runs)
 
     return {
@@ -129,6 +149,7 @@ def score_fixture(fixture: str, verdicts: Sequence[dict], ground_truth: dict) ->
         "modal_profile": modal_profile,
         "mean_signals": round(sum(signals) / len(signals), 2) if signals else None,
         "missing_total": missing_total,
+        "excluded_total": excluded_total,
         "violation_total": violation_total,
         "runs": runs,
         "passed": (
@@ -165,6 +186,7 @@ def score_all(verdicts: Sequence[dict]) -> dict:
         "consistency": round(consistency, 4),
         "violation_total": sum(item["violation_total"] for item in fixtures),
         "missing_total": sum(item["missing_total"] for item in fixtures),
+        "excluded_total": sum(item["excluded_total"] for item in fixtures),
         "passed": all(item["passed"] for item in fixtures),
     }
 
@@ -194,13 +216,18 @@ def render(report: dict) -> str:
         f"정답률 {percent(report['accuracy'])} "
         f"(정확 {percent(report['exact_accuracy'])} + 대안 {report['alternative_count']}건) · "
         f"재현성 {report['consistency']:.0%} · "
-        f"must_have 누락 {report['missing_total']} · must_not 위반 {report['violation_total']}"
+        f"must_have 누락 {report['missing_total']} · must_not 위반 {report['violation_total']} · "
+        f"판정 제외 {report['excluded_total']}건"
     )
 
     for item in report["fixtures"]:
         for index, run in enumerate(item["runs"], start=1):
             for requirement in run["missing_requirements"]:
                 lines.append(f"  - {item['fixture']} #{index} 누락: {requirement}")
+            for requirement in run["excluded_requirements"]:
+                lines.append(
+                    f"  - {item['fixture']} #{index} 판정 제외: {requirement} (전체 출력 전용)"
+                )
             for violation in run["violations"]:
                 lines.append(f"  - {item['fixture']} #{index} 위반: {violation}")
 
