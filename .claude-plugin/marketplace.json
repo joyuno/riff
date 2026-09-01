@@ -12,5 +12,6 @@
       "description": "질문이 캔버스를 채운다 — FRAME→SHAPE→BUILD→PROVE→LEARN 사이클과 Living CANVAS.md로 신규 웹앱·MVP를 빠르게 만드는 Question-Driven 루프. adaptive depth·모델 라우팅·잼(worktree 병렬 탐색)·Tier 0~3 QA·항체 메모리·DROP/TUNE 이벤트 스테이지 포함.",
       "version": "1.0.0"
     }
-  ]
+  ],
+  "description": "Riff — 질문이 캔버스를 채운다. 신규 웹앱·MVP를 빠르게 만드는 Question-Driven 루프 플러그인 마켓플레이스."
 }
