@@ -11,3 +11,6 @@ benchmarks/results/*
 .serena/
 graphify-out/
 .playwright-mcp/
+.DS_Store
+/CLAUDE.md
+evals/results/
