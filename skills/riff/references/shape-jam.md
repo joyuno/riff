@@ -151,6 +151,6 @@ confidence: [0-100%]
 ## 잼 실행 방식 (v1.0)
 
 - 각 대안은 **격리 worktree**에서 동시 시도(Agent isolation: 'worktree'). 미채택 방향은 워크트리째 폐기(DROP의 정리 목록에 등록).
-- 잼 에이전트 모델: `opus` 강제 지정(`model-routing.md`).
+- 잼 에이전트 모델: `opus` 강제 지정(`model-routing.md`). `subagent_type: "riff:riff-builder"`로 스폰한다(원웨이도어·외부 전송 가드 내장).
 - 결과는 CANVAS [2]에 결정 1행(기각 대안·근거 포함) + `detail/shape-*.md` 링크로 기록. 구조 결정은 mermaid 병기.
 - codex 컴패니언 있으면 트레이드오프 불명확 시 `/codex:adversarial-review --wait <focus>` 1회. 없으면 잼에 반대 관점 에이전트 1개 추가.
