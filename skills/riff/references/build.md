@@ -85,7 +85,7 @@ A/B/C/D 모두 비어있으면 계약 작성을 건너뛴다.
 - 병렬 태스크(≥2): 등급→모델 지정 스폰(`model-routing.md`). 동시 슬롯 3(웨이브 배리어 대신 완료 즉시 충원, trivial은 상한 미포함).
 - 스폰된 에이전트 결과는 `_workspace/detail/` 파일 통신(대화 반환 금지) — 인라인 실행에는 미적용.
 
-병렬 스폰은 `subagent_type: "riff:riff-builder"`로 한다. 아래 규칙과 원웨이도어·외부 전송 금지는 에이전트 정의(`agents/riff-builder.md`)에 들어 있다 — 프롬프트를 어떻게 쓰든 적용된다.
+병렬 스폰은 태스크 등급에 맞는 에이전트로 한다 — core `riff:riff-builder` · support `riff:riff-builder-support` · trivial `riff:riff-builder-trivial`. 모델(opus·sonnet·haiku)과 아래 규칙·원웨이도어·외부 전송 금지는 에이전트 정의(`agents/`)에 고정돼 있다 — 프롬프트를 어떻게 쓰든 적용된다.
 플러그인 에이전트가 없는 호스트(Codex 등)에서는 각 에이전트 프롬프트에 아래 블록을 포함:
 
 ```

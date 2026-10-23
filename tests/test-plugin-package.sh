@@ -19,4 +19,9 @@ grep -q 'Codex 호스트에서는 Codex 자체 기능' "$ROOT/skills/riff/SKILL.
 grep -q 'references/companions.md.*읽지 않는다' "$ROOT/skills/riff/SKILL.md"
 grep -q '외부 전송 가드' "$ROOT/skills/riff/SKILL.md"
 grep -q 'domain-intelligence.md' "$ROOT/skills/riff/SKILL.md"
+# 등급별 builder 3개는 model만 다르고 본문(가드)은 같아야 한다
+body() { awk 'f>=2{print} /^---$/{f++}' "$1"; }
+for tier in support trivial; do
+  diff <(body "$ROOT/agents/riff-builder.md") <(body "$ROOT/agents/riff-builder-$tier.md") >/dev/null
+done
 echo "PASS: Claude and Codex plugin package metadata"
