@@ -74,6 +74,10 @@ FRAME 복잡 프로파일로 시작(`references/frame.md`) → CANVAS 생성 →
 ## 가드 (전 스테이지 공통)
 
 - **에스컬레이션**: PROVE 2회 실패 → 실패 유형 진단(기계적→재시도 / 설계→SHAPE 소급). 모호 발견 → FRAME 재진입. 3회 연속 실패 → 되감기(`references/rewind-protocol.md`).
+- **사용자에게 하는 말**: 스테이지 이름(FRAME·SHAPE·BUILD·PROVE·LEARN)·depth·프로파일·신호 수·Cycle 번호·
+  `A-`/`K-` ID·Knowledge Ledger·verdict는 캔버스와 detail/ 안에서만 쓴다. 사용자에게는 일상어로 —
+  "먼저 몇 가지 여쭤볼게요", "꼼꼼하게 진행할게요", "확인 기준(새로고침해도 남는다)". 파일은
+  "진행 기록(`_workspace/CANVAS.md`)"처럼 뜻을 붙여 알린다.
 - **원웨이도어**: push·publish·파괴적 마이그레이션·배포 전 사용자 확인 (depth 무관).
 - **외부 전송 가드**: commit·push·PR/issue 본문·외부 리뷰 전달 직전에 실제 전송 바이트와
   staged diff를 `references/prove/tier2-build.md`의 시크릿 패턴으로 검사. 키·토큰·개인정보
