@@ -21,6 +21,13 @@ Router는 두 번 돈다. Layer 1~2 답변 직후(기술 질문 시작 전)
 자동 추가하지 않고 사용자에게 재질문한다. 미확인 후보가 남아 있으면 acceptance를
 동결하거나 FRAME을 승인하지 않는다.
 
+## 사업 6축 (단순 depth 제외)
+
+verdict 전에 `frame/business-axes.md`의 6축(돈·상대·경로·정책·규모·실수)을 처분한다.
+견적·예약·회원제 같은 서비스업은 `frame/domains/service-business.md`, 한국 사용자이고
+돈·개인정보가 걸리면 `frame/kr-rules.md`의 사실을 확인 질문으로 꺼낸다. Exa가 없어도 이
+자료로 재질문 후보를 만든다.
+
 ## 스킵 가드 (필수)
 
 FRAME 완전 스킵은 **CANVAS [1]에 성공 기준이 이미 존재할 때만** 허용.

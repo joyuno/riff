@@ -53,6 +53,7 @@ PROFILE_LOADS = {
         "references/prove/tier1-boundary.md",
         "references/prove/tier2-build.md",
         "references/prove/diff-review.md",
+        "references/frame/business-axes.md",
     ],
     # <4/8 — 풀 스테이지 + 잼 + Tier 0~3 + 독립 diff-review.
     #   FRAME 복잡 = 5-Layer 인터뷰(layers + enriched-layers) + 도메인 분기(domains/).
@@ -68,6 +69,7 @@ PROFILE_LOADS = {
         "references/frame/discovery-research.md",
         "references/frame/termination-engine.md",
         "references/frame/domains/web-development.md",
+        "references/frame/business-axes.md",
         "references/prove/canvas-lint.md",
         "references/prove/tier1-boundary.md",
         "references/prove/tier2-build.md",
@@ -85,6 +87,7 @@ OFF_HOTPATH = {
     "references/rewind-protocol.md",  # 3회 연속 실패 시
     "references/model-routing.md",    # 스폰 시
     "references/ui-stack-guide.md",   # UI 있을 때 Cycle 0 1회
+    "references/frame/kr-rules.md",   # 한국 사용자 + 돈·개인정보일 때만
 }
 
 # 한국어·영어 혼용이라 토큰/문자 비율이 넓게 흔들린다. 단일 근사로 숨기지 않고
