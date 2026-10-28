@@ -9,7 +9,7 @@ claude plugin eval에는 사용자 시뮬레이터가 없어서 claude -p 세션
 알려진 한계: AI 사용자가 묻지 않은 사실을 가끔 먼저 말한다(양쪽 모두 관찰).
 판정기는 엄격해서 부분 반영(예: 계약금만 있고 50%·착수 조건 없음)은 false.
 """
-import argparse, json, re, subprocess, sys, tempfile, time, uuid
+import argparse, json, re, shutil, subprocess, sys, tempfile, time, uuid
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -160,8 +160,19 @@ def main():
     out_dir.mkdir(parents=True)
     jobs = [(p, arm, i) for p in options.personas for i in range(options.runs) for arm in options.arms]
     # ponytail: 동시 4개 고정 — 계정 rate limit에 걸리면 낮출 것
-    with ThreadPoolExecutor(max_workers=4) as pool:
-        records = list(pool.map(lambda job: run_arm(*job, options.rounds, out_dir), jobs))
+    # riff는 사용자가 고친 가정을 ~/.riff/domains/에 쌓는다 — 측정이 실제 라이브러리를 오염시키지 않게 복원한다.
+    # ponytail: 같은 실행 안에서는 같은 유형의 뒤 런이 앞 런의 팩을 읽을 수 있다(--runs 2 이상일 때)
+    packs = Path.home() / ".riff" / "domains"
+    backup = Path(tempfile.mkdtemp(prefix="riff-domains-")) / "domains"
+    if packs.exists():
+        shutil.copytree(packs, backup)
+    try:
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            records = list(pool.map(lambda job: run_arm(*job, options.rounds, out_dir), jobs))
+    finally:
+        shutil.rmtree(packs, ignore_errors=True)
+        if backup.exists():
+            shutil.copytree(backup, packs)
     for persona in options.personas:
         for arm in options.arms:
             rows = [r for r in records if r["arm"] == arm and r["persona"] == persona]

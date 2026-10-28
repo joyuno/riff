@@ -38,6 +38,9 @@ SessionStart 훅이 CANVAS.md 감지 → STATUS 자동 로드. 어긋남 감지 
 ## Cycle 0 (프로젝트 부팅)
 
 FRAME 복잡 프로파일로 시작(`references/frame.md`) → CANVAS 생성 → UI 있으면 `contracts/ui-stack.md` 확정(`references/ui-stack-guide.md`).
+첫 질문 전에 사용자 업종 팩을 확인한다 — `Glob(pattern: "*.md", path: "~/.riff/domains")`로 목록을 보고
+키워드가 맞는 파일을 읽는다. 지난 프로젝트에서 이 사용자가 고쳐 준 질문이므로 첫 질문과 가정 목록에 먼저 넣는다.
+내장 팩은 `references/frame/domains/`.
 
 ## depth 판정 (사이클 시작 시 1회)
 
@@ -83,7 +86,8 @@ FRAME 복잡 프로파일로 시작(`references/frame.md`) → CANVAS 생성 →
   기본값으로 쉬운 말 5~8줄로 보여주고 "틀린 것만 말해주세요"라고 묻는다. "바로 만들어줘"여도
   생략하지 않는다(`references/frame.md` 만들기 전 가정 공개). 목록 뒤에 **사업 제안** 1~2줄을
   붙인다 — 이 사람의 상황에서 분쟁·손실·누락을 줄이는 선택 제안과 그 이득 한 문장("원하시면").
-  기술·화면 제안은 해당하지 않는다.
+  기술·화면 제안은 해당하지 않는다. 사용자가 가정을 고쳐 주면 그 항목을 **값이 아니라 질문으로**
+  `~/.riff/domains/<업종>.md`에 추가한다(다음 프로젝트에서 먼저 묻도록 — `references/frame.md`).
 - **원웨이도어**: push·publish·파괴적 마이그레이션·배포 전 사용자 확인 (depth 무관).
 - **외부 전송 가드**: commit·push·PR/issue 본문·외부 리뷰 전달 직전에 실제 전송 바이트와
   staged diff를 `references/prove/tier2-build.md`의 시크릿 패턴으로 검사. 키·토큰·개인정보
