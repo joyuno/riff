@@ -4,9 +4,10 @@ claude plugin eval에는 사용자 시뮬레이터가 없어서 claude -p 세션
 격리: --setting-sources project,local(전역 설정·플러그인·훅·CLAUDE.md 제외) + 빈 작업 폴더.
 사용: python3 benchmarks/multiturn.py --runs 2 [--rounds 8]
 
-비용 주의: 켬/끔 각 1회 × 6라운드 실측 $23.4(2026-10-23). 대화가 길어질수록 턴당 비용이 커진다.
-알려진 한계: AI 사용자가 묻지 않은 사실을 가끔 먼저 말한다(양쪽 모두 관찰). Write 금지라 양쪽 모두
-코드를 대화창에 통째로 붙여 컨텍스트·비용이 커진다. 판정기는 엄격해서 부분 반영(예: 계약금만 있고 50%·착수 조건 없음)은 false.
+비용: 켬/끔 각 3회 × 6라운드 실측 약 $15(2026-10-28). riff 켬 1회 ≈ $2.5~3.7, 끔 ≈ $1.6~2.8.
+(10-23·10-28 실행은 누적 비용을 합산하는 버그로 $23.4·$82.6이 찍혔다 — 결과 JSON의 cost는 과대값.)
+알려진 한계: AI 사용자가 묻지 않은 사실을 가끔 먼저 말한다(양쪽 모두 관찰).
+판정기는 엄격해서 부분 반영(예: 계약금만 있고 50%·착수 조건 없음)은 false.
 """
 import argparse, json, re, subprocess, sys, tempfile, time, uuid
 from concurrent.futures import ThreadPoolExecutor
@@ -36,8 +37,9 @@ USER_SYSTEM = f"""당신은 앱 개발을 의뢰한 비개발자 프리랜서 �
 6. 1~3문장, 비개발자 말투, 한국어. 당신의 답변 텍스트만 출력한다."""
 JARGON = re.compile(r"FRAME|SHAPE|BUILD|PROVE|LEARN|CANVAS|depth|깊이 판정|신호 \d|A-0\d\d|K-0\d\d|Knowledge Ledger|verdict|잼|프로파일")
 COMMON = ["--setting-sources", "project,local", "--strict-mcp-config", "--output-format", "json"]
-AGENT_TOOLS = ["--allowedTools", "Read", "Glob", "Grep", "Skill",
-               "--disallowedTools", "Write", "Edit", "Bash", "AskUserQuestion", "Agent", "WebFetch", "WebSearch"]
+# acceptEdits: 쓰기는 작업 폴더 안에서만 자동 승인 — 코드가 대화창 대신 파일로 가서 턴당 비용이 준다
+AGENT_TOOLS = ["--permission-mode", "acceptEdits", "--allowedTools", "Read", "Glob", "Grep", "Skill",
+               "--disallowedTools", "Bash", "AskUserQuestion", "Agent", "WebFetch", "WebSearch"]
 
 
 def claude(args, prompt, cwd, timeout=600, retries=2):
@@ -62,12 +64,14 @@ def run_arm(arm, index, rounds, out_dir):
     workspace = tempfile.mkdtemp(prefix=f"mt-{arm}-")
     session = str(uuid.uuid4())
     plugin = ["--plugin-dir", str(ROOT)] if arm == "with" else []
-    log, cost = [], 0.0
+    log, cost, session_total = [], 0.0, 0.0
     message = OPENING
     for turn in range(rounds + 1):
         session_flag = ["--session-id", session] if turn == 0 else ["--resume", session]
         prompt = FINAL if turn == rounds else message
-        reply, spent, latency = claude(["--model", "opus", *plugin, *AGENT_TOOLS, *session_flag], prompt, workspace)
+        reply, cumulative, latency = claude(["--model", "opus", *plugin, *AGENT_TOOLS, *session_flag], prompt, workspace)
+        # --resume의 total_cost_usd는 세션 누적값 — 턴 비용은 차분으로 구한다
+        spent, session_total = cumulative - session_total, cumulative
         cost += spent
         log.append({"turn": turn, "user": prompt, "agent": reply, "cost": spent, "latency": round(latency, 1)})
         print(f"[{arm}#{index}] turn {turn} ${spent:.2f} {latency:.0f}s", file=sys.stderr)
@@ -79,7 +83,8 @@ def run_arm(arm, index, rounds, out_dir):
     final_plan = log[-1]["agent"]
     verdict = judge(final_plan, workspace)
     user_facing = "\n".join(entry["agent"] for entry in log)
-    record = {"arm": arm, "index": index, "cost": round(cost, 3), "facts": verdict,
+    files = sorted(str(p.relative_to(workspace)) for p in Path(workspace).rglob("*") if p.is_file())
+    record = {"arm": arm, "index": index, "workspace": workspace, "files": files, "cost": round(cost, 3), "facts": verdict,
               "score": sum(verdict.values()), "jargon": len(JARGON.findall(user_facing)), "log": log}
     (out_dir / f"{arm}-{index}.json").write_text(json.dumps(record, ensure_ascii=False, indent=1))
     return record
