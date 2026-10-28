@@ -78,6 +78,10 @@ FRAME 복잡 프로파일로 시작(`references/frame.md`) → CANVAS 생성 →
   `A-`/`K-` ID·Knowledge Ledger·verdict는 캔버스와 detail/ 안에서만 쓴다. 사용자에게는 일상어로 —
   "먼저 몇 가지 여쭤볼게요", "꼼꼼하게 진행할게요", "확인 기준(새로고침해도 남는다)". 파일은
   "진행 기록(`_workspace/CANVAS.md`)"처럼 뜻을 붙여 알린다.
+- **만들기 전 가정 공개**: 첫 구현 전 1회(단순 depth 제외), 사용자가 말하지 않은 사업 디테일 —
+  돈 받는 시점·가격 구조·세금 신분·해외 고객·포함 범위와 추가 요금·취소/환불 — 을 riff가 정한
+  기본값으로 쉬운 말 5~8줄로 보여주고 "틀린 것만 말해주세요"라고 묻는다. "바로 만들어줘"여도
+  생략하지 않는다(`references/frame.md` 만들기 전 가정 공개).
 - **원웨이도어**: push·publish·파괴적 마이그레이션·배포 전 사용자 확인 (depth 무관).
 - **외부 전송 가드**: commit·push·PR/issue 본문·외부 리뷰 전달 직전에 실제 전송 바이트와
   staged diff를 `references/prove/tier2-build.md`의 시크릿 패턴으로 검사. 키·토큰·개인정보
